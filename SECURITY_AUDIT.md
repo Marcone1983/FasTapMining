@@ -71,11 +71,29 @@ A comprehensive security audit was performed on the FasTapMining Telegram mini-a
 
 ### 🟢 LOW Severity
 
-#### 9. XSS in Templates (ACKNOWLEDGED)
+#### 9. XSS in Templates (FIXED)
 - **Location**: `api/index.js:14-28`
 - **Issue**: User data rendered without escaping
-- **Status**: Low risk in Telegram context; monitoring recommended
-- **Impact**: Minimal due to platform constraints
+- **Fix**: Added sanitization function to clean user inputs
+- **Impact**: Prevented XSS attacks via message templates
+
+#### 10. Outdated Dependencies (FIXED)
+- **Location**: `package.json`
+- **Issue**: axios 1.6.0 and ws 8.16.0 had known vulnerabilities
+- **Fix**: Updated to axios 1.12.0 and ws 8.17.1
+- **Impact**: Eliminated DoS and SSRF vulnerabilities
+
+---
+
+## Security Headers Added
+
+Added comprehensive security headers in `vercel.json`:
+- `X-Content-Type-Options: nosniff` - Prevents MIME sniffing
+- `X-Frame-Options: DENY` - Prevents clickjacking
+- `X-XSS-Protection: 1; mode=block` - XSS protection
+- `Referrer-Policy: strict-origin-when-cross-origin` - Referrer control
+- `Permissions-Policy` - Restricts browser features
+- `Content-Security-Policy` - Controls resource loading
 
 ---
 
