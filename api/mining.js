@@ -1,16 +1,47 @@
 const crypto = require('crypto');
 const db = require('../database/db');
 const multiPoolMiner = require('../mining-engine/multi-pool-parallel');
+const rateLimiters = require('./middleware/rateLimit');
 
+// Apply rate limiting middleware
 module.exports = async (req, res) => {
+  // Apply rate limiter
+  await new Promise((resolve, reject) => {
+    rateLimiters.mining(req, res, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  }).catch(() => {
+    // Rate limit exceeded, response already sent
+    return;
+  });
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { userId, taps, poolId, nonce } = req.body;
 
+  // Input validation
   if (!userId || !taps || !poolId) {
     return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Validate types and ranges
+  if (typeof userId !== 'number' && typeof userId !== 'string') {
+    return res.status(400).json({ error: 'Invalid userId type' });
+  }
+
+  if (typeof taps !== 'number' || taps < 0 || taps > 1000000) {
+    return res.status(400).json({ error: 'Invalid taps value' });
+  }
+
+  if (typeof poolId !== 'string' || !/^[a-z0-9_-]+$/i.test(poolId)) {
+    return res.status(400).json({ error: 'Invalid poolId format' });
+  }
+
+  if (nonce !== undefined && (typeof nonce !== 'number' || nonce < 0)) {
+    return res.status(400).json({ error: 'Invalid nonce value' });
   }
 
   try {

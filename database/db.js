@@ -168,13 +168,34 @@ const User = {
   },
 
   async update(userId, updates) {
-    const setClause = Object.keys(updates)
+    // Whitelist allowed columns to prevent SQL injection
+    const ALLOWED_COLUMNS = [
+      'username', 'first_name', 'last_name', 'wallet_address',
+      'has_lifetime_access', 'lifetime_access_tx_hash', 'lifetime_access_paid_at',
+      'telegram_premium', 'total_taps', 'total_blocks_found', 'total_rewards_claimed',
+      'referral_code', 'referred_by_id'
+    ];
+
+    const validUpdates = {};
+    for (const [key, value] of Object.entries(updates)) {
+      if (ALLOWED_COLUMNS.includes(key)) {
+        validUpdates[key] = value;
+      } else {
+        console.warn(`Attempted to update invalid column: ${key}`);
+      }
+    }
+
+    if (Object.keys(validUpdates).length === 0) {
+      throw new Error('No valid columns to update');
+    }
+
+    const setClause = Object.keys(validUpdates)
       .map((key, i) => `${key} = $${i + 2}`)
       .join(', ');
 
     const { rows } = await query(
       `UPDATE users SET ${setClause}, last_active_at = NOW() WHERE id = $1 RETURNING *`,
-      [userId, ...Object.values(updates)]
+      [userId, ...Object.values(validUpdates)]
     );
 
     await invalidateCache(`user:${userId}`);

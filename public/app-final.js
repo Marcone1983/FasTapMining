@@ -67,12 +67,36 @@ function App() {
     }
   }, []);
 
-  // Initialize TON Connect
+  // Initialize TON Connect with timeout and retry logic
   useEffect(() => {
     const initTonConnect = async () => {
       try {
-        // Use official TON Connect UI
-        const TonConnectUI = window.TonConnectUI || (await import('https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js')).TonConnectUI;
+        // Set a timeout for initialization
+        const initTimeout = setTimeout(() => {
+          console.warn('TON Connect initialization timeout');
+          setTonConnectReady(false);
+          // Allow retry by showing error state
+        }, 10000); // 10 second timeout
+
+        // Use official TON Connect UI - prefer window object over dynamic import
+        let TonConnectUI;
+        if (window.TonConnectUI) {
+          TonConnectUI = window.TonConnectUI;
+        } else {
+          // Fallback to loading from CDN
+          console.log('Loading TON Connect UI from CDN...');
+          const module = await Promise.race([
+            import('https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js'),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('CDN load timeout')), 8000)
+            )
+          ]);
+          TonConnectUI = module.TonConnectUI;
+        }
+
+        if (!TonConnectUI) {
+          throw new Error('TonConnectUI not available');
+        }
 
         tonConnectUI.current = new TonConnectUI({
           manifestUrl: TON_CONNECT_MANIFEST,
@@ -95,7 +119,7 @@ function App() {
                   userId: userId,
                   walletAddress: address
                 })
-              });
+              }).catch(err => console.error('Save wallet error:', err));
 
               loadUserData(userId);
               loadShop();
@@ -116,11 +140,20 @@ function App() {
           setShowWalletModal(false);
         }
 
-        // Mark as ready
+        // Mark as ready and clear timeout
+        clearTimeout(initTimeout);
         setTonConnectReady(true);
+        console.log('✅ TON Connect initialized successfully');
       } catch (error) {
         console.error('TON Connect init error:', error);
         setTonConnectReady(false);
+        
+        // Show user-friendly error
+        if (window.Telegram?.WebApp?.showAlert) {
+          window.Telegram.WebApp.showAlert(
+            'Failed to initialize TON Connect. Please check your connection and reload the app.'
+          );
+        }
       }
     };
 
@@ -488,13 +521,40 @@ function App() {
               className="connect-wallet-btn"
               onClick={connectWallet}
               disabled={!tonConnectReady}
+              style={{
+                opacity: tonConnectReady ? 1 : 0.6,
+                cursor: tonConnectReady ? 'pointer' : 'not-allowed'
+              }}
             >
               <span className="btn-icon">💼</span>
               {tonConnectReady ? 'Connect TON Wallet' : 'Initializing...'}
             </button>
 
+            {!tonConnectReady && (
+              <button
+                className="retry-btn"
+                onClick={() => window.location.reload()}
+                style={{
+                  marginTop: '10px',
+                  padding: '10px 20px',
+                  background: '#ff9500',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                🔄 Retry Connection
+              </button>
+            )}
+
             <div className="modal-footer">
               <p>Secure connection via TON Connect</p>
+              {!tonConnectReady && (
+                <p style={{ color: '#ff9500', fontSize: '12px', marginTop: '8px' }}>
+                  Having trouble? Try reloading the app
+                </p>
+              )}
             </div>
           </div>
         </div>

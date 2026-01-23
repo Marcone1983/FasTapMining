@@ -1,5 +1,6 @@
 const { Address } = require('@ton/core');
 const db = require('../database/db');
+const rateLimiters = require('./middleware/rateLimit');
 
 // Jetton master addresses for each token on TON
 const JETTON_MASTERS = {
@@ -9,6 +10,17 @@ const JETTON_MASTERS = {
 };
 
 module.exports = async (req, res) => {
+  // Apply rate limiter
+  await new Promise((resolve, reject) => {
+    rateLimiters.claim(req, res, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  }).catch(() => {
+    // Rate limit exceeded, response already sent
+    return;
+  });
+
   if (req.method === 'GET') {
     // Get user balance from database
     const { userId } = req.query;
