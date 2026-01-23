@@ -1,0 +1,53 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0d1117;
+  color: #fff;
+}
+
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+.tap-zone {
+  margin: 20px auto;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, #00ff88, #00aaff);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tap-zone:active {
+  transform: scale(0.95);
+}
+
+.marketplace {
+  margin-top: 40px;
+}
+
+.boost-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #161b22;
+  margin: 5px auto;
+  border-radius: 8px;
+  max-width: 400px;
+}
+
+button {
+  background: #238636;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}

@@ -1,6 +1,7 @@
 {
-  "name": "fastapmining",
+  "name": "fas-tap-mining",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
     "dev": "vercel dev",
     "deploy": "vercel --prod"
@@ -8,6 +9,11 @@
   "dependencies": {
     "@tma.js/sdk": "^1.0.0",
     "@tonconnect/ui": "^2.0.0",
-    "telegraf": "^4.15.0"
+    "@tonconnect/protocol": "^2.0.0",
+    "telegraf": "^4.15.0",
+    "ton": "^13.0.0",
+    "@ton/ton": "^13.0.0",
+    "@ton/core": "^0.56.0",
+    "@ton/crypto": "^3.2.0"
   }
 }

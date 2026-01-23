@@ -1,13 +1,26 @@
-// Vercel Serverless Function per mining e WebSocket
 const { Telegraf } = require('telegraf');
-const bot = new Telegraf(process.env.TOKEN_API_BOT);
 
-export default async (req, res) => {
+module.exports = async (req, res) => {
+  const bot = new Telegraf(process.env.TOKEN_API_BOT);
+
   if (req.method === 'POST') {
-    const { userId, tapData } = req.body;
-    // Logica mining: aggrega tap, calcola shares
-    // Salva in Telegram Cloud Storage (via bot)
-    await bot.telegram.sendMessage(userId, JSON.stringify(tapData));
-    res.json({ status: 'ok', shares: tapData.shares });
+    const { userId, shares } = req.body;
+
+    // Logica mining: ogni 1000 shares = 1 NOT
+    if (shares % 1000 === 0) {
+      const reward = 1;
+      const royalty = reward * 0.05;
+      const netReward = reward - royalty;
+
+      // Invia reward (simulato - in produzione usa TON API)
+      await bot.telegram.sendMessage(
+        userId,
+        `🎉 Hai guadagnato ${netReward} NOT! (Royalty: ${royalty} NOT)`
+      );
+    }
+
+    res.json({ status: 'ok' });
+  } else {
+    res.status(405).json({ error: 'Method not allowed' });
   }
 };
