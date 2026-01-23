@@ -11,6 +11,10 @@ function App() {
   const [userId, setUserId] = useState(null);
   const [showShop, setShowShop] = useState(false);
   const [shopItems, setShopItems] = useState([]);
+  const [hasLifetimeAccess, setHasLifetimeAccess] = useState(false);
+  const [accessData, setAccessData] = useState(null);
+  const [autoTapData, setAutoTapData] = useState(null);
+  const [accumulatedAutoTap, setAccumulatedAutoTap] = useState(0);
 
   const pools = {
     minex: { name: 'MineX', token: 'MineX', color: '#00ff88', weight: '40%', reward: '100' },
@@ -25,15 +29,69 @@ function App() {
     const user = window.Telegram.WebApp.initDataUnsafe.user;
     if (user) {
       setUserId(user.id);
-      loadUserData(user.id);
+      checkLifetimeAccess(user.id);
     }
-    loadStats();
-    loadShop();
 
     // Auto-refresh stats every 10 seconds
     const interval = setInterval(() => loadStats(), 10000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (hasLifetimeAccess && userId) {
+      loadUserData(userId);
+      loadStats();
+      loadShop();
+      loadAutoTap(userId);
+
+      // Auto-refresh AutoTap every 5 seconds
+      const autoTapInterval = setInterval(() => loadAutoTap(userId), 5000);
+      return () => clearInterval(autoTapInterval);
+    }
+  }, [hasLifetimeAccess, userId]);
+
+  const checkLifetimeAccess = async (uid) => {
+    try {
+      const res = await fetch(`/api/access?userId=${uid}`);
+      const data = await res.json();
+
+      if (data.success && data.hasAccess) {
+        setHasLifetimeAccess(true);
+      } else if (data.requiresPayment) {
+        setAccessData(data.payment);
+      }
+    } catch (e) {
+      console.error('Access check error:', e);
+    }
+  };
+
+  const handlePaymentVerification = async (txHash) => {
+    if (!userId) return;
+
+    try {
+      const res = await fetch('/api/access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: userId,
+          transactionHash: txHash,
+          amount: 1
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.hasAccess) {
+        setHasLifetimeAccess(true);
+        setAccessData(null);
+        window.Telegram.WebApp.showAlert('✅ Lifetime access activated! Welcome to FasTapMining!');
+      } else {
+        window.Telegram.WebApp.showAlert('❌ Payment verification failed. Please try again.');
+      }
+    } catch (e) {
+      window.Telegram.WebApp.showAlert('Verification error: ' + e.message);
+    }
+  };
 
   const loadUserData = async (uid) => {
     try {
@@ -44,6 +102,50 @@ function App() {
       }
     } catch (e) {
       console.error('Load user data error:', e);
+    }
+  };
+
+  const loadAutoTap = async (uid) => {
+    try {
+      const res = await fetch(`/api/autotap?userId=${uid}`);
+      const data = await res.json();
+
+      if (data.success) {
+        if (data.hasAutoTap) {
+          setAutoTapData(data.autoTap);
+          setAccumulatedAutoTap(data.autoTap.accumulatedShares);
+        } else {
+          setAutoTapData(null);
+        }
+      }
+    } catch (e) {
+      console.error('Load AutoTap error:', e);
+    }
+  };
+
+  const handleClaimAutoTap = async () => {
+    if (!userId || !autoTapData) return;
+
+    try {
+      const res = await fetch('/api/autotap', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: userId })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        window.Telegram.WebApp.showAlert(
+          `✅ ${data.message}\n\nClaimed ${data.claimed} shares!`
+        );
+        setAccumulatedAutoTap(0);
+        setPendingShares(prev => prev + data.claimed);
+      } else {
+        window.Telegram.WebApp.showAlert(`❌ ${data.error}`);
+      }
+    } catch (e) {
+      window.Telegram.WebApp.showAlert('Claim AutoTap error: ' + e.message);
     }
   };
 
@@ -208,12 +310,123 @@ function App() {
 
   const currentPool = pools[selectedPool];
 
+  // LIFETIME ACCESS PAYWALL
+  if (!hasLifetimeAccess && accessData) {
+    return (
+      <div className="App">
+        <div className="paywall-screen">
+          <div className="paywall-content">
+            <h1>⚡ FasTapMining</h1>
+            <h2>Lifetime Access Required</h2>
+            <p className="paywall-description">
+              Pay once, mine forever!<br/>
+              Real multi-token mining on TON blockchain
+            </p>
+
+            <div className="paywall-price">
+              <div className="price-amount">1 TON</div>
+              <div className="price-label">One-time payment</div>
+            </div>
+
+            <div className="paywall-features">
+              <div className="feature">✅ Unlimited mining access</div>
+              <div className="feature">✅ Mine MineX, tBTC, MRDN</div>
+              <div className="feature">✅ NFT rewards from pools</div>
+              <div className="feature">✅ 70% finder rewards</div>
+              <div className="feature">✅ Access to boost shop</div>
+              <div className="feature">✅ AutoTap passive mining</div>
+            </div>
+
+            <button
+              className="payment-btn"
+              onClick={() => window.Telegram.WebApp.openLink(accessData.deepLink)}
+            >
+              💳 Pay 1 TON - Unlock Forever
+            </button>
+
+            <div className="payment-info">
+              <p>Payment to: <code>{accessData.wallet}</code></p>
+              <p className="payment-note">After payment, enter transaction hash below:</p>
+            </div>
+
+            <div className="verify-section">
+              <input
+                type="text"
+                placeholder="Enter transaction hash"
+                id="txHashInput"
+                className="tx-input"
+              />
+              <button
+                className="verify-btn"
+                onClick={() => {
+                  const txHash = document.getElementById('txHashInput').value;
+                  if (txHash) handlePaymentVerification(txHash);
+                }}
+              >
+                Verify Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // LOADING STATE
+  if (!hasLifetimeAccess) {
+    return (
+      <div className="App">
+        <div className="loading-screen">
+          <h1>⚡ FasTapMining</h1>
+          <p>Checking access...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="App">
       <header>
         <h1>⚡ FasTapMining</h1>
         <p className="subtitle">Real Multi-Pool Mining on TON</p>
       </header>
+
+      {/* AutoTap Status Banner */}
+      {autoTapData && (
+        <div className="autotap-banner">
+          <div className="autotap-info">
+            <div className="autotap-header">
+              <span className="autotap-icon">{autoTapData.tier.includes('lifetime') ? '👑' : autoTapData.tier.includes('ultimate') ? '🔥' : autoTapData.tier.includes('pro') ? '⚡' : '🤖'}</span>
+              <span className="autotap-label">AutoTap Active</span>
+            </div>
+            <div className="autotap-stats">
+              <div className="autotap-stat">
+                <span className="stat-label">Mining Speed:</span>
+                <span className="stat-value">+{autoTapData.sharesPerSecond}/sec</span>
+              </div>
+              <div className="autotap-stat">
+                <span className="stat-label">Accumulated:</span>
+                <span className="stat-value">{accumulatedAutoTap} shares</span>
+              </div>
+              <div className="autotap-stat">
+                <span className="stat-label">Daily Estimate:</span>
+                <span className="stat-value">{autoTapData.estimatedDaily.toLocaleString()}</span>
+              </div>
+              {!autoTapData.isLifetime && (
+                <div className="autotap-stat">
+                  <span className="stat-label">Expires:</span>
+                  <span className="stat-value">{new Date(autoTapData.expiresAt).toLocaleDateString()}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          {accumulatedAutoTap > 0 && (
+            <button className="claim-autotap-btn" onClick={handleClaimAutoTap}>
+              Claim {accumulatedAutoTap} Shares
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Pool Selection */}
       <div className="pool-selector">

@@ -5,20 +5,54 @@ const { Telegraf } = require('telegraf');
 
 // Shop Items (prices in Telegram Stars)
 const SHOP_ITEMS = {
-  autotap: {
-    id: 'autotap',
-    name: 'AutoTap Boost',
-    description: 'Earn +1 share per second automatically',
-    price: 100, // 100 Telegram Stars
-    effect: '+1/sec passive mining',
+  // AUTOTAP PASSIVE MINING TIERS
+  autotap_basic: {
+    id: 'autotap_basic',
+    name: 'AutoTap Basic',
+    description: 'Mine automatically 24/7 even when offline',
+    price: 500, // 500 Telegram Stars (~$5)
+    effect: '+1 share/sec for 30 days',
+    category: 'autotap',
     icon: '🤖'
   },
+  autotap_pro: {
+    id: 'autotap_pro',
+    name: 'AutoTap Pro',
+    description: '5x faster passive mining',
+    price: 1500, // 1500 Telegram Stars (~$15)
+    effect: '+5 shares/sec for 30 days',
+    category: 'autotap',
+    icon: '⚡',
+    popular: true
+  },
+  autotap_ultimate: {
+    id: 'autotap_ultimate',
+    name: 'AutoTap Ultimate',
+    description: 'Maximum passive mining speed',
+    price: 5000, // 5000 Telegram Stars (~$50)
+    effect: '+20 shares/sec for 90 days',
+    category: 'autotap',
+    icon: '🔥'
+  },
+  autotap_lifetime: {
+    id: 'autotap_lifetime',
+    name: 'AutoTap Lifetime',
+    description: 'FOREVER passive mining - best value!',
+    price: 15000, // 15000 Telegram Stars (~$150)
+    effect: '+50 shares/sec FOREVER',
+    category: 'autotap',
+    icon: '👑',
+    bestValue: true
+  },
+
+  // MANUAL TAP BOOSTS
   multitap: {
     id: 'multitap',
     name: 'MultiTap Boost',
-    description: 'Double your shares per tap',
+    description: 'Double your shares per manual tap',
     price: 500, // 500 Telegram Stars
-    effect: 'x2 shares per tap',
+    effect: 'x2 shares per tap (30 days)',
+    category: 'boost',
     icon: '⚡'
   },
   luckytap: {
@@ -26,15 +60,19 @@ const SHOP_ITEMS = {
     name: 'LuckyTap Boost',
     description: '10% chance for x10 reward multiplier',
     price: 1000, // 1000 Telegram Stars
-    effect: '10% chance x10 reward',
+    effect: '10% chance x10 reward (30 days)',
+    category: 'boost',
     icon: '🍀'
   },
+
+  // PREMIUM
   premium_month: {
     id: 'premium_month',
-    name: 'Premium Pass (30 days)',
+    name: 'Premium Pass',
     description: 'All boosts + exclusive NFTs + priority support',
     price: 2500, // 2500 Telegram Stars
-    effect: 'All features unlocked',
+    effect: 'All features for 30 days',
+    category: 'premium',
     icon: '👑'
   }
 };

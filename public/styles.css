@@ -682,3 +682,263 @@ footer {
     align-items: center;
   }
 }
+
+/* Paywall Screen */
+.paywall-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.paywall-content {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 500px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.paywall-content h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #00ff88, #00aaff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.paywall-content h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #c9d1d9;
+}
+
+.paywall-description {
+  font-size: 16px;
+  color: #8b949e;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.paywall-price {
+  background: linear-gradient(135deg, #00ff88, #00aaff);
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+}
+
+.price-amount {
+  font-size: 48px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 5px;
+}
+
+.price-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: 600;
+}
+
+.paywall-features {
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.feature {
+  padding: 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #c9d1d9;
+}
+
+.payment-btn {
+  width: 100%;
+  padding: 18px;
+  font-size: 18px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #00ff88, #00aaff);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin-bottom: 20px;
+}
+
+.payment-btn:hover {
+  transform: scale(1.05);
+}
+
+.payment-info {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.payment-info code {
+  display: block;
+  font-size: 11px;
+  color: #58a6ff;
+  margin: 10px 0;
+  word-break: break-all;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.payment-note {
+  font-size: 13px;
+  color: #8b949e;
+  margin-top: 10px;
+}
+
+.verify-section {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
+
+.tx-input {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.verify-btn {
+  padding: 12px;
+  background: #238636;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.verify-btn:hover {
+  background: #2ea043;
+}
+
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.loading-screen h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #00ff88, #00aaff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.loading-screen p {
+  font-size: 16px;
+  color: #8b949e;
+}
+
+/* AutoTap Banner */
+.autotap-banner {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 170, 255, 0.1));
+  border: 2px solid rgba(0, 255, 136, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.autotap-info {
+  margin-bottom: 15px;
+}
+
+.autotap-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.autotap-icon {
+  font-size: 24px;
+}
+
+.autotap-label {
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ff88;
+}
+
+.autotap-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.autotap-stat {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.autotap-stat .stat-label {
+  font-size: 11px;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.autotap-stat .stat-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #00ff88;
+}
+
+.claim-autotap-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #00ff88, #00aaff);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.claim-autotap-btn:hover {
+  transform: scale(1.02);
+}
+
+@media (max-width: 480px) {
+  .paywall-content {
+    padding: 30px 20px;
+  }
+
+  .price-amount {
+    font-size: 36px;
+  }
+
+  .autotap-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
