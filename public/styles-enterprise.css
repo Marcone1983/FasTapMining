@@ -926,3 +926,161 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* WALLET CONNECT MODAL - OBBLIGATORIO */
+.wallet-connect-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #0d1117, #161b22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.wallet-modal-content {
+  max-width: 400px;
+  padding: 40px;
+  text-align: center;
+}
+
+.modal-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.wallet-modal-content h1 {
+  font-size: 28px;
+  background: linear-gradient(90deg, #00ff88, #00aaff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 15px;
+}
+
+.modal-description {
+  font-size: 16px;
+  color: #8b949e;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.wallet-features {
+  margin-bottom: 30px;
+}
+
+.wallet-features .feature {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  text-align: left;
+}
+
+.connect-wallet-btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #00ff88, #00aaff);
+  border: none;
+  border-radius: 12px;
+  color: #000;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform 0.2s;
+}
+
+.connect-wallet-btn:hover {
+  transform: translateY(-2px);
+}
+
+.connect-wallet-btn:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  font-size: 24px;
+}
+
+.modal-footer {
+  margin-top: 20px;
+}
+
+.modal-footer p {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+/* REAL-TIME STATS BANNER */
+.realtime-stats-banner {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 20px;
+  background: rgba(0, 255, 136, 0.1);
+  border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+  font-size: 13px;
+}
+
+.stat-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-dot {
+  font-size: 8px;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.3;
+  }
+}
+
+.stat-live .stat-label {
+  color: #8b949e;
+  font-size: 11px;
+}
+
+.stat-live .stat-value {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.pool-miners {
+  font-size: 11px;
+  color: #00ff88;
+  margin-top: 4px;
+}
+
+@media (max-width: 480px) {
+  .realtime-stats-banner {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stat-live {
+    justify-content: center;
+  }
+}
