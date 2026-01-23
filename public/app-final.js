@@ -12,6 +12,7 @@ function App() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
   const [showWalletModal, setShowWalletModal] = useState(true);
+  const [tonConnectReady, setTonConnectReady] = useState(false);
 
   // Mining state
   const [selectedPool, setSelectedPool] = useState('minex');
@@ -114,8 +115,12 @@ function App() {
           setWalletConnected(true);
           setShowWalletModal(false);
         }
+
+        // Mark as ready
+        setTonConnectReady(true);
       } catch (error) {
         console.error('TON Connect init error:', error);
+        setTonConnectReady(false);
       }
     };
 
@@ -218,8 +223,8 @@ function App() {
   // Connect TON Wallet - REAL
   const connectWallet = async () => {
     try {
-      if (!tonConnectUI.current) {
-        window.Telegram.WebApp.showAlert('TON Connect not initialized');
+      if (!tonConnectReady || !tonConnectUI.current) {
+        window.Telegram.WebApp.showAlert('Initializing TON Connect... Please wait a moment and try again.');
         return;
       }
 
@@ -479,9 +484,13 @@ function App() {
               <div className="feature">✅ Daily streak bonuses</div>
             </div>
 
-            <button className="connect-wallet-btn" onClick={connectWallet}>
+            <button
+              className="connect-wallet-btn"
+              onClick={connectWallet}
+              disabled={!tonConnectReady}
+            >
               <span className="btn-icon">💼</span>
-              Connect TON Wallet
+              {tonConnectReady ? 'Connect TON Wallet' : 'Initializing...'}
             </button>
 
             <div className="modal-footer">

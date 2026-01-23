@@ -10,43 +10,43 @@ const OWNER_WALLET = 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
 // BOOST ITEMS - PRICES IN TELEGRAM STARS
 const SHOP_ITEMS = {
   // AUTOTAP TIERS
-  autotap_basic: {
-    id: 'autotap_basic',
-    name: 'AutoTap Basic',
-    description: 'Passive mining 24/7 even when offline. +1 share/sec for 30 days',
-    price: 50, // 50 Stars
-    effect: '+1 share/sec for 30 days',
+  autotap_1d: {
+    id: 'autotap_1d',
+    name: 'AutoTap 1 Day',
+    description: 'Try passive mining! +1 share/sec for 24 hours',
+    price: 10, // 10 Stars
+    effect: '+1 share/sec for 1 day',
     category: 'autotap',
     icon: '🤖',
-    duration: 2592000000 // 30 days
+    duration: 86400000 // 1 day
   },
-  autotap_pro: {
-    id: 'autotap_pro',
-    name: 'AutoTap Pro',
-    description: '5x faster passive mining. +5 shares/sec for 30 days',
+  autotap_7d: {
+    id: 'autotap_7d',
+    name: 'AutoTap 7 Days',
+    description: 'One week of passive mining. +2 shares/sec for 7 days',
+    price: 50, // 50 Stars
+    effect: '+2 shares/sec for 7 days',
+    category: 'autotap',
+    icon: '🤖',
+    duration: 604800000 // 7 days
+  },
+  autotap_30d: {
+    id: 'autotap_30d',
+    name: 'AutoTap 30 Days',
+    description: 'One month of passive mining. +5 shares/sec for 30 days',
     price: 150, // 150 Stars
     effect: '+5 shares/sec for 30 days',
     category: 'autotap',
     icon: '⚡',
-    duration: 2592000000,
+    duration: 2592000000, // 30 days
     popular: true
-  },
-  autotap_ultimate: {
-    id: 'autotap_ultimate',
-    name: 'AutoTap Ultimate',
-    description: 'Maximum passive mining power. +20 shares/sec for 90 days',
-    price: 500, // 500 Stars
-    effect: '+20 shares/sec for 90 days',
-    category: 'autotap',
-    icon: '🔥',
-    duration: 7776000000 // 90 days
   },
   autotap_lifetime: {
     id: 'autotap_lifetime',
-    name: 'AutoTap Lifetime',
-    description: 'FOREVER passive mining - best value! +50 shares/sec FOREVER',
-    price: 1500, // 1500 Stars
-    effect: '+50 shares/sec FOREVER',
+    name: 'AutoTap FOREVER',
+    description: 'LIFETIME passive mining - best value! +10 shares/sec FOREVER',
+    price: 15000, // 15000 Stars
+    effect: '+10 shares/sec FOREVER',
     category: 'autotap',
     icon: '👑',
     duration: null,
