@@ -2,6 +2,8 @@
 
 **Real Multi-Token Mining Pool on TON Blockchain** - Security Hardened ✅
 
+**Production URL**: https://fas-tap-mining.vercel.app/ (deployed from `main` branch)
+
 A production-ready Telegram Mini App that implements **genuine cryptocurrency mining** through tap-based computational shares, distributing real token rewards from three active mining pools on TON.
 
 ---
