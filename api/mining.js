@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const db = require('../database/db');
+const realMining = require('../mining-engine/real-mining');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -40,6 +41,9 @@ module.exports = async (req, res) => {
 
     // Add shares to database
     await db.Mining.addShares(user.id, poolId, shares, 1, hashrate);
+
+    // 🔥 CONTRIBUTE TO REAL MINING!
+    await realMining.addUserTaps(userId, taps);
 
     // Generate hash for Proof-of-Work
     const hash = generateHash(user.id, taps, nonce, pool.current_height);

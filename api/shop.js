@@ -14,7 +14,7 @@ const SHOP_ITEMS = {
     id: 'autotap_1d',
     name: 'AutoTap 1 Day',
     description: 'Try passive mining! +1 share/sec for 24 hours',
-    price: 10, // 10 Stars
+    price: 100, // 100 Stars
     effect: '+1 share/sec for 1 day',
     category: 'autotap',
     icon: '🤖',
@@ -24,7 +24,7 @@ const SHOP_ITEMS = {
     id: 'autotap_7d',
     name: 'AutoTap 7 Days',
     description: 'One week of passive mining. +2 shares/sec for 7 days',
-    price: 50, // 50 Stars
+    price: 500, // 500 Stars
     effect: '+2 shares/sec for 7 days',
     category: 'autotap',
     icon: '🤖',
@@ -34,7 +34,7 @@ const SHOP_ITEMS = {
     id: 'autotap_30d',
     name: 'AutoTap 30 Days',
     description: 'One month of passive mining. +5 shares/sec for 30 days',
-    price: 150, // 150 Stars
+    price: 1500, // 1500 Stars
     effect: '+5 shares/sec for 30 days',
     category: 'autotap',
     icon: '⚡',
