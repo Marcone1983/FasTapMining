@@ -1,7 +1,7 @@
 {
-  "url": "https://fas-tap-mining.vercel.app/",
+  "url": "https://fastapmining.vercel.app",
   "name": "FasTapMining",
-  "iconUrl": "https://fas-tap-mining.vercel.app/icon.png",
-  "termsOfUseUrl": "https://fas-tap-mining.vercel.app/terms",
-  "privacyPolicyUrl": "https://fas-tap-mining.vercel.app/privacy"
+  "iconUrl": "https://fastapmining.vercel.app/icon-512.png",
+  "termsOfUseUrl": "https://fastapmining.vercel.app/terms.html",
+  "privacyPolicyUrl": "https://fastapmining.vercel.app/privacy.html"
 }
