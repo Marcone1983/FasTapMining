@@ -3,6 +3,7 @@
 
 const { Address } = require('@ton/core');
 const db = require('../database/db');
+const axios = require('axios');
 
 // Payment configuration - from environment variables for security
 const LIFETIME_ACCESS_PRICE = parseFloat(process.env.LIFETIME_ACCESS_PRICE || '1'); // 1 TON default
@@ -146,15 +147,16 @@ async function verifyTonTransaction(txHash, amount) {
   try {
     const apiKey = process.env.TONCENTER_API_KEY || '';
     
-    // Query transaction details from TonCenter
-    const response = await fetch(
+    // Query transaction details from TonCenter using axios
+    const response = await axios.get(
       `https://toncenter.com/api/v2/getTransactions?address=${PAYMENT_WALLET}&limit=100`,
       {
-        headers: apiKey ? { 'X-API-Key': apiKey } : {}
+        headers: apiKey ? { 'X-API-Key': apiKey } : {},
+        timeout: 10000 // 10 second timeout
       }
     );
 
-    const data = await response.json();
+    const data = response.data;
 
     if (!data.ok) {
       console.error('TonCenter API error:', data);

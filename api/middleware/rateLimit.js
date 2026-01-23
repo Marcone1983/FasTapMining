@@ -32,20 +32,20 @@ function simpleRateLimiter(options = {}) {
         resetTime: now
       };
       requestCounts.set(key, entry);
-      
-      // Lazy cleanup: Remove this entry's old data
-      // More efficient than iterating all entries
-      if (requestCounts.size > 10000) { // Safety limit
-        const keysToDelete = [];
-        for (const [k, e] of requestCounts.entries()) {
-          if (now - e.resetTime > windowMs * 2) {
-            keysToDelete.push(k);
-          }
-          // Only check first 100 entries to avoid performance hit
-          if (keysToDelete.length >= 100) break;
+    }
+    
+    // Lazy cleanup: Only when map gets too large
+    // More efficient than iterating all entries regularly
+    if (requestCounts.size > 10000) { // Safety limit
+      const keysToDelete = [];
+      for (const [k, e] of requestCounts.entries()) {
+        if (now - e.resetTime > windowMs * 2) {
+          keysToDelete.push(k);
         }
-        keysToDelete.forEach(k => requestCounts.delete(k));
+        // Only check first 100 entries to avoid performance hit
+        if (keysToDelete.length >= 100) break;
       }
+      keysToDelete.forEach(k => requestCounts.delete(k));
     }
 
     entry.count++;
