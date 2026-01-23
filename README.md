@@ -1,6 +1,6 @@
-# ⚡ FasTapMining v2.0
+# ⚡ FasTapMining v3.0
 
-**Real Multi-Token Mining Pool on TON Blockchain**
+**Real Multi-Token Mining Pool on TON Blockchain** - Security Hardened ✅
 
 A production-ready Telegram Mini App that implements **genuine cryptocurrency mining** through tap-based computational shares, distributing real token rewards from three active mining pools on TON.
 
