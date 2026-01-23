@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const db = require('../database/db');
-const realMining = require('../mining-engine/real-mining');
+const multiPoolMiner = require('../mining-engine/multi-pool-parallel');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -42,8 +42,9 @@ module.exports = async (req, res) => {
     // Add shares to database
     await db.Mining.addShares(user.id, poolId, shares, 1, hashrate);
 
-    // 🔥 CONTRIBUTE TO REAL MINING!
-    await realMining.addUserTaps(userId, taps);
+    // 🔥 PARALLEL MINING ACROSS ALL TON POOLS!
+    // 100 taps → 33 to TonCoinPool, 33 to InfinityTON, 34 to TonUniverse
+    await multiPoolMiner.addUserTaps(userId, taps);
 
     // Generate hash for Proof-of-Work
     const hash = generateHash(user.id, taps, nonce, pool.current_height);

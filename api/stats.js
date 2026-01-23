@@ -1,5 +1,5 @@
 const db = require('../database/db');
-const realMining = require('../mining-engine/real-mining');
+const multiPoolMiner = require('../mining-engine/multi-pool-parallel');
 
 module.exports = async (req, res) => {
   if (req.method !== 'GET') {
@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     if (!poolId && !type) {
       const globalStats = await db.Stats.getGlobal();
       const recentBlocks = await db.Block.getRecent(10);
-      const realMiningStats = realMining.getStats();
+      const multiPoolStats = multiPoolMiner.getStats();
 
       return res.json({
         success: true,
@@ -22,11 +22,14 @@ module.exports = async (req, res) => {
           activeMiners24h: parseInt(globalStats.active_users_24h),
           totalBlocksFound: parseInt(globalStats.total_blocks_found),
           globalHashrate: parseFloat(globalStats.total_hashrate).toFixed(2),
-          realMining: {
-            hashrate: realMiningStats.totalHashrate.toFixed(2) + ' H/s',
-            minedXMR: realMiningStats.minedXMR.toFixed(6) + ' XMR',
-            activeMiners: realMiningStats.activeMiners,
-            totalTaps: realMiningStats.totalTaps
+          parallelMining: {
+            globalHashrate: multiPoolStats.globalHashrate,
+            totalShares: multiPoolStats.totalShares,
+            activePools: multiPoolStats.activePools,
+            totalPools: multiPoolStats.totalActivePools,
+            activeMiners: multiPoolStats.totalMiners,
+            totalTaps: multiPoolStats.totalTaps,
+            pools: multiPoolStats.pools
           },
           totalTaps: parseInt(globalStats.total_taps),
           totalDistributed: {
