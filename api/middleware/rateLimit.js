@@ -1,7 +1,14 @@
 // Rate limiting middleware for API endpoints
 // Prevents abuse and DDoS attacks
+//
+// ⚠️ PRODUCTION NOTE: This in-memory implementation won't scale across multiple
+// server instances. For production with multiple instances, use Redis-backed
+// rate limiting:
+//   - express-rate-limit with rate-limit-redis
+//   - ioredis-based custom implementation
+//   - API Gateway rate limiting (AWS, Cloudflare, etc.)
 
-// Simple in-memory rate limiter
+// Simple in-memory rate limiter (suitable for single-instance deployments)
 const requestCounts = new Map();
 
 function simpleRateLimiter(options = {}) {
@@ -25,6 +32,20 @@ function simpleRateLimiter(options = {}) {
         resetTime: now
       };
       requestCounts.set(key, entry);
+      
+      // Lazy cleanup: Remove this entry's old data
+      // More efficient than iterating all entries
+      if (requestCounts.size > 10000) { // Safety limit
+        const keysToDelete = [];
+        for (const [k, e] of requestCounts.entries()) {
+          if (now - e.resetTime > windowMs * 2) {
+            keysToDelete.push(k);
+          }
+          // Only check first 100 entries to avoid performance hit
+          if (keysToDelete.length >= 100) break;
+        }
+        keysToDelete.forEach(k => requestCounts.delete(k));
+      }
     }
 
     entry.count++;

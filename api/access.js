@@ -119,11 +119,26 @@ async function grantLifetimeAccess(userId, txHash) {
 }
 
 function generatePaymentLink(userId) {
+  // Validate PAYMENT_WALLET is set and properly formatted
+  if (!PAYMENT_WALLET) {
+    throw new Error('PAYMENT_WALLET not configured');
+  }
+  
+  // Validate TON address format (basic check)
+  if (!/^[UE]Q[A-Za-z0-9_-]{46}$/.test(PAYMENT_WALLET)) {
+    console.error('Invalid PAYMENT_WALLET format');
+    throw new Error('Invalid payment configuration');
+  }
+  
   // Generate TON payment deep link
   const comment = `FTMACCESS_${userId}`;
   const amountNano = LIFETIME_ACCESS_PRICE * 1000000000; // Convert TON to nanoTON
 
-  return `ton://transfer/${PAYMENT_WALLET}?amount=${amountNano}&text=${comment}`;
+  // URL encode to prevent injection
+  const encodedWallet = encodeURIComponent(PAYMENT_WALLET);
+  const encodedComment = encodeURIComponent(comment);
+  
+  return `ton://transfer/${encodedWallet}?amount=${amountNano}&text=${encodedComment}`;
 }
 
 async function verifyTonTransaction(txHash, amount) {
@@ -153,7 +168,13 @@ async function verifyTonTransaction(txHash, amount) {
 
       const txAmount = parseInt(inMsg.value) / 1e9; // Convert nanoTON to TON
       
-      // Match by hash (if available) or by amount and comment
+      // SECURITY: Verify recipient is our wallet
+      const destination = inMsg.destination;
+      if (!destination || destination !== PAYMENT_WALLET) {
+        return false;
+      }
+      
+      // Match by hash (if available) or by amount and comment to our wallet
       return (
         t.transaction_id?.hash === txHash ||
         (txAmount >= LIFETIME_ACCESS_PRICE && 
@@ -163,11 +184,11 @@ async function verifyTonTransaction(txHash, amount) {
 
     if (tx) {
       const txAmount = parseInt(tx.in_msg.value) / 1e9;
-      console.log(`✅ Transaction verified: ${txHash}, amount: ${txAmount} TON`);
+      console.log(`✅ Transaction verified: ${txHash}, amount: ${txAmount} TON to ${PAYMENT_WALLET}`);
       return txAmount >= LIFETIME_ACCESS_PRICE;
     }
 
-    console.warn(`❌ Transaction not found: ${txHash}`);
+    console.warn(`❌ Transaction not found or invalid: ${txHash}`);
     return false;
 
   } catch (error) {

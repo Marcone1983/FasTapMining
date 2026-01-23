@@ -83,10 +83,10 @@ function App() {
         if (window.TonConnectUI) {
           TonConnectUI = window.TonConnectUI;
         } else {
-          // Fallback to loading from CDN
+          // Fallback to loading from CDN - pinned to specific version for security
           console.log('Loading TON Connect UI from CDN...');
           const module = await Promise.race([
-            import('https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js'),
+            import('https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js'),
             new Promise((_, reject) => 
               setTimeout(() => reject(new Error('CDN load timeout')), 8000)
             )
