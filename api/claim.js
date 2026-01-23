@@ -1,134 +1,261 @@
 const { Address } = require('@ton/core');
+const db = require('../database/db');
 
-// Wallet addresses for each token
-const TOKEN_WALLETS = {
+// Jetton master addresses for each token on TON
+const JETTON_MASTERS = {
   MineX: 'EQCLQWTYtsNbk8bn7ed8hqpoxKwXQ1iMGadM8Lae6S-rzNfA',
   tBTC: 'EQBhF8jWase_Cn1dNTTe_3KMWQQzDbVw_lUUkvW5k6s61ikb',
   MRDN: 'EQCymLRXp1QYxZKek4CTInckB1ey5TkyAJQpPAlNetiO54Vt'
 };
 
-// User rewards (in production use database)
-const userRewards = new Map();
-
 module.exports = async (req, res) => {
-  if (req.method === 'POST') {
-    const { userId, walletAddress } = req.body;
-
-    if (!userId || !walletAddress) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Get user accumulated rewards
-    const rewards = userRewards.get(userId) || {
-      MineX: 0,
-      tBTC: 0,
-      MRDN: 0,
-      nfts: []
-    };
-
-    // Validate TON wallet address
-    try {
-      Address.parse(walletAddress);
-    } catch (e) {
-      return res.status(400).json({ error: 'Invalid TON wallet address' });
-    }
-
-    // Calculate total value
-    const totalValue = calculateTotalValue(rewards);
-
-    // Minimum claim threshold
-    if (totalValue < 1) {
-      return res.status(400).json({
-        error: 'Minimum claim threshold not met',
-        threshold: 1,
-        current: totalValue,
-        rewards: rewards
-      });
-    }
-
-    // ✅ APPLY 5% ROYALTY TO OWNER WALLET
-    const OWNER_WALLET = 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
-    const ROYALTY_PERCENT = 0.05; // 5%
-
-    // Create payout transactions with royalty deduction
-    const transactions = [];
-    const royaltyTransactions = [];
-
-    for (const [token, amount] of Object.entries(rewards)) {
-      if (token === 'nfts') continue;
-      if (amount > 0) {
-        // Calculate royalty
-        const royaltyAmount = amount * ROYALTY_PERCENT;
-        const netAmount = amount - royaltyAmount;
-
-        // User transaction (95%)
-        transactions.push({
-          token: token,
-          amount: netAmount,
-          to: walletAddress,
-          from: TOKEN_WALLETS[token],
-          status: 'pending',
-          note: '95% of claimed amount (5% royalty deducted)'
-        });
-
-        // Royalty transaction (5% to owner)
-        royaltyTransactions.push({
-          token: token,
-          amount: royaltyAmount,
-          to: OWNER_WALLET,
-          from: TOKEN_WALLETS[token],
-          status: 'pending',
-          note: '5% platform royalty'
-        });
-      }
-    }
-
-    // Clear user rewards after claim
-    userRewards.delete(userId);
-
-    return res.json({
-      success: true,
-      claimed: true,
-      transactions: transactions,
-      royaltyTransactions: royaltyTransactions,
-      nfts: rewards.nfts,
-      totalValue: totalValue,
-      royaltyDeducted: totalValue * ROYALTY_PERCENT,
-      netValue: totalValue * (1 - ROYALTY_PERCENT),
-      message: 'Rewards claimed! Tokens will arrive in 1-5 minutes. (5% platform fee applied)'
-    });
-  }
-
   if (req.method === 'GET') {
-    // Get user balance
+    // Get user balance from database
     const { userId } = req.query;
 
     if (!userId) {
       return res.status(400).json({ error: 'Missing userId' });
     }
 
-    const rewards = userRewards.get(userId) || {
-      MineX: 0,
-      tBTC: 0,
-      MRDN: 0,
-      nfts: []
-    };
+    try {
+      const user = await db.User.findByTelegramId(userId);
 
-    const totalValue = calculateTotalValue(rewards);
+      if (!user) {
+        return res.json({
+          success: true,
+          rewards: { MineX: 0, tBTC: 0, MRDN: 0 },
+          nfts: [],
+          totalValue: 0,
+          canClaim: false,
+          walletConnected: false
+        });
+      }
 
-    return res.json({
-      success: true,
-      rewards: rewards,
-      totalValue: totalValue,
-      canClaim: totalValue >= 1
-    });
+      const balances = await db.User.getBalances(user.id);
+      const nfts = await db.NFT.getUserNFTs(user.id);
+
+      const totalValue = calculateTotalValue(balances);
+      const canClaim = totalValue >= 1 && !!user.wallet_address;
+
+      return res.json({
+        success: true,
+        rewards: {
+          MineX: balances.MineX?.balance || 0,
+          tBTC: balances.tBTC?.balance || 0,
+          MRDN: balances.MRDN?.balance || 0
+        },
+        nfts: nfts.map(nft => ({
+          id: nft.id,
+          collection: nft.collection,
+          character: nft.character,
+          rarity: nft.rarity,
+          image: nft.image_url
+        })),
+        totalValue: totalValue,
+        canClaim: canClaim,
+        walletConnected: !!user.wallet_address,
+        walletAddress: user.wallet_address,
+        minClaimThreshold: 1
+      });
+
+    } catch (error) {
+      console.error('Get balance error:', error);
+      return res.status(500).json({ error: 'Failed to get balance' });
+    }
+  }
+
+  if (req.method === 'POST') {
+    const { userId, walletAddress } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'Missing userId' });
+    }
+
+    try {
+      const user = await db.User.findByTelegramId(userId);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // If walletAddress provided, update it (from TON Connect)
+      if (walletAddress) {
+        try {
+          Address.parse(walletAddress);
+        } catch (e) {
+          return res.status(400).json({ error: 'Invalid TON wallet address' });
+        }
+
+        await db.User.connectWallet(user.id, walletAddress);
+      }
+
+      // Use wallet from database (connected via TON Connect)
+      const finalWalletAddress = walletAddress || user.wallet_address;
+
+      if (!finalWalletAddress) {
+        return res.status(400).json({
+          error: 'Wallet not connected',
+          message: 'Please connect your wallet using TON Connect first'
+        });
+      }
+
+      // Get user balances
+      const balances = await db.User.getBalances(user.id);
+
+      // Calculate total value
+      const totalValue = calculateTotalValue(balances);
+
+      // Minimum claim threshold
+      if (totalValue < 1) {
+        return res.status(400).json({
+          error: 'Minimum claim threshold not met',
+          threshold: 1,
+          current: totalValue,
+          rewards: balances
+        });
+      }
+
+      // ✅ APPLY 5% ROYALTY TO OWNER WALLET
+      const { rows: [config] } = await db.query(
+        `SELECT value FROM system_config WHERE key = 'owner_wallet'`
+      );
+      const OWNER_WALLET = config.value.replace(/"/g, '');
+
+      const { rows: [feeConfig] } = await db.query(
+        `SELECT value FROM system_config WHERE key = 'platform_fee_percent'`
+      );
+      const ROYALTY_PERCENT = parseFloat(feeConfig.value);
+
+      // Process claim with database transaction
+      return await db.transaction(async (client) => {
+        const transactions = [];
+        const royaltyTransactions = [];
+
+        for (const [token, data] of Object.entries(balances)) {
+          const amount = parseFloat(data.balance);
+
+          if (amount > 0) {
+            // Calculate royalty
+            const royaltyAmount = amount * ROYALTY_PERCENT;
+            const netAmount = amount - royaltyAmount;
+
+            // Create user transaction record (95%)
+            const userTx = await db.Transaction.create({
+              user_id: user.id,
+              tx_type: 'claim',
+              token: token,
+              amount: netAmount,
+              from_address: JETTON_MASTERS[token],
+              to_address: finalWalletAddress,
+              status: 'pending',
+              metadata: {
+                royalty_deducted: royaltyAmount,
+                royalty_percent: ROYALTY_PERCENT * 100,
+                note: '95% of claimed amount (5% royalty deducted)'
+              }
+            });
+
+            transactions.push({
+              id: userTx.id,
+              token: token,
+              amount: netAmount,
+              to: finalWalletAddress,
+              jettonMaster: JETTON_MASTERS[token],
+              status: 'pending'
+            });
+
+            // Create royalty transaction record (5%)
+            const royaltyTx = await db.Transaction.create({
+              user_id: user.id,
+              tx_type: 'royalty',
+              token: token,
+              amount: royaltyAmount,
+              from_address: JETTON_MASTERS[token],
+              to_address: OWNER_WALLET,
+              status: 'pending',
+              metadata: {
+                royalty_percent: ROYALTY_PERCENT * 100,
+                note: '5% platform royalty'
+              }
+            });
+
+            royaltyTransactions.push({
+              id: royaltyTx.id,
+              token: token,
+              amount: royaltyAmount,
+              to: OWNER_WALLET,
+              jettonMaster: JETTON_MASTERS[token],
+              status: 'pending'
+            });
+
+            // Update user balance (deduct claimed amount)
+            await client.query(
+              `UPDATE user_balances
+               SET balance = 0,
+                   lifetime_claimed = lifetime_claimed + $1,
+                   last_updated_at = NOW()
+               WHERE user_id = $2 AND token = $3`,
+              [amount, user.id, token]
+            );
+          }
+        }
+
+        // Get NFTs
+        const nfts = await db.NFT.getUserNFTs(user.id);
+
+        // Create notification
+        await db.Notification.create(
+          user.id,
+          'claim_success',
+          '✅ Rewards Claimed',
+          `Successfully claimed ${Object.keys(balances).length} tokens. Tokens will arrive in 1-5 minutes.`,
+          {
+            transactions: transactions.length,
+            royalty_deducted: totalValue * ROYALTY_PERCENT,
+            net_value: totalValue * (1 - ROYALTY_PERCENT)
+          }
+        );
+
+        // Invalidate caches
+        await db.invalidateCache(`user:${user.id}:*`);
+
+        return res.json({
+          success: true,
+          claimed: true,
+          walletAddress: finalWalletAddress,
+          transactions: transactions,
+          royaltyTransactions: royaltyTransactions,
+          nfts: nfts.map(nft => ({
+            id: nft.id,
+            collection: nft.collection,
+            character: nft.character,
+            rarity: nft.rarity,
+            image: nft.image_url
+          })),
+          summary: {
+            totalValue: totalValue,
+            royaltyDeducted: totalValue * ROYALTY_PERCENT,
+            netValue: totalValue * (1 - ROYALTY_PERCENT),
+            royaltyPercent: ROYALTY_PERCENT * 100
+          },
+          message: `✅ Claimed ${transactions.length} tokens! Tokens will arrive in 1-5 minutes. (${ROYALTY_PERCENT * 100}% platform fee applied)`
+        });
+      });
+
+    } catch (error) {
+      console.error('Claim error:', error);
+      return res.status(500).json({
+        error: 'Claim failed',
+        message: error.message
+      });
+    }
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
 };
 
-function calculateTotalValue(rewards) {
-  // Approximate USD value (in production use real-time prices)
+function calculateTotalValue(balances) {
+  // Approximate USD value (in production use real-time price oracle)
   const prices = {
     MineX: 0.0000013,
     tBTC: 0.00005,
@@ -136,31 +263,11 @@ function calculateTotalValue(rewards) {
   };
 
   let total = 0;
-  for (const [token, amount] of Object.entries(rewards)) {
-    if (token === 'nfts') continue;
-    total += amount * (prices[token] || 0);
+
+  for (const [token, data] of Object.entries(balances)) {
+    const amount = data?.balance || 0;
+    total += parseFloat(amount) * (prices[token] || 0);
   }
 
   return total;
 }
-
-// Helper function to add rewards (called from mining.js)
-function addReward(userId, token, amount, nft = null) {
-  const current = userRewards.get(userId) || {
-    MineX: 0,
-    tBTC: 0,
-    MRDN: 0,
-    nfts: []
-  };
-
-  current[token] = (current[token] || 0) + amount;
-
-  if (nft) {
-    current.nfts.push(nft);
-  }
-
-  userRewards.set(userId, current);
-}
-
-module.exports.addReward = addReward;
-module.exports.userRewards = userRewards;
