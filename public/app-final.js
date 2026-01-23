@@ -40,6 +40,9 @@ function App() {
   const [blockFoundAnimation, setBlockFoundAnimation] = useState(null);
   const [tapAnimations, setTapAnimations] = useState([]);
   const [newAchievement, setNewAchievement] = useState(null);
+  const [shopItems, setShopItems] = useState([]);
+  const [activeBoosts, setActiveBoosts] = useState([]);
+  const [isGod, setIsGod] = useState(false);
 
   const wsRef = useRef(null);
   const tonConnectUI = useRef(null);
@@ -94,6 +97,7 @@ function App() {
               });
 
               loadUserData(userId);
+              loadShop();
             }
           } else {
             setWalletConnected(false);
@@ -234,6 +238,57 @@ function App() {
       }
     } catch (error) {
       console.error('Disconnect error:', error);
+    }
+  };
+
+  // Load shop items
+  const loadShop = async () => {
+    if (!userId) return;
+
+    try {
+      const res = await fetch(`/api/shop?userId=${userId}`);
+      const data = await res.json();
+
+      if (data.success) {
+        setShopItems(data.items || []);
+        setActiveBoosts(data.activeBoosts || []);
+        setIsGod(data.isGod || false);
+      }
+    } catch (error) {
+      console.error('Load shop error:', error);
+    }
+  };
+
+  // Purchase boost item
+  const purchaseItem = async (itemId) => {
+    if (!userId) return;
+
+    try {
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+      }
+
+      const res = await fetch('/api/shop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: userId,
+          itemId: itemId,
+          action: 'initiate_purchase'
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        window.Telegram.WebApp.showAlert('Invoice sent! Check Telegram to complete payment.');
+        setTimeout(() => loadShop(), 2000);
+      } else {
+        window.Telegram.WebApp.showAlert(data.error || 'Purchase failed');
+      }
+    } catch (error) {
+      console.error('Purchase error:', error);
+      window.Telegram.WebApp.showAlert('Purchase failed: ' + error.message);
     }
   };
 
@@ -479,6 +534,12 @@ function App() {
           onClick={() => setView('mining')}
         >
           ⛏️ Mine
+        </button>
+        <button
+          className={`nav-btn ${view === 'shop' ? 'active' : ''}`}
+          onClick={() => { setView('shop'); loadShop(); }}
+        >
+          🛒 Shop {activeBoosts.length > 0 && <span className="badge">{activeBoosts.length}</span>}
         </button>
         <button
           className={`nav-btn ${view === 'referral' ? 'active' : ''}`}
@@ -745,6 +806,131 @@ function App() {
                 <div className="value">{entry.value.toLocaleString()}</div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {view === 'shop' && (
+        <div className="view shop-view">
+          <h2>🛒 Boost Shop</h2>
+          {isGod && (
+            <div className="god-mode-banner">
+              👑 GOD MODE - All items FREE for you!
+            </div>
+          )}
+
+          {activeBoosts.length > 0 && (
+            <div className="active-boosts-section">
+              <h3>⚡ Active Boosts</h3>
+              <div className="active-boosts-list">
+                {activeBoosts.map((boost, i) => (
+                  <div key={i} className="active-boost-item">
+                    <span className="boost-name">{boost.boost_name}</span>
+                    <span className="boost-effect">{boost.effect}</span>
+                    <span className="boost-expires">
+                      Expires: {new Date(boost.expires_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="shop-categories">
+            <h3>🤖 AutoTap Subscriptions</h3>
+            <div className="shop-grid">
+              {shopItems.filter(item => item.category === 'autotap').map((item, i) => (
+                <div key={i} className={`shop-item ${item.popular ? 'popular' : ''} ${item.bestValue ? 'best-value' : ''} ${item.alreadyOwned ? 'owned' : ''}`}>
+                  {item.popular && <div className="badge-popular">POPULAR</div>}
+                  {item.bestValue && <div className="badge-best">BEST VALUE</div>}
+                  <div className="item-icon">{item.icon}</div>
+                  <div className="item-name">{item.name}</div>
+                  <div className="item-description">{item.description}</div>
+                  <div className="item-effect">{item.effect}</div>
+                  <div className="item-price">
+                    {isGod ? (
+                      <span className="price-free">FREE</span>
+                    ) : (
+                      <span className="price-stars">⭐ {item.price} Stars</span>
+                    )}
+                  </div>
+                  {item.alreadyOwned ? (
+                    <button className="btn-owned" disabled>✓ Owned</button>
+                  ) : (
+                    <button
+                      className="btn-buy"
+                      onClick={() => purchaseItem(item.id)}
+                    >
+                      {isGod ? 'Activate FREE' : 'Buy Now'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <h3>⚡ Tap Boosts</h3>
+            <div className="shop-grid">
+              {shopItems.filter(item => item.category === 'boost').map((item, i) => (
+                <div key={i} className={`shop-item ${item.alreadyOwned ? 'owned' : ''}`}>
+                  <div className="item-icon">{item.icon}</div>
+                  <div className="item-name">{item.name}</div>
+                  <div className="item-description">{item.description}</div>
+                  <div className="item-effect">{item.effect}</div>
+                  <div className="item-price">
+                    {isGod ? (
+                      <span className="price-free">FREE</span>
+                    ) : (
+                      <span className="price-stars">⭐ {item.price} Stars</span>
+                    )}
+                  </div>
+                  {item.alreadyOwned ? (
+                    <button className="btn-owned" disabled>✓ Owned</button>
+                  ) : (
+                    <button
+                      className="btn-buy"
+                      onClick={() => purchaseItem(item.id)}
+                    >
+                      {isGod ? 'Activate FREE' : 'Buy Now'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <h3>👑 Premium Pass</h3>
+            <div className="shop-grid">
+              {shopItems.filter(item => item.category === 'premium').map((item, i) => (
+                <div key={i} className={`shop-item premium ${item.alreadyOwned ? 'owned' : ''}`}>
+                  <div className="item-icon">{item.icon}</div>
+                  <div className="item-name">{item.name}</div>
+                  <div className="item-description">{item.description}</div>
+                  <div className="item-effect">{item.effect}</div>
+                  <div className="item-price">
+                    {isGod ? (
+                      <span className="price-free">FREE</span>
+                    ) : (
+                      <span className="price-stars">⭐ {item.price} Stars</span>
+                    )}
+                  </div>
+                  {item.alreadyOwned ? (
+                    <button className="btn-owned" disabled>✓ Owned</button>
+                  ) : (
+                    <button
+                      className="btn-buy"
+                      onClick={() => purchaseItem(item.id)}
+                    >
+                      {isGod ? 'Activate FREE' : 'Buy Now'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="shop-info">
+            <p>💳 All purchases are made with Telegram Stars</p>
+            <p>⚡ Boosts activate instantly after payment</p>
+            <p>🔄 Subscriptions auto-expire at end of period</p>
           </div>
         </div>
       )}

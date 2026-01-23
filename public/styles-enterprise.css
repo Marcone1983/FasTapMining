@@ -1084,3 +1084,238 @@ body {
     justify-content: center;
   }
 }
+
+/* ===================================
+   SHOP VIEW
+   =================================== */
+
+.shop-view {
+  padding: 20px;
+}
+
+.god-mode-banner {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #000;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.active-boosts-section {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 25px;
+}
+
+.active-boosts-section h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #00ff88;
+}
+
+.active-boosts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.active-boost-item {
+  background: rgba(0, 255, 136, 0.05);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.boost-name {
+  font-weight: bold;
+  color: #fff;
+}
+
+.boost-effect {
+  font-size: 13px;
+  color: #8b949e;
+}
+
+.boost-expires {
+  font-size: 12px;
+  color: #00ff88;
+}
+
+.shop-categories h3 {
+  font-size: 18px;
+  margin: 25px 0 15px;
+  color: #fff;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.shop-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.shop-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.shop-item.popular {
+  border-color: rgba(255, 149, 0, 0.5);
+  box-shadow: 0 4px 15px rgba(255, 149, 0, 0.2);
+}
+
+.shop-item.best-value {
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
+.shop-item.premium {
+  background: linear-gradient(135deg, rgba(88, 86, 214, 0.2), rgba(255, 45, 85, 0.2));
+  border-color: rgba(255, 45, 85, 0.5);
+}
+
+.shop-item.owned {
+  opacity: 0.6;
+  border-color: rgba(139, 148, 158, 0.3);
+}
+
+.badge-popular, .badge-best {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.badge-popular {
+  background: #ff9500;
+  color: #fff;
+}
+
+.badge-best {
+  background: #ffd700;
+  color: #000;
+}
+
+.item-icon {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.item-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.item-description {
+  font-size: 13px;
+  color: #8b949e;
+  margin-bottom: 10px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.item-effect {
+  font-size: 14px;
+  color: #00ff88;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-align: center;
+  padding: 8px;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 6px;
+}
+
+.item-price {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.price-stars {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.price-free {
+  font-size: 20px;
+  font-weight: bold;
+  color: #00ff88;
+}
+
+.btn-buy {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #00ff88, #00aaff);
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-buy:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+}
+
+.btn-buy:active {
+  transform: translateY(0);
+}
+
+.btn-owned {
+  width: 100%;
+  padding: 12px;
+  background: rgba(139, 148, 158, 0.2);
+  border: 1px solid rgba(139, 148, 158, 0.3);
+  border-radius: 8px;
+  color: #8b949e;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: not-allowed;
+}
+
+.shop-info {
+  background: rgba(0, 170, 255, 0.1);
+  border: 1px solid rgba(0, 170, 255, 0.3);
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 30px;
+}
+
+.shop-info p {
+  font-size: 13px;
+  color: #8b949e;
+  margin: 8px 0;
+}
+
+@media (max-width: 600px) {
+  .shop-grid {
+    grid-template-columns: 1fr;
+  }
+}

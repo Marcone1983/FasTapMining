@@ -264,6 +264,57 @@ bot.on('callback_query', async (ctx) => {
   }
 });
 
+// Handle pre-checkout query (REQUIRED for Telegram Stars payments)
+bot.on('pre_checkout_query', async (ctx) => {
+  try {
+    // Always approve for Telegram Stars
+    // Validation already done when invoice was created
+    await ctx.answerPreCheckoutQuery(true);
+  } catch (error) {
+    console.error('Pre-checkout error:', error);
+    await ctx.answerPreCheckoutQuery(false, 'Payment processing error. Please try again.');
+  }
+});
+
+// Handle successful payment
+bot.on('successful_payment', async (ctx) => {
+  try {
+    const payment = ctx.message.successful_payment;
+    const userId = ctx.from.id;
+    const payload = payment.invoice_payload;
+    const telegramPaymentChargeId = payment.telegram_payment_charge_id;
+
+    console.log('Payment received:', {
+      userId,
+      payload,
+      amount: payment.total_amount,
+      currency: payment.currency,
+      chargeId: telegramPaymentChargeId
+    });
+
+    // Import shop handler
+    const { handleSuccessfulPayment } = require('./shop');
+
+    // Activate boost
+    const success = await handleSuccessfulPayment(userId, payload, telegramPaymentChargeId);
+
+    if (!success) {
+      await ctx.reply(
+        '⚠️ Payment received but activation failed.\n\n' +
+        'Please contact support: @FasTapMiningSupport\n' +
+        `Payment ID: ${telegramPaymentChargeId}`
+      );
+    }
+  } catch (error) {
+    console.error('Successful payment handler error:', error);
+    await ctx.reply(
+      '⚠️ Payment received but there was an error.\n\n' +
+      'Don\'t worry - we received your payment.\n' +
+      'Contact support: @FasTapMiningSupport'
+    );
+  }
+});
+
 // Export for serverless
 module.exports = async (req, res) => {
   try {
