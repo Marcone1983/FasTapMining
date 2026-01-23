@@ -67,43 +67,40 @@ function App() {
     }
   }, []);
 
-  // Initialize TON Connect with timeout and retry logic
+  // Initialize TON Connect with proper loading check
   useEffect(() => {
     const initTonConnect = async () => {
       try {
-        // Set a timeout for initialization
-        const initTimeout = setTimeout(() => {
-          console.warn('TON Connect initialization timeout');
-          setTonConnectReady(false);
-          // Allow retry by showing error state
-        }, 10000); // 10 second timeout
-
-        // Use official TON Connect UI - prefer window object over dynamic import
-        let TonConnectUI;
-        if (window.TonConnectUI) {
-          TonConnectUI = window.TonConnectUI;
-        } else {
-          // Fallback to loading from CDN - pinned to specific version for security
-          console.log('Loading TON Connect UI from CDN...');
-          const module = await Promise.race([
-            import('https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js'),
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('CDN load timeout')), 8000)
-            )
-          ]);
-          TonConnectUI = module.TonConnectUI;
+        console.log('Starting TON Connect initialization...');
+        
+        // Wait for TonConnectUI to be available from the script tag
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds (50 * 100ms)
+        
+        while (!window.TonConnectUI && attempts < maxAttempts) {
+          console.log(`Waiting for TonConnectUI to load... attempt ${attempts + 1}`);
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
         }
 
-        if (!TonConnectUI) {
-          throw new Error('TonConnectUI not available');
+        if (!window.TonConnectUI) {
+          throw new Error('TonConnectUI library not loaded after 5 seconds');
         }
 
-        tonConnectUI.current = new TonConnectUI({
+        console.log('TonConnectUI library loaded, initializing...');
+
+        // Initialize TON Connect UI
+        tonConnectUI.current = new window.TonConnectUI({
           manifestUrl: TON_CONNECT_MANIFEST,
           buttonRootId: null
         });
 
+        console.log('TON Connect UI instance created');
+
+        // Set up wallet status change listener
         tonConnectUI.current.onStatusChange((wallet) => {
+          console.log('Wallet status changed:', wallet ? 'connected' : 'disconnected');
+          
           if (wallet) {
             const address = wallet.account.address;
             setWalletAddress(address);
@@ -134,31 +131,35 @@ function App() {
         // Check if already connected
         const currentWallet = tonConnectUI.current.wallet;
         if (currentWallet) {
+          console.log('Wallet already connected');
           const address = currentWallet.account.address;
           setWalletAddress(address);
           setWalletConnected(true);
           setShowWalletModal(false);
         }
 
-        // Mark as ready and clear timeout
-        clearTimeout(initTimeout);
+        // Mark as ready
         setTonConnectReady(true);
         console.log('✅ TON Connect initialized successfully');
+        
       } catch (error) {
-        console.error('TON Connect init error:', error);
+        console.error('❌ TON Connect init error:', error);
         setTonConnectReady(false);
         
         // Show user-friendly error
         if (window.Telegram?.WebApp?.showAlert) {
           window.Telegram.WebApp.showAlert(
-            'Failed to initialize TON Connect. Please check your connection and reload the app.'
+            'Failed to initialize TON Connect. Please reload the app.\n\nError: ' + error.message
           );
         }
       }
     };
 
     if (userId) {
+      console.log('User ID set, initializing TON Connect for user:', userId);
       initTonConnect();
+    } else {
+      console.log('Waiting for user ID...');
     }
   }, [userId]);
 
