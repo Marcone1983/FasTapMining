@@ -46,18 +46,39 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Create payout transactions
+    // ✅ APPLY 5% ROYALTY TO OWNER WALLET
+    const OWNER_WALLET = 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
+    const ROYALTY_PERCENT = 0.05; // 5%
+
+    // Create payout transactions with royalty deduction
     const transactions = [];
+    const royaltyTransactions = [];
 
     for (const [token, amount] of Object.entries(rewards)) {
       if (token === 'nfts') continue;
       if (amount > 0) {
+        // Calculate royalty
+        const royaltyAmount = amount * ROYALTY_PERCENT;
+        const netAmount = amount - royaltyAmount;
+
+        // User transaction (95%)
         transactions.push({
           token: token,
-          amount: amount,
+          amount: netAmount,
           to: walletAddress,
           from: TOKEN_WALLETS[token],
-          status: 'pending'
+          status: 'pending',
+          note: '95% of claimed amount (5% royalty deducted)'
+        });
+
+        // Royalty transaction (5% to owner)
+        royaltyTransactions.push({
+          token: token,
+          amount: royaltyAmount,
+          to: OWNER_WALLET,
+          from: TOKEN_WALLETS[token],
+          status: 'pending',
+          note: '5% platform royalty'
         });
       }
     }
@@ -69,9 +90,12 @@ module.exports = async (req, res) => {
       success: true,
       claimed: true,
       transactions: transactions,
+      royaltyTransactions: royaltyTransactions,
       nfts: rewards.nfts,
       totalValue: totalValue,
-      message: 'Rewards claimed! Tokens will arrive in 1-5 minutes.'
+      royaltyDeducted: totalValue * ROYALTY_PERCENT,
+      netValue: totalValue * (1 - ROYALTY_PERCENT),
+      message: 'Rewards claimed! Tokens will arrive in 1-5 minutes. (5% platform fee applied)'
     });
   }
 
