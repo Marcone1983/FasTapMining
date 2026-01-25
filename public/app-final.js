@@ -126,55 +126,6 @@ useEffect(() => {
 
   initTonConnect();
 }, [userId]);
-        tonConnectUI.current.onStatusChange((wallet) => {
-          if (wallet) {
-            const address = wallet.account.address;
-            setWalletAddress(address);
-            setWalletConnected(true);
-            setShowWalletModal(false);
-
-            // Save wallet to backend
-            if (userId) {
-              fetch('/api/claim', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  userId: userId,
-                  walletAddress: address
-                })
-              });
-
-              loadUserData(userId);
-              loadShop();
-            }
-          } else {
-            setWalletConnected(false);
-            setWalletAddress('');
-            setShowWalletModal(true);
-          }
-        });
-
-        // Check if already connected
-        const currentWallet = tonConnectUI.current.wallet;
-        if (currentWallet) {
-          const address = currentWallet.account.address;
-          setWalletAddress(address);
-          setWalletConnected(true);
-          setShowWalletModal(false);
-        }
-
-        // Mark as ready
-        setTonConnectReady(true);
-      } catch (error) {
-        console.error('TON Connect init error:', error);
-        setTonConnectReady(false);
-      }
-    };
-
-    if (userId) {
-      initTonConnect();
-    }
-  }, [userId]);
 
   // Initialize WebSocket for REAL-TIME stats
   useEffect(() => {
