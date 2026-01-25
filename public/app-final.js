@@ -2,6 +2,7 @@ const { useState, useEffect, useRef } = React;
 
 // TON Connect Integration
 const TON_CONNECT_MANIFEST = 'https://fas-tap-mining.vercel.app/tonconnect-manifest.json';
+
 function App() {
   const [view, setView] = useState('mining');
   const [userId, setUserId] = useState(null);
@@ -45,7 +46,11 @@ function App() {
   const [isGod, setIsGod] = useState(false);
 
   const wsRef = useRef(null);
-  const tonConnectUI = useRef(null);
+
+  // TON CONNECT
+  const tonConnectUIRef = useRef(null);
+  const tonConnectUnsubRef = useRef(null);
+  const tonConnectInitRef = useRef(false); // evita doppia init
 
   const pools = {
     minex: { name: 'MineX', token: 'MineX', color: '#00ff88', weight: '40%', reward: 100 },
@@ -53,136 +58,150 @@ function App() {
     mrdn: { name: 'Meridian', token: 'MRDN', color: '#5856d6', weight: '30%', reward: 1000, nft: true }
   };
 
-  // Initialize Telegram WebApp
+  // --------------------------------------------
+  // 1) Initialize Telegram WebApp
+  // --------------------------------------------
   useEffect(() => {
-    window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand();
-    window.Telegram.WebApp.enableClosingConfirmation();
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (!tg) return;
 
-    const user = window.Telegram.WebApp.initDataUnsafe.user;
-    if (user) {
-      setUserId(user.id);
-      setUsername(user.username || user.first_name || `User${user.id}`);
+    try {
+      tg.ready();
+      tg.expand();
+      tg.enableClosingConfirmation();
+
+      const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+      if (user) {
+        setUserId(user.id);
+        setUsername(user.username || user.first_name || `User${user.id}`);
+      }
+    } catch (e) {
+      console.error('Telegram WebApp init error:', e);
     }
   }, []);
 
-// Initialize TON Connect (PRODUCTION READY + dynamic loader)
-useEffect(() => {
-  let unsub = null;
-  let cancelled = false;
+  // --------------------------------------------
+  // 2) Initialize TON Connect (NO CDN, SOLO LOCALE)
+  //    Richiede che in index.html ci sia:
+  //    <script src="/vendor/tonconnect-ui.min.js"></script>
+  // --------------------------------------------
+  useEffect(() => {
+    if (tonConnectInitRef.current) return; // init una volta sola
+    tonConnectInitRef.current = true;
 
-  const loadTonConnectScript = () => {
-    return new Promise((resolve, reject) => {
-      // Se già presente, ok
-      if (window.TonConnectUI || window.TonConnectUI?.TonConnectUI) return resolve();
+    let cancelled = false;
 
-      // Evita doppio script
-      const existing = document.querySelector('script[data-tonconnect-ui="1"]');
-      if (existing) {
-        existing.addEventListener('load', () => resolve());
-        existing.addEventListener('error', () => reject(new Error('TON Connect script failed to load')));
-        return;
-      }
+    const getTonConnectUIClass = () => {
+      // A seconda di come è bundlato il file UMD, può esporre:
+      // - window.TonConnectUI
+      // - window.TonConnectUI.TonConnectUI
+      // - window.TonConnectUI (come classe)
+      const w = window;
 
-      const s = document.createElement('script');
-      s.src = 'https://unpkg.com/@tonconnect/ui@0.0.34/dist/tonconnect-ui.min.js';
-      s.async = true;
-      s.setAttribute('data-tonconnect-ui', '1');
+      // Caso A: window.TonConnectUI è la classe
+      if (typeof w.TonConnectUI === 'function') return w.TonConnectUI;
 
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error('TON Connect script failed to load (network/blocked/cached)'));
+      // Caso B: window.TonConnectUI.TonConnectUI è la classe
+      if (w.TonConnectUI && typeof w.TonConnectUI.TonConnectUI === 'function') return w.TonConnectUI.TonConnectUI;
 
-      document.head.appendChild(s);
-    });
-  };
+      // Caso C: altri wrapper (fallback)
+      if (w.TonConnectUI && typeof w.TonConnectUI.default === 'function') return w.TonConnectUI.default;
 
-  const initTonConnect = async () => {
-    try {
-      // Stato UI: mentre carica
-      setTonConnectReady(false);
+      return null;
+    };
 
-      // 1) assicura script caricato
-      await loadTonConnectScript();
-      if (cancelled) return;
+    const init = async () => {
+      try {
+        setTonConnectReady(false);
 
-      // 2) risolvi classe UMD
-      const TonConnectUIClass =
-        window.TonConnectUI?.TonConnectUI ||
-        window.TonConnectUI ||
-        null;
+        const TonConnectUIClass = getTonConnectUIClass();
+        if (!TonConnectUIClass) {
+          throw new Error(
+            'TonConnectUI non trovato su window. Verifica che index.html includa /vendor/tonconnect-ui.min.js PRIMA di app-final.js'
+          );
+        }
 
-      if (!TonConnectUIClass) {
-        throw new Error('TonConnectUI class not found on window after script load');
-      }
-
-      // 3) istanzia UNA sola volta
-      if (!tonConnectUI.current) {
-        tonConnectUI.current = new TonConnectUIClass({
+        // Istanzia una sola volta
+        tonConnectUIRef.current = new TonConnectUIClass({
           manifestUrl: TON_CONNECT_MANIFEST
         });
-      }
 
-      // 4) listener
-      if (typeof tonConnectUI.current.onStatusChange === 'function') {
-        unsub = tonConnectUI.current.onStatusChange((wallet) => {
-          const address = wallet?.account?.address || '';
+        // Listener status
+        if (typeof tonConnectUIRef.current.onStatusChange === 'function') {
+          tonConnectUnsubRef.current = tonConnectUIRef.current.onStatusChange((wallet) => {
+            const address = wallet && wallet.account && wallet.account.address ? wallet.account.address : '';
 
-          if (address) {
-            setWalletAddress(address);
-            setWalletConnected(true);
-            setShowWalletModal(false);
-
-            // Salva sul backend solo se userId disponibile
-            if (userId) {
-              fetch('/api/claim', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, walletAddress: address })
-              }).catch(() => {});
+            if (address) {
+              setWalletAddress(address);
+              setWalletConnected(true);
+              setShowWalletModal(false);
+            } else {
+              setWalletConnected(false);
+              setWalletAddress('');
+              setShowWalletModal(true);
             }
-          } else {
-            setWalletConnected(false);
-            setWalletAddress('');
-            setShowWalletModal(true);
-          }
-        });
+          });
+        }
+
+        // Restore session (se l’SDK espone wallet già connesso)
+        const currentWallet = tonConnectUIRef.current.wallet;
+        const currentAddress = currentWallet && currentWallet.account && currentWallet.account.address
+          ? currentWallet.account.address
+          : '';
+
+        if (currentAddress) {
+          setWalletAddress(currentAddress);
+          setWalletConnected(true);
+          setShowWalletModal(false);
+        }
+
+        // Se esiste connectionRestored (alcune versioni), attendila ma non bloccare UI
+        if (tonConnectUIRef.current.connectionRestored && typeof tonConnectUIRef.current.connectionRestored.then === 'function') {
+          tonConnectUIRef.current.connectionRestored.catch(() => {});
+        }
+
+        if (!cancelled) setTonConnectReady(true);
+      } catch (err) {
+        console.error('TON Connect init error:', err);
+        if (!cancelled) setTonConnectReady(false);
+
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && typeof tg.showAlert === 'function') {
+          tg.showAlert(
+            'TON Connect non si è inizializzato. Controlla che /vendor/tonconnect-ui.min.js sia caricato in index.html (NO unpkg) e riprova.'
+          );
+        }
       }
+    };
 
-      // 5) restore session
-      const currentWallet = tonConnectUI.current.wallet;
-      const currentAddress = currentWallet?.account?.address || '';
-      if (currentAddress) {
-        setWalletAddress(currentAddress);
-        setWalletConnected(true);
-        setShowWalletModal(false);
-      }
+    init();
 
-      // 6) UI pronta
-      setTonConnectReady(true);
-    } catch (err) {
-      console.error('TON Connect init error:', err);
+    return () => {
+      cancelled = true;
+      try {
+        if (typeof tonConnectUnsubRef.current === 'function') tonConnectUnsubRef.current();
+      } catch (_) {}
+    };
+  }, []);
 
-      // IMPORTANTISSIMO: se fallisce, almeno rendi cliccabile e mostra errore user-friendly
-      setTonConnectReady(false);
+  // --------------------------------------------
+  // 3) Quando wallet è connesso e userId esiste, salva association backend
+  // --------------------------------------------
+  useEffect(() => {
+    if (!walletConnected) return;
+    if (!walletAddress) return;
+    if (!userId) return;
 
-      // Se sei in Telegram WebApp, mostra alert leggibile
-      if (window.Telegram?.WebApp?.showAlert) {
-        window.Telegram.WebApp.showAlert(
-          'TON Connect non si è inizializzato. Probabile script bloccato o non caricato. Guarda console/log e riprova.'
-        );
-      }
-    }
-  };
+    fetch('/api/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, walletAddress })
+    }).catch(() => {});
+  }, [walletConnected, walletAddress, userId]);
 
-  initTonConnect();
-
-  return () => {
-    cancelled = true;
-    if (typeof unsub === 'function') unsub();
-  };
-}, [userId]);
-
-  // Initialize WebSocket for REAL-TIME stats
+  // --------------------------------------------
+  // WebSocket REAL-TIME stats
+  // --------------------------------------------
   useEffect(() => {
     if (!walletConnected) return;
 
@@ -202,11 +221,11 @@ useEffect(() => {
         if (message.type === 'stats_update') {
           setRealtimeStats(message.data);
         } else if (message.type === 'block_found') {
-          // Someone found a block!
-          if (window.Telegram?.WebApp?.HapticFeedback) {
-            window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+          const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+          if (tg && tg.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred('warning');
           }
-          // Reload blocks
+
           setRealtimeStats(prev => ({
             ...prev,
             recentBlocks: [message.data, ...prev.recentBlocks.slice(0, 9)]
@@ -223,20 +242,17 @@ useEffect(() => {
 
     ws.onclose = () => {
       console.log('❌ WebSocket disconnected');
-      // Reconnect after 3 seconds
       setTimeout(() => {
-        if (walletConnected) {
-          window.location.reload();
-        }
+        if (walletConnected) window.location.reload();
       }, 3000);
     };
 
     wsRef.current = ws;
 
     return () => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close();
-      }
+      try {
+        if (ws && ws.readyState === WebSocket.OPEN) ws.close();
+      } catch (_) {}
     };
   }, [walletConnected]);
 
@@ -276,23 +292,38 @@ useEffect(() => {
   // Connect TON Wallet - REAL
   const connectWallet = async () => {
     try {
-      if (!tonConnectReady || !tonConnectUI.current) {
-        window.Telegram.WebApp.showAlert('Initializing TON Connect... Please wait a moment and try again.');
+      const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+      if (!tonConnectReady || !tonConnectUIRef.current) {
+        if (tg && tg.showAlert) tg.showAlert('Initializing TON Connect... Attendi e riprova.');
         return;
       }
 
-      await tonConnectUI.current.openModal();
+      // openModal è corretto (se supportato dalla tua build)
+      if (typeof tonConnectUIRef.current.openModal === 'function') {
+        await tonConnectUIRef.current.openModal();
+        return;
+      }
+
+      // fallback: connectWallet (alcune build)
+      if (typeof tonConnectUIRef.current.connectWallet === 'function') {
+        await tonConnectUIRef.current.connectWallet();
+        return;
+      }
+
+      throw new Error('TonConnectUI: openModal/connectWallet non disponibili nella build caricata');
     } catch (error) {
       console.error('Connect wallet error:', error);
-      window.Telegram.WebApp.showAlert('Wallet connection failed: ' + error.message);
+      const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.showAlert) tg.showAlert('Wallet connection failed: ' + (error.message || 'Unknown error'));
     }
   };
 
   // Disconnect wallet
   const disconnectWallet = async () => {
     try {
-      if (tonConnectUI.current) {
-        await tonConnectUI.current.disconnect();
+      if (tonConnectUIRef.current && typeof tonConnectUIRef.current.disconnect === 'function') {
+        await tonConnectUIRef.current.disconnect();
       }
     } catch (error) {
       console.error('Disconnect error:', error);
@@ -322,9 +353,8 @@ useEffect(() => {
     if (!userId) return;
 
     try {
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-      }
+      const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
       const res = await fetch('/api/shop', {
         method: 'POST',
@@ -339,14 +369,15 @@ useEffect(() => {
       const data = await res.json();
 
       if (data.success) {
-        window.Telegram.WebApp.showAlert('Invoice sent! Check Telegram to complete payment.');
+        if (tg && tg.showAlert) tg.showAlert('Invoice sent! Check Telegram to complete payment.');
         setTimeout(() => loadShop(), 2000);
       } else {
-        window.Telegram.WebApp.showAlert(data.error || 'Purchase failed');
+        if (tg && tg.showAlert) tg.showAlert(data.error || 'Purchase failed');
       }
     } catch (error) {
       console.error('Purchase error:', error);
-      window.Telegram.WebApp.showAlert('Purchase failed: ' + error.message);
+      const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg && tg.showAlert) tg.showAlert('Purchase failed: ' + (error.message || 'Unknown error'));
     }
   };
 
@@ -354,9 +385,8 @@ useEffect(() => {
   const handleTap = async (e) => {
     if (!userId || !walletConnected) return;
 
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-      window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-    }
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -400,9 +430,8 @@ useEffect(() => {
   };
 
   const handleBlockFound = (data) => {
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-      window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-    }
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
     const pool = pools[selectedPool];
     setRewards(prev => ({
@@ -422,8 +451,10 @@ useEffect(() => {
   };
 
   const handleClaim = async () => {
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
     if (!walletConnected) {
-      window.Telegram.WebApp.showAlert('Please connect your wallet first!');
+      if (tg && tg.showAlert) tg.showAlert('Please connect your wallet first!');
       return;
     }
 
@@ -440,17 +471,15 @@ useEffect(() => {
       const data = await res.json();
 
       if (data.success) {
-        window.Telegram.WebApp.showAlert(data.message);
+        if (tg && tg.showAlert) tg.showAlert(data.message);
         setRewards({ MineX: 0, tBTC: 0, MRDN: 0 });
 
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        }
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
       } else {
-        window.Telegram.WebApp.showAlert(data.error || 'Claim failed');
+        if (tg && tg.showAlert) tg.showAlert(data.error || 'Claim failed');
       }
     } catch (error) {
-      window.Telegram.WebApp.showAlert('Claim error: ' + error.message);
+      if (tg && tg.showAlert) tg.showAlert('Claim error: ' + (error.message || 'Unknown error'));
     }
   };
 
@@ -464,17 +493,20 @@ useEffect(() => {
 
       const data = await res.json();
 
+      const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
       if (data.success && data.claimed) {
-        window.Telegram.WebApp.showAlert(
-          `🎉 Daily Reward Claimed!\n\n+${data.reward} MineX\nStreak: ${data.streak} days\nMultiplier: ${data.multiplier}x`
-        );
+        if (tg && tg.showAlert) {
+          tg.showAlert(
+            `Daily Reward Claimed!\n\n+${data.reward} MineX\nStreak: ${data.streak} days\nMultiplier: ${data.multiplier}x`
+          );
+        }
+
         loadUserData(userId);
 
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        }
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
       } else {
-        window.Telegram.WebApp.showAlert(data.message || 'Already claimed today');
+        if (tg && tg.showAlert) tg.showAlert(data.message || 'Already claimed today');
       }
     } catch (error) {
       console.error('Daily reward error:', error);
@@ -501,19 +533,27 @@ useEffect(() => {
   }, [view, leaderboardType, walletConnected]);
 
   const copyReferralLink = () => {
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     const link = `https://t.me/YourBotName?start=${referralCode}`;
     navigator.clipboard.writeText(link);
-    window.Telegram.WebApp.showAlert('Referral link copied!');
-
-    if (window.Telegram?.WebApp?.HapticFeedback) {
-      window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-    }
+    if (tg && tg.showAlert) tg.showAlert('Referral link copied!');
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
   };
 
   const shareReferralLink = () => {
     const link = `https://t.me/YourBotName?start=${referralCode}`;
     const text = `Join me on FasTapMining! Mine MineX, tBTC, and MRDN tokens. Use my referral code: ${referralCode}`;
-    window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg && typeof tg.openTelegramLink === 'function') {
+      tg.openTelegramLink(
+        `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`
+      );
+    } else {
+      window.open(
+        `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`,
+        '_blank'
+      );
+    }
   };
 
   const currentPool = pools[selectedPool];
@@ -562,10 +602,7 @@ useEffect(() => {
         <div className="header-content">
           <h1>⚡ FasTapMining</h1>
           <div className="header-actions">
-            <button
-              className="wallet-btn connected"
-              onClick={disconnectWallet}
-            >
+            <button className="wallet-btn connected" onClick={disconnectWallet}>
               ✅ {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
             </button>
           </div>
@@ -591,40 +628,22 @@ useEffect(() => {
 
       {/* Navigation */}
       <nav className="nav-bar">
-        <button
-          className={`nav-btn ${view === 'mining' ? 'active' : ''}`}
-          onClick={() => setView('mining')}
-        >
+        <button className={`nav-btn ${view === 'mining' ? 'active' : ''}`} onClick={() => setView('mining')}>
           ⛏️ Mine
         </button>
-        <button
-          className={`nav-btn ${view === 'shop' ? 'active' : ''}`}
-          onClick={() => { setView('shop'); loadShop(); }}
-        >
+        <button className={`nav-btn ${view === 'shop' ? 'active' : ''}`} onClick={() => { setView('shop'); loadShop(); }}>
           🛒 Shop {activeBoosts.length > 0 && <span className="badge">{activeBoosts.length}</span>}
         </button>
-        <button
-          className={`nav-btn ${view === 'referral' ? 'active' : ''}`}
-          onClick={() => setView('referral')}
-        >
+        <button className={`nav-btn ${view === 'referral' ? 'active' : ''}`} onClick={() => setView('referral')}>
           🤝 Refer
         </button>
-        <button
-          className={`nav-btn ${view === 'nfts' ? 'active' : ''}`}
-          onClick={() => setView('nfts')}
-        >
+        <button className={`nav-btn ${view === 'nfts' ? 'active' : ''}`} onClick={() => setView('nfts')}>
           🎨 NFTs {nfts.length > 0 && <span className="badge">{nfts.length}</span>}
         </button>
-        <button
-          className={`nav-btn ${view === 'achievements' ? 'active' : ''}`}
-          onClick={() => setView('achievements')}
-        >
+        <button className={`nav-btn ${view === 'achievements' ? 'active' : ''}`} onClick={() => setView('achievements')}>
           🏆 Achievements
         </button>
-        <button
-          className={`nav-btn ${view === 'leaderboard' ? 'active' : ''}`}
-          onClick={() => setView('leaderboard')}
-        >
+        <button className={`nav-btn ${view === 'leaderboard' ? 'active' : ''}`} onClick={() => setView('leaderboard')}>
           👑 Top
         </button>
       </nav>
@@ -646,9 +665,7 @@ useEffect(() => {
       {/* AutoTap Banner */}
       {autoTap && (
         <div className="autotap-banner-compact">
-          <span className="autotap-icon">
-            {autoTap.tier.includes('lifetime') ? '👑' : '⚡'}
-          </span>
+          <span className="autotap-icon">{autoTap.tier.includes('lifetime') ? '👑' : '⚡'}</span>
           <div className="autotap-info-compact">
             <div className="autotap-label">AutoTap Active</div>
             <div className="autotap-value">+{autoTap.sharesPerSecond}/sec</div>
@@ -689,11 +706,7 @@ useEffect(() => {
             </div>
 
             {tapAnimations.map(anim => (
-              <div
-                key={anim.id}
-                className="tap-animation"
-                style={{ left: anim.x, top: anim.y }}
-              >
+              <div key={anim.id} className="tap-animation" style={{ left: anim.x, top: anim.y }}>
                 +1
               </div>
             ))}
@@ -737,7 +750,7 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Other views same as before... */}
+      {/* Referral */}
       {view === 'referral' && (
         <div className="view referral-view">
           <h2>🤝 Invite Friends</h2>
@@ -771,6 +784,7 @@ useEffect(() => {
         </div>
       )}
 
+      {/* NFTs */}
       {view === 'nfts' && (
         <div className="view nfts-view">
           <h2>🎨 NFT Collection</h2>
@@ -798,6 +812,7 @@ useEffect(() => {
         </div>
       )}
 
+      {/* Achievements */}
       {view === 'achievements' && (
         <div className="view achievements-view">
           <h2>🏆 Achievements</h2>
@@ -825,36 +840,25 @@ useEffect(() => {
         </div>
       )}
 
+      {/* Leaderboard */}
       {view === 'leaderboard' && (
         <div className="view leaderboard-view">
           <h2>👑 Leaderboard</h2>
           <div className="leaderboard-tabs">
-            <button
-              className={leaderboardType === 'blocks' ? 'active' : ''}
-              onClick={() => setLeaderboardType('blocks')}
-            >
+            <button className={leaderboardType === 'blocks' ? 'active' : ''} onClick={() => setLeaderboardType('blocks')}>
               Blocks
             </button>
-            <button
-              className={leaderboardType === 'taps' ? 'active' : ''}
-              onClick={() => setLeaderboardType('taps')}
-            >
+            <button className={leaderboardType === 'taps' ? 'active' : ''} onClick={() => setLeaderboardType('taps')}>
               Taps
             </button>
-            <button
-              className={leaderboardType === 'referrals' ? 'active' : ''}
-              onClick={() => setLeaderboardType('referrals')}
-            >
+            <button className={leaderboardType === 'referrals' ? 'active' : ''} onClick={() => setLeaderboardType('referrals')}>
               Referrals
             </button>
           </div>
 
           <div className="leaderboard-list">
             {leaderboard.map((entry, i) => (
-              <div
-                key={i}
-                className={`leaderboard-entry ${entry.userId === userId ? 'current-user' : ''}`}
-              >
+              <div key={i} className={`leaderboard-entry ${entry.userId === userId ? 'current-user' : ''}`}>
                 <div className="rank">
                   {entry.rank <= 3 ? (
                     <span className={`medal medal-${entry.rank}`}>
@@ -872,14 +876,11 @@ useEffect(() => {
         </div>
       )}
 
+      {/* Shop */}
       {view === 'shop' && (
         <div className="view shop-view">
           <h2>🛒 Boost Shop</h2>
-          {isGod && (
-            <div className="god-mode-banner">
-              👑 GOD MODE - All items FREE for you!
-            </div>
-          )}
+          {isGod && <div className="god-mode-banner">👑 GOD MODE - All items FREE for you!</div>}
 
           {activeBoosts.length > 0 && (
             <div className="active-boosts-section">
@@ -910,19 +911,12 @@ useEffect(() => {
                   <div className="item-description">{item.description}</div>
                   <div className="item-effect">{item.effect}</div>
                   <div className="item-price">
-                    {isGod ? (
-                      <span className="price-free">FREE</span>
-                    ) : (
-                      <span className="price-stars">⭐ {item.price} Stars</span>
-                    )}
+                    {isGod ? <span className="price-free">FREE</span> : <span className="price-stars">⭐ {item.price} Stars</span>}
                   </div>
                   {item.alreadyOwned ? (
                     <button className="btn-owned" disabled>✓ Owned</button>
                   ) : (
-                    <button
-                      className="btn-buy"
-                      onClick={() => purchaseItem(item.id)}
-                    >
+                    <button className="btn-buy" onClick={() => purchaseItem(item.id)}>
                       {isGod ? 'Activate FREE' : 'Buy Now'}
                     </button>
                   )}
@@ -939,19 +933,12 @@ useEffect(() => {
                   <div className="item-description">{item.description}</div>
                   <div className="item-effect">{item.effect}</div>
                   <div className="item-price">
-                    {isGod ? (
-                      <span className="price-free">FREE</span>
-                    ) : (
-                      <span className="price-stars">⭐ {item.price} Stars</span>
-                    )}
+                    {isGod ? <span className="price-free">FREE</span> : <span className="price-stars">⭐ {item.price} Stars</span>}
                   </div>
                   {item.alreadyOwned ? (
                     <button className="btn-owned" disabled>✓ Owned</button>
                   ) : (
-                    <button
-                      className="btn-buy"
-                      onClick={() => purchaseItem(item.id)}
-                    >
+                    <button className="btn-buy" onClick={() => purchaseItem(item.id)}>
                       {isGod ? 'Activate FREE' : 'Buy Now'}
                     </button>
                   )}
@@ -968,19 +955,12 @@ useEffect(() => {
                   <div className="item-description">{item.description}</div>
                   <div className="item-effect">{item.effect}</div>
                   <div className="item-price">
-                    {isGod ? (
-                      <span className="price-free">FREE</span>
-                    ) : (
-                      <span className="price-stars">⭐ {item.price} Stars</span>
-                    )}
+                    {isGod ? <span className="price-free">FREE</span> : <span className="price-stars">⭐ {item.price} Stars</span>}
                   </div>
                   {item.alreadyOwned ? (
                     <button className="btn-owned" disabled>✓ Owned</button>
                   ) : (
-                    <button
-                      className="btn-buy"
-                      onClick={() => purchaseItem(item.id)}
-                    >
+                    <button className="btn-buy" onClick={() => purchaseItem(item.id)}>
                       {isGod ? 'Activate FREE' : 'Buy Now'}
                     </button>
                   )}
@@ -997,6 +977,7 @@ useEffect(() => {
         </div>
       )}
 
+      {/* Block Found Modal */}
       {blockFoundAnimation && (
         <div className="modal-overlay" onClick={() => setBlockFoundAnimation(null)}>
           <div className="block-found-modal">
@@ -1020,6 +1001,7 @@ useEffect(() => {
         </div>
       )}
 
+      {/* Achievement Toast */}
       {newAchievement && (
         <div className="achievement-toast">
           <div className="toast-icon">{newAchievement.icon}</div>
@@ -1033,4 +1015,10 @@ useEffect(() => {
   );
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+// React 18 UMD: prefer createRoot se esiste, altrimenti render
+const rootEl = document.getElementById('root');
+if (ReactDOM.createRoot) {
+  ReactDOM.createRoot(rootEl).render(<App />);
+} else {
+  ReactDOM.render(<App />, rootEl);
+}
