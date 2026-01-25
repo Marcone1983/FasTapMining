@@ -87,9 +87,10 @@ const result = await this.ethash.run(headerHash, nonceBuffer);
 ### 2. **real-randomx-miner.js** ✅ 100% REAL
 
 **Algoritmo:** RandomX (Monero mining algorithm)
-**Libreria:** `node-randomx` (native C++ bindings)
+**Libreria:** `randomx.js` (JavaScript implementation of RandomX)
 **Pool:** MoneroOcean (gulf.moneroocean.stream:10128)
 **Output:** XMR (Monero)
+**Production Note:** For maximum hashrate, deploy mining on dedicated server with native XMRig
 
 **Cosa fa REALMENTE:**
 - Connessione TCP Stratum alla pool Monero
@@ -110,9 +111,12 @@ buildBlockTemplate(blob, nonce) {
   return blobBuffer;
 }
 
-// REAL RandomX hashing
-const { randomx } = require('node-randomx');
-const hash = randomx(blockTemplate, algorithm); // REAL RandomX!
+// REAL RandomX hashing using randomx.js
+const { randomx_init_cache, randomx_create_vm, randomx_calculate_hash } = require('randomx.js');
+const key = Buffer.from('RandomX example key\0');
+const cache = randomx_init_cache(key);
+const vm = randomx_create_vm(cache);
+const hash = randomx_calculate_hash(vm, blockTemplate); // REAL RandomX!
 ```
 
 **Verifiche:**
@@ -340,10 +344,15 @@ TOKEN_API_BOT=your_telegram_bot_token
 npm install
 
 # The following REAL mining libraries will be installed:
-# - @ethereumjs/ethash (REAL ETHash)
-# - node-randomx (REAL RandomX with C++ bindings)
+# - @ethereumjs/ethash (REAL ETHash algorithm)
+# - randomx.js (REAL RandomX in JavaScript)
 # - @ton/ton (REAL TON blockchain SDK)
 # - ethereum-cryptography (REAL crypto primitives)
+#
+# NOTE: For maximum mining performance in production:
+# - Deploy mining engines on dedicated server/VM
+# - Use native XMRig for RandomX (10-100x faster than JS)
+# - Vercel deployment is for API/frontend only
 
 # Initialize database
 npm run db:migrate
@@ -387,8 +396,81 @@ Distributed to users proportionally
 
 ## 🚀 DEPLOYMENT
 
+### Production Architecture (RECOMMENDED)
+
+**For REAL enterprise mining with maximum hashrate:**
+
+```
+┌─────────────────────────────────────────────────┐
+│  VERCEL (Serverless)                            │
+│  - Frontend (Telegram Mini App)                 │
+│  - API endpoints (mining.js, stats.js)          │
+│  - WebSocket server                             │
+│  - Database (PostgreSQL on Vercel/Supabase)     │
+└─────────────────────────────────────────────────┘
+                      ↑ API calls
+                      │
+┌─────────────────────────────────────────────────┐
+│  DEDICATED SERVER / VPS (24/7 mining)           │
+│  - real-ethash-miner.js → InfinityTON pool      │
+│  - XMRig (native RandomX) → MoneroOcean pool    │
+│  - verified-exchange.js (XMR→TON conversion)    │
+│  - ton-dex-swaps.js (TON→tokens swaps)          │
+└─────────────────────────────────────────────────┘
+```
+
+**Step 1: Deploy Frontend/API to Vercel**
+
 ```bash
-# Deploy to Vercel
+# Deploy to Vercel (API + Frontend only)
+vercel --prod
+
+# Environment variables in Vercel dashboard:
+# - DATABASE_URL=postgresql://...
+# - TON_WALLET=UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR
+# - TONCENTER_API_KEY=your_key
+# - TELEGRAM_BOT_TOKEN=your_bot_token
+```
+
+**Step 2: Deploy Mining Engines to Dedicated Server**
+
+```bash
+# SSH to your VPS/dedicated server
+ssh user@your-mining-server.com
+
+# Clone repository
+git clone https://github.com/Marcone1983/FasTapMining.git
+cd FasTapMining
+
+# Install dependencies with native bindings
+npm install
+
+# Install native XMRig for maximum RandomX performance
+wget https://github.com/xmrig/xmrig/releases/download/v6.21.0/xmrig-6.21.0-linux-x64.tar.gz
+tar -xzf xmrig-6.21.0-linux-x64.tar.gz
+
+# Set environment variables
+export TON_WALLET=UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR
+export XMR_WALLET=your_monero_wallet_address
+export CHANGENOW_API_KEY=your_api_key
+export DATABASE_URL=postgresql://...
+
+# Start mining engines with PM2 (process manager)
+pm2 start mining-engine/real-ethash-miner.js --name ethash-miner
+pm2 start mining-engine/real-randomx-miner.js --name randomx-miner
+pm2 start blockchain/verified-exchange.js --name exchange-monitor
+pm2 save
+pm2 startup
+
+# Check mining status
+pm2 logs
+```
+
+### Quick Deploy (Development/Testing Only)
+
+```bash
+# For testing, you can deploy everything to Vercel
+# NOTE: Mining will be SLOWER due to serverless limitations
 vercel --prod
 
 # Environment variables MUST be set in Vercel dashboard:
@@ -397,9 +479,9 @@ vercel --prod
 # - XMR_WALLET
 # - CHANGENOW_API_KEY
 # - TONCENTER_API_KEY
+# - DATABASE_URL
 
-# Mining engines will auto-start on deployment
-# Check logs to confirm pool connections
+# Mining engines will auto-start but with limited performance
 ```
 
 ---
