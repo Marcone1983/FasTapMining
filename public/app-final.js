@@ -66,18 +66,66 @@ function App() {
     }
   }, []);
 
-  // Initialize TON Connect
-  useEffect(() => {
-    const initTonConnect = async () => {
-      try {
-        // Use official TON Connect UI
-        const TonConnectUI = window.TonConnectUI || (await import('https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js')).TonConnectUI;
+// Initialize TON Connect (PRODUCTION READY)
+useEffect(() => {
+  if (!userId) return;
 
-        tonConnectUI.current = new TonConnectUI({
-          manifestUrl: TON_CONNECT_MANIFEST,
-          buttonRootId: null
-        });
+  const initTonConnect = async () => {
+    try {
+      const TonConnectUIClass =
+        (window.TonConnectUI && window.TonConnectUI.TonConnectUI) ||
+        window.TonConnectUI;
 
+      if (!TonConnectUIClass) {
+        throw new Error('TonConnectUI not loaded. Check index.html script tag.');
+      }
+
+      tonConnectUI.current = new TonConnectUIClass({
+        manifestUrl: TON_CONNECT_MANIFEST
+      });
+
+      tonConnectUI.current.onStatusChange((wallet) => {
+        if (wallet && wallet.account && wallet.account.address) {
+          const address = wallet.account.address;
+
+          setWalletAddress(address);
+          setWalletConnected(true);
+          setShowWalletModal(false);
+          setTonConnectReady(true);
+
+          fetch('/api/claim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId,
+              walletAddress: address
+            })
+          }).catch(() => {});
+        } else {
+          setWalletConnected(false);
+          setWalletAddress('');
+          setShowWalletModal(true);
+        }
+      });
+
+      // Restore session if wallet already connected
+      const currentWallet = tonConnectUI.current.wallet;
+      if (currentWallet && currentWallet.account?.address) {
+        const address = currentWallet.account.address;
+        setWalletAddress(address);
+        setWalletConnected(true);
+        setShowWalletModal(false);
+      }
+
+      setTonConnectReady(true);
+    } catch (error) {
+      console.error('TON Connect init error:', error);
+      setTonConnectReady(false);
+    }
+  };
+
+  initTonConnect();
+}, [userId]);
         tonConnectUI.current.onStatusChange((wallet) => {
           if (wallet) {
             const address = wallet.account.address;
