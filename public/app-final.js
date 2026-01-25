@@ -68,63 +68,81 @@ function App() {
 
 // Initialize TON Connect (PRODUCTION READY)
 useEffect(() => {
-  if (!userId) return;
+  let unsub = null;
 
-  const initTonConnect = async () => {
+  const initTonConnect = () => {
     try {
+      // IMPORTANT: in molti build UMD la classe è direttamente window.TonConnectUI
       const TonConnectUIClass =
-        (window.TonConnectUI && window.TonConnectUI.TonConnectUI) ||
-        window.TonConnectUI;
+        window.TonConnectUI?.TonConnectUI ||
+        window.TonConnectUI ||
+        window.tonConnectUI ||
+        null;
 
       if (!TonConnectUIClass) {
-        throw new Error('TonConnectUI not loaded. Check index.html script tag.');
+        throw new Error(
+          'TonConnectUI not found on window. Check index.html tonconnect-ui.min.js script is loaded BEFORE app-final.js'
+        );
       }
 
-      tonConnectUI.current = new TonConnectUIClass({
-        manifestUrl: TON_CONNECT_MANIFEST
-      });
+      // Istanzia una sola volta
+      if (!tonConnectUI.current) {
+        tonConnectUI.current = new TonConnectUIClass({
+          manifestUrl: TON_CONNECT_MANIFEST
+        });
+      }
 
-      tonConnectUI.current.onStatusChange((wallet) => {
-        if (wallet && wallet.account && wallet.account.address) {
-          const address = wallet.account.address;
+      // Aggancia listener UNA sola volta
+      if (typeof tonConnectUI.current.onStatusChange === 'function') {
+        unsub = tonConnectUI.current.onStatusChange((wallet) => {
+          const address = wallet?.account?.address || '';
 
-          setWalletAddress(address);
-          setWalletConnected(true);
-          setShowWalletModal(false);
-          setTonConnectReady(true);
+          if (address) {
+            setWalletAddress(address);
+            setWalletConnected(true);
+            setShowWalletModal(false);
+            setTonConnectReady(true);
 
-          fetch('/api/claim', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              userId,
-              walletAddress: address
-            })
-          }).catch(() => {});
-        } else {
-          setWalletConnected(false);
-          setWalletAddress('');
-          setShowWalletModal(true);
-        }
-      });
+            // Salva sul backend SOLO se hai userId (Telegram)
+            if (userId) {
+              fetch('/api/claim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, walletAddress: address })
+              }).catch(() => {});
+            }
+          } else {
+            setWalletConnected(false);
+            setWalletAddress('');
+            setShowWalletModal(true);
+            setTonConnectReady(true); // UI pronta comunque
+          }
+        });
+      }
 
-      // Restore session if wallet already connected
+      // Prova restore session
       const currentWallet = tonConnectUI.current.wallet;
-      if (currentWallet && currentWallet.account?.address) {
-        const address = currentWallet.account.address;
-        setWalletAddress(address);
+      const currentAddress = currentWallet?.account?.address || '';
+      if (currentAddress) {
+        setWalletAddress(currentAddress);
         setWalletConnected(true);
         setShowWalletModal(false);
       }
 
+      // SE ARRIVI QUI, UI È PRONTA
       setTonConnectReady(true);
-    } catch (error) {
-      console.error('TON Connect init error:', error);
+    } catch (err) {
+      console.error('TON Connect init error:', err);
       setTonConnectReady(false);
     }
   };
 
   initTonConnect();
+
+  return () => {
+    // cleanup listener se la libreria lo supporta
+    if (typeof unsub === 'function') unsub();
+  };
 }, [userId]);
 
   // Initialize WebSocket for REAL-TIME stats
