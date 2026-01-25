@@ -1,7 +1,7 @@
 const { useState, useEffect, useRef } = React;
 
 // TON Connect Integration
-const TON_CONNECT_MANIFEST = 'https://fastapmining.vercel.app/tonconnect-manifest.json';
+const TON_CONNECT_MANIFEST = 'const TON_CONNECT_MANIFEST = 'https://fas-tap-mining.vercel.app/tonconnect-manifest.json';
 
 function App() {
   const [view, setView] = useState('mining');
