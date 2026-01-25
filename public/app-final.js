@@ -66,33 +66,63 @@ function App() {
     }
   }, []);
 
-// Initialize TON Connect (PRODUCTION READY)
+// Initialize TON Connect (PRODUCTION READY + dynamic loader)
 useEffect(() => {
   let unsub = null;
+  let cancelled = false;
 
-  const initTonConnect = () => {
+  const loadTonConnectScript = () => {
+    return new Promise((resolve, reject) => {
+      // Se già presente, ok
+      if (window.TonConnectUI || window.TonConnectUI?.TonConnectUI) return resolve();
+
+      // Evita doppio script
+      const existing = document.querySelector('script[data-tonconnect-ui="1"]');
+      if (existing) {
+        existing.addEventListener('load', () => resolve());
+        existing.addEventListener('error', () => reject(new Error('TON Connect script failed to load')));
+        return;
+      }
+
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/@tonconnect/ui@0.0.34/dist/tonconnect-ui.min.js';
+      s.async = true;
+      s.setAttribute('data-tonconnect-ui', '1');
+
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('TON Connect script failed to load (network/blocked/cached)'));
+
+      document.head.appendChild(s);
+    });
+  };
+
+  const initTonConnect = async () => {
     try {
-      // IMPORTANT: in molti build UMD la classe è direttamente window.TonConnectUI
+      // Stato UI: mentre carica
+      setTonConnectReady(false);
+
+      // 1) assicura script caricato
+      await loadTonConnectScript();
+      if (cancelled) return;
+
+      // 2) risolvi classe UMD
       const TonConnectUIClass =
         window.TonConnectUI?.TonConnectUI ||
         window.TonConnectUI ||
-        window.tonConnectUI ||
         null;
 
       if (!TonConnectUIClass) {
-        throw new Error(
-          'TonConnectUI not found on window. Check index.html tonconnect-ui.min.js script is loaded BEFORE app-final.js'
-        );
+        throw new Error('TonConnectUI class not found on window after script load');
       }
 
-      // Istanzia una sola volta
+      // 3) istanzia UNA sola volta
       if (!tonConnectUI.current) {
         tonConnectUI.current = new TonConnectUIClass({
           manifestUrl: TON_CONNECT_MANIFEST
         });
       }
 
-      // Aggancia listener UNA sola volta
+      // 4) listener
       if (typeof tonConnectUI.current.onStatusChange === 'function') {
         unsub = tonConnectUI.current.onStatusChange((wallet) => {
           const address = wallet?.account?.address || '';
@@ -101,9 +131,8 @@ useEffect(() => {
             setWalletAddress(address);
             setWalletConnected(true);
             setShowWalletModal(false);
-            setTonConnectReady(true);
 
-            // Salva sul backend SOLO se hai userId (Telegram)
+            // Salva sul backend solo se userId disponibile
             if (userId) {
               fetch('/api/claim', {
                 method: 'POST',
@@ -115,12 +144,11 @@ useEffect(() => {
             setWalletConnected(false);
             setWalletAddress('');
             setShowWalletModal(true);
-            setTonConnectReady(true); // UI pronta comunque
           }
         });
       }
 
-      // Prova restore session
+      // 5) restore session
       const currentWallet = tonConnectUI.current.wallet;
       const currentAddress = currentWallet?.account?.address || '';
       if (currentAddress) {
@@ -129,18 +157,27 @@ useEffect(() => {
         setShowWalletModal(false);
       }
 
-      // SE ARRIVI QUI, UI È PRONTA
+      // 6) UI pronta
       setTonConnectReady(true);
     } catch (err) {
       console.error('TON Connect init error:', err);
+
+      // IMPORTANTISSIMO: se fallisce, almeno rendi cliccabile e mostra errore user-friendly
       setTonConnectReady(false);
+
+      // Se sei in Telegram WebApp, mostra alert leggibile
+      if (window.Telegram?.WebApp?.showAlert) {
+        window.Telegram.WebApp.showAlert(
+          'TON Connect non si è inizializzato. Probabile script bloccato o non caricato. Guarda console/log e riprova.'
+        );
+      }
     }
   };
 
   initTonConnect();
 
   return () => {
-    // cleanup listener se la libreria lo supporta
+    cancelled = true;
     if (typeof unsub === 'function') unsub();
   };
 }, [userId]);
