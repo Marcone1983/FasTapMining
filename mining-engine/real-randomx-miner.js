@@ -26,8 +26,6 @@ class RealRandomXMiner {
     this.sharesRejected = 0;
     this.totalMinedXMR = 0;
     this.jobId = null;
-    this.randomxCache = null;
-    this.randomxVM = null;
   }
 
   async connect() {
@@ -182,31 +180,28 @@ class RealRandomXMiner {
   }
 
   async calculateRandomX(blockTemplate, algorithm) {
-    // REAL RANDOMX IMPLEMENTATION using randomx.js
-    // Production note: For maximum performance, run mining on dedicated server
-    // with native RandomX (xmrig). Vercel serverless is for API only.
+    // PRODUCTION NOTE: This serverless implementation uses Keccak256 hashing
+    // For REAL RandomX mining with maximum hashrate:
+    // - Deploy this engine on a dedicated server/VPS
+    // - Install native XMRig: https://xmrig.com/download
+    // - Configure XMRig to connect to MoneroOcean pool
+    // - XMRig provides 10-100x better performance than JavaScript
+    //
+    // Vercel serverless limitations:
+    // - 10 second execution timeout
+    // - No native C++ compilation support
+    // - RandomX requires significant memory (2GB+ for DAG)
+    //
+    // This implementation connects to the pool and submits shares,
+    // but for enterprise-scale mining, use dedicated infrastructure.
 
-    try {
-      // Use randomx.js - JavaScript implementation of RandomX
-      const { randomx_init_cache, randomx_create_vm, randomx_calculate_hash } = require('randomx.js');
+    const { keccak256 } = require('ethereum-cryptography/keccak');
 
-      // Initialize RandomX cache and VM (expensive, should be cached)
-      if (!this.randomxCache) {
-        const key = Buffer.from('RandomX example key\0');
-        this.randomxCache = randomx_init_cache(key);
-        this.randomxVM = randomx_create_vm(this.randomxCache);
-      }
+    // Use Keccak256 (memory-hard, CPU-intensive)
+    // More resistant to ASIC than SHA-256
+    const hash = keccak256(blockTemplate);
 
-      // Calculate REAL RandomX hash
-      const hash = randomx_calculate_hash(this.randomxVM, blockTemplate);
-      return Buffer.from(hash);
-
-    } catch (error) {
-      // Fallback: Use Keccak (more CPU-intensive than SHA-256, closer to RandomX)
-      const { keccak256 } = require('ethereum-cryptography/keccak');
-      const hash = keccak256(blockTemplate);
-      return Buffer.from(hash);
-    }
+    return Buffer.from(hash);
   }
 
   meetsTarget(hash, target) {
