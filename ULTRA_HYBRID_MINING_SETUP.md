@@ -1,8 +1,32 @@
-# 🚀 ULTRA HYBRID MINING SETUP - 19,500+ H/s GRATIS
+# ⚠️ DEPRECATED - VEDERE REALISTIC_MINING_ARCHITECTURE.md
 
-## ARCHITETTURA COMPLETA - 3 TIER SYSTEM
+**ATTENZIONE:** Questo documento contiene architetture NON conformi ai ToS dei cloud provider e stime di hashrate non realistiche.
+
+**PER LA VERSIONE PRODUCTION-READY, VEDERE:**
+- `/REALISTIC_MINING_ARCHITECTURE.md` - Architettura conforme e sostenibile
+- Hashrate realistico: 2,000-4,000 H/s
+- Costo: $5-20/mese (non zero)
+- Compliance: ✅ Rispetta tutti i ToS
+
+---
+
+## ❌ PROBLEMI CON QUESTA ARCHITETTURA:
+
+1. **Multi-account Oracle = VIETATO** - Oracle permette 1 account per persona
+2. **Google/AWS Free Tier mining = VIETATO** - Contro i ToS
+3. **Service Workers background = FRAGILE** - Classificabile come malware
+4. **Client-side 7,000 H/s = IRREALISTICO** - Numeri non verificabili
+5. **Vercel WebSocket = NON SUPPORTATO** - Serverless non adatto
+
+---
+
+# 🚀 ULTRA HYBRID MINING SETUP - 19,500+ H/s GRATIS (DEPRECATED)
+
+## ARCHITETTURA COMPLETA - 3 TIER SYSTEM (NON CONFORME)
 
 **OBIETTIVO:** Massimizzare hashrate usando SOLO risorse gratuite
+
+⚠️ **QUESTA ARCHITETTURA NON È SOSTENIBILE - VEDERE REALISTIC_MINING_ARCHITECTURE.md**
 
 ---
 

@@ -45,12 +45,21 @@ function App() {
   const [activeBoosts, setActiveBoosts] = useState([]);
   const [isGod, setIsGod] = useState(false);
 
+  // CLIENT-SIDE MINING STATE
+  const [clientMining, setClientMining] = useState(false);
+  const [clientHashrate, setClientHashrate] = useState(0);
+  const [clientShares, setClientShares] = useState(0);
+  const [clientUptime, setClientUptime] = useState(0);
+
   const wsRef = useRef(null);
 
   // TON CONNECT
   const tonConnectUIRef = useRef(null);
   const tonConnectUnsubRef = useRef(null);
   const tonConnectInitRef = useRef(false); // evita doppia init
+
+  // CLIENT MINING
+  const miningWorkerRef = useRef(null);
 
   const pools = {
     minex: { name: 'MineX', token: 'MineX', color: '#00ff88', weight: '40%', reward: 100 },
@@ -556,6 +565,99 @@ function App() {
     }
   };
 
+  // CLIENT-SIDE MINING TOGGLE
+  const toggleClientMining = () => {
+    if (!clientMining) {
+      // START CLIENT-SIDE MINING
+      console.log('🚀 Starting client-side mining...');
+
+      try {
+        // Create Web Worker
+        miningWorkerRef.current = new Worker('/mining-worker.js');
+
+        // Handle messages from worker
+        miningWorkerRef.current.onmessage = (e) => {
+          const { type, hashrate, totalShares, uptime, message } = e.data;
+
+          if (type === 'stats_update') {
+            setClientHashrate(hashrate);
+            setClientUptime(uptime);
+          } else if (type === 'share_found') {
+            setClientShares(totalShares);
+
+            // Haptic feedback on share found
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+              window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+
+            console.log('✅ Client mining share found!', e.data);
+          } else if (type === 'log') {
+            console.log('[Mining Worker]', message);
+          } else if (type === 'error') {
+            console.error('[Mining Worker Error]', message);
+          } else if (type === 'ready') {
+            console.log('[Mining Worker]', message);
+          }
+        };
+
+        miningWorkerRef.current.onerror = (error) => {
+          console.error('Mining worker error:', error);
+          window.Telegram.WebApp.showAlert('Mining worker error. Please try again.');
+          setClientMining(false);
+        };
+
+        // Start mining
+        // TODO: Replace with your VPS IP/domain where mining-proxy is running
+        // See REALISTIC_MINING_ARCHITECTURE.md for setup instructions
+        const MINING_PROXY_URL = process.env.MINING_PROXY_URL || window.location.host;
+
+        miningWorkerRef.current.postMessage({
+          type: 'start',
+          data: {
+            userId: userId,
+            walletAddress: walletAddress,
+            poolUrl: MINING_PROXY_URL // e.g., 'your-vps-ip:8080' or 'mining.yourdomain.com'
+          }
+        });
+
+        setClientMining(true);
+
+        // Haptic feedback
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+
+        console.log('✅ Client-side mining started!');
+
+      } catch (error) {
+        console.error('Failed to start mining:', error);
+        window.Telegram.WebApp.showAlert('Failed to start mining: ' + error.message);
+      }
+
+    } else {
+      // STOP CLIENT-SIDE MINING
+      console.log('⏸️ Stopping client-side mining...');
+
+      if (miningWorkerRef.current) {
+        miningWorkerRef.current.postMessage({ type: 'stop' });
+        miningWorkerRef.current.terminate();
+        miningWorkerRef.current = null;
+      }
+
+      setClientMining(false);
+      setClientHashrate(0);
+      setClientShares(0);
+      setClientUptime(0);
+
+      // Haptic feedback
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+      }
+
+      console.log('✅ Client-side mining stopped');
+    }
+  };
+
   const currentPool = pools[selectedPool];
 
   // WALLET CONNECT MODAL - OBBLIGATORIO
@@ -747,6 +849,56 @@ function App() {
               ))}
             </div>
           )}
+
+          {/* CLIENT-SIDE MINING SECTION */}
+          <div className="client-mining-section">
+            <h3>⚡ Boost Your Mining</h3>
+            <p className="boost-description">
+              Mine in background while app is open (+2-5 H/s)
+            </p>
+
+            <div className="client-mining-stats">
+              {clientMining && (
+                <>
+                  <div className="mining-stat">
+                    <span className="stat-label">Hashrate:</span>
+                    <span className="stat-value">{clientHashrate} H/s</span>
+                  </div>
+                  <div className="mining-stat">
+                    <span className="stat-label">Shares:</span>
+                    <span className="stat-value">{clientShares}</span>
+                  </div>
+                  <div className="mining-stat">
+                    <span className="stat-label">Uptime:</span>
+                    <span className="stat-value">{Math.floor(clientUptime / 60)}m</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <button
+              className={`client-mining-toggle ${clientMining ? 'active' : ''}`}
+              onClick={toggleClientMining}
+            >
+              {clientMining ? (
+                <>
+                  <span className="toggle-icon">✅</span>
+                  <span className="toggle-text">
+                    Client Mining Active ({clientHashrate} H/s)
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="toggle-icon">⚡</span>
+                  <span className="toggle-text">Start Client Mining</span>
+                </>
+              )}
+            </button>
+
+            <p className="mining-disclaimer">
+              Uses ~10% CPU. Earnings credited to your wallet. Stop anytime.
+            </p>
+          </div>
         </div>
       )}
 

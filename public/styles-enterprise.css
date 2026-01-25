@@ -1319,3 +1319,122 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* CLIENT-SIDE MINING SECTION */
+.client-mining-section {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 170, 255, 0.1));
+  border: 2px solid rgba(0, 255, 136, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.client-mining-section h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, #00ff88, #00aaff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.boost-description {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 16px;
+}
+
+.client-mining-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+  margin-bottom: 16px;
+  min-height: 50px;
+}
+
+.mining-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mining-stat .stat-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mining-stat .stat-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ff88;
+}
+
+.client-mining-toggle {
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #00ff88, #00aaff);
+  color: #000;
+}
+
+.client-mining-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 255, 136, 0.4);
+}
+
+.client-mining-toggle:active {
+  transform: translateY(0);
+}
+
+.client-mining-toggle.active {
+  background: linear-gradient(135deg, #00ff88, #00ff88);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 255, 136, 0.8);
+  }
+}
+
+.toggle-icon {
+  font-size: 20px;
+}
+
+.toggle-text {
+  font-size: 16px;
+}
+
+.mining-disclaimer {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+  .client-mining-stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .client-mining-toggle {
+    padding: 14px 20px;
+    font-size: 14px;
+  }
+}

@@ -91,6 +91,15 @@ USER TAPS → Generates Hash → Contributes Shares to Pool
 - [x] Real-time state management
 - [x] Responsive mobile-first UI
 
+### Client-Side Mining (Opt-in)
+- [x] **Web Worker background mining** - Boost your hashrate (+2-5 H/s)
+- [x] **Transparent opt-in** - One-click toggle with clear disclosure
+- [x] **Real-time stats** - Hashrate, shares, uptime displayed
+- [x] **CPU throttling** - Max 10% CPU usage, battery-aware
+- [x] **Easy opt-out** - Stop mining anytime instantly
+
+📖 **See [REALISTIC_MINING_ARCHITECTURE.md](./REALISTIC_MINING_ARCHITECTURE.md)** for complete mining infrastructure setup (VPS + client mining)
+
 ---
 
 ## 📦 Project Structure
