@@ -109,6 +109,19 @@ Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
   port: 6379
 }
 Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 ❌ Error expiring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
     at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
@@ -121,6 +134,175 @@ Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
   address: '127.0.0.1',
   port: 5432
 }
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+
+🛑 Received SIGTERM, shutting down worker...
+🛑 Payment monitor worker stopped
+🔄 Starting payment monitor worker...
+⏰ Payment check interval: 30s
+⏰ Expiration check interval: 300s
+✅ Payment monitor worker started successfully
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error expiring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.expireOldPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:288:22)
+    at async PaymentMonitorWorker.expireOldPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:56:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
 Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 ❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
     at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
@@ -128,6 +310,19 @@ Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
     at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
     at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
     at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error expiring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.expireOldPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:431:22)
+    at async PaymentMonitorWorker.expireOldPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:57:7) {
   errno: -111,
   code: 'ECONNREFUSED',
   syscall: 'connect',
@@ -1295,19 +1490,6 @@ Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
-❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
-    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
-    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
-    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
-    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 5432
-}
-Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 ❌ Error expiring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
     at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
@@ -1320,103 +1502,6 @@ Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
   address: '127.0.0.1',
   port: 5432
 }
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
-Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 6379
-}
-Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
-Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
-❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
-    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
-    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
-    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
-    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
-  errno: -111,
-  code: 'ECONNREFUSED',
-  syscall: 'connect',
-  address: '127.0.0.1',
-  port: 5432
-}
-Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
-Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 ❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
     at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
@@ -1723,7 +1808,6 @@ Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
   port: 6379
 }
 Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
-Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
   errno: -111,
@@ -1732,6 +1816,117 @@ Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
   address: '127.0.0.1',
   port: 6379
 }
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
 ❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
     at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
@@ -2568,3 +2763,2760 @@ Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
   address: '127.0.0.1',
   port: 6379
 }
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error expiring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.expireOldPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:288:22)
+    at async PaymentMonitorWorker.expireOldPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:56:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error expiring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.expireOldPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:431:22)
+    at async PaymentMonitorWorker.expireOldPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:57:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error expiring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.expireOldPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:288:22)
+    at async PaymentMonitorWorker.expireOldPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:56:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error expiring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.expireOldPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:431:22)
+    at async PaymentMonitorWorker.expireOldPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:57:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring payments: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async LifetimeAccessService.monitorPendingPayments (/data/data/com.termux/files/home/FasTapMining/services/lifetime-access-service.js:263:31)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:45:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 2/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+Query attempt 3/3 failed: connect ECONNREFUSED 127.0.0.1:5432
+❌ Error monitoring purchases: Error: connect ECONNREFUSED 127.0.0.1:5432
+    at /data/data/com.termux/files/home/FasTapMining/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Object.query (/data/data/com.termux/files/home/FasTapMining/database/db.js:46:22)
+    at async MarketplaceService.monitorPendingPurchases (/data/data/com.termux/files/home/FasTapMining/services/marketplace-service.js:406:23)
+    at async PaymentMonitorWorker.checkPendingPayments (/data/data/com.termux/files/home/FasTapMining/workers/payment-monitor-worker.js:46:7) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5432
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Redis error: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 6379
+}
+Query attempt 1/3 failed: connect ECONNREFUSED 127.0.0.1:5432
