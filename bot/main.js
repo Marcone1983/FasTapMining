@@ -18,6 +18,14 @@ if (!process.env.TOKEN_API_BOT) {
 const bot = new TelegramBot(process.env.TOKEN_API_BOT, { polling: true });
 const WEBAPP_URL = process.env.WEBAPP_URL || 'https://fas-tap-mining.vercel.app';
 
+// Initialize REAL mining engine - Connect to ViaBTC pool
+const viaBTCMiner = require('../mining-engine/viabtc-scrypt-miner');
+viaBTCMiner.initialize().then(() => {
+  console.log('⛏️ ViaBTC Scrypt pool connected - REAL mining active!');
+}).catch(err => {
+  console.error('⚠️  ViaBTC connection failed - running in simulation mode:', err.message);
+});
+
 console.log('🤖 FasTap Mining Bot Started!');
 console.log(`📱 Web App URL: ${WEBAPP_URL}`);
 console.log(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
