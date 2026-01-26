@@ -477,6 +477,7 @@ function App() {
         body: JSON.stringify({
           userId,
           taps: newTaps,
+          poolId: 1,
           nonce: Math.floor(Math.random() * 1000000)
         })
       });
@@ -486,6 +487,14 @@ function App() {
       if (data.success) {
         setPendingShares(data.pendingShares || 0);
         setHashrate(data.hashrate || 0);
+        if (data.stats) {
+          setRealtimeStats(prev => ({
+            ...prev,
+            activeMiners: data.stats.activeMiners,
+            globalHashrate: data.stats.globalHashrate,
+            blocksFoundToday: data.stats.blocksFoundToday
+          }));
+        }
 
         if (data.rewards) {
           setBalances(prev => {

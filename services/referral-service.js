@@ -170,15 +170,13 @@ class ReferralService {
       );
 
       console.log(`🎁 Referral created: User ${referrer.telegram_id} referred ${newUser.telegram_id}`);
-
-      // Distribute rewards
-      await this.distributeReferralRewards(referrer.id, newUser.id);
+      console.log(`💡 Referrer will get 10% of referred user's mining hashrate automatically`);
 
       return {
         success: true,
         referrerId: referrer.id,
         referredId: newUser.id,
-        rewardsDistributed: true
+        rewardsDistributed: false // No upfront rewards - gets 10% mining bonus instead
       };
 
     } catch (error) {

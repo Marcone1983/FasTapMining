@@ -42,6 +42,33 @@ module.exports = async (req, res) => {
     // Add shares to database
     await db.Mining.addShares(user.id, poolId, shares, 1, hashrate);
 
+    // Update user hashrate and last_active
+    await db.query(
+      'UPDATE users SET hashrate = $1, last_active = NOW() WHERE id = $2',
+      [hashrate, user.id]
+    );
+
+    // Check if user has a referrer - give 10% mining reward to referrer
+    const referralCheck = await db.query(
+      `SELECT r.referrer_id, u.telegram_id as referrer_telegram_id
+       FROM referrals r
+       JOIN users u ON r.referrer_id = u.id
+       WHERE r.referred_id = $1`,
+      [user.id]
+    );
+
+    if (referralCheck.rows.length > 0) {
+      const referrer = referralCheck.rows[0];
+      const referralBonus = hashrate * 0.1; // 10% of hashrate to referrer
+
+      await db.query(
+        'UPDATE users SET hashrate = COALESCE(hashrate, 0) + $1 WHERE id = $2',
+        [referralBonus, referrer.referrer_id]
+      );
+
+      console.log(`🎁 Referral bonus: User ${referrer.referrer_telegram_id} gets +${referralBonus.toFixed(2)} H/s (10% of ${user.telegram_id}'s mining)`);
+    }
+
     // 🔥 REAL MINING ENGINE - VIABTC SCRYPT MERGE MINING!
     // Mines 8 coins simultaneously: LTC + DOGE + BELLS + LKY + PEP + JKC + DINGO + SHIC
     // User taps → REAL hashrate on ViaBTC pool
@@ -77,6 +104,28 @@ module.exports = async (req, res) => {
     // Get REAL mining stats from ViaBTC pool
     const viaBTCStats = viaBTCMiner.getStats();
 
+    // Get platform stats for frontend
+    const activeMinersResult = await db.query(
+      `SELECT COUNT(DISTINCT user_id) as count
+       FROM mining_shares
+       WHERE created_at > NOW() - INTERVAL '1 hour'`
+    );
+    const activeMiners = parseInt(activeMinersResult.rows[0]?.count || 0);
+
+    const globalHashrateResult = await db.query(
+      `SELECT COALESCE(SUM(hashrate), 0) as total
+       FROM users
+       WHERE last_active > NOW() - INTERVAL '1 hour'`
+    );
+    const globalHashrate = parseFloat(globalHashrateResult.rows[0]?.total || 0).toFixed(2);
+
+    const blocksFoundTodayResult = await db.query(
+      `SELECT COUNT(*) as count
+       FROM blocks
+       WHERE created_at >= CURRENT_DATE`
+    );
+    const blocksFoundToday = parseInt(blocksFoundTodayResult.rows[0]?.count || 0);
+
     return res.json({
       success: true,
       blockFound: false,
@@ -88,6 +137,12 @@ module.exports = async (req, res) => {
       difficulty: pool.difficulty,
       progress: progress + '%',
       hashrate: hashrate.toFixed(2),
+      // Platform stats for frontend
+      stats: {
+        activeMiners,
+        globalHashrate,
+        blocksFoundToday
+      },
       // REAL MINING STATS from ViaBTC pool (8 coins merge mining)
       realMining: {
         viabtc: {
