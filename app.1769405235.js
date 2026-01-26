@@ -453,7 +453,7 @@ function App() {
   // ============================================
 
   const handleTap = async (e) => {
-    if (!userId || !walletConnected) return;
+    if (!userId) return;
 
     hapticFeedback('light');
 
