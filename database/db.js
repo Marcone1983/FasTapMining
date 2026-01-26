@@ -16,25 +16,49 @@ const pool = new Pool({
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 
-// Redis client for caching
-const redis = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379',
-  socket: {
-    reconnectStrategy: (retries) => Math.min(retries * 100, 3000)
-  }
-});
+// Redis client for caching (DISABLED - not needed for production)
+let redis = null;
+let redisEnabled = false;
 
-redis.on('error', (err) => console.error('Redis error:', err));
-redis.on('connect', () => console.log('Redis connected'));
+// Only enable Redis if explicitly configured
+if (process.env.REDIS_URL && process.env.REDIS_ENABLED === 'true') {
+  redis = createClient({
+    url: process.env.REDIS_URL,
+    socket: {
+      reconnectStrategy: (retries) => {
+        // Stop retrying after 3 attempts
+        if (retries > 3) {
+          console.error('Redis: Max retries reached, disabling');
+          redisEnabled = false;
+          return false;
+        }
+        return Math.min(retries * 1000, 5000);
+      }
+    }
+  });
 
-// Initialize Redis connection
-(async () => {
-  try {
-    await redis.connect();
-  } catch (err) {
-    console.error('Redis connection failed:', err);
-  }
-})();
+  redis.on('error', (err) => {
+    console.error('Redis error:', err.message);
+    redisEnabled = false;
+  });
+
+  redis.on('connect', () => {
+    console.log('✅ Redis connected');
+    redisEnabled = true;
+  });
+
+  // Initialize Redis connection
+  (async () => {
+    try {
+      await redis.connect();
+    } catch (err) {
+      console.error('❌ Redis connection failed, continuing without cache:', err.message);
+      redisEnabled = false;
+    }
+  })();
+} else {
+  console.log('ℹ️  Redis disabled - running without cache (production mode)');
+}
 
 // Query wrapper with automatic retry
 async function query(text, params, retries = 3) {
@@ -83,7 +107,8 @@ async function transaction(callback) {
 
 // Cache wrapper
 async function cached(key, ttl, fetchFn) {
-  if (!redis.isOpen) {
+  // If Redis is not enabled or not connected, just fetch directly
+  if (!redisEnabled || !redis || !redis.isOpen) {
     return await fetchFn();
   }
 

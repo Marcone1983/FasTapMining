@@ -9,8 +9,8 @@ const marketplaceService = require('../services/marketplace-service');
  */
 class PaymentMonitorWorker {
   constructor() {
-    this.checkIntervalMs = 30 * 1000; // Check every 30 seconds
-    this.expireIntervalMs = 5 * 60 * 1000; // Expire old payments every 5 minutes
+    this.checkIntervalMs = 2 * 60 * 1000; // Check every 2 minutes (reduced CPU usage)
+    this.expireIntervalMs = 10 * 60 * 1000; // Expire old payments every 10 minutes
     this.isRunning = false;
   }
 
