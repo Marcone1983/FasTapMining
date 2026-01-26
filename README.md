@@ -126,7 +126,28 @@ FasTapMining/
 
 ## 🔧 Setup & Deployment
 
-### Prerequisites
+### ⚡ QUICK START - 3 Steps (15 minuti)
+
+**Vuoi deployare subito senza leggere guide lunghe?**
+
+👉 **[VAI A QUICK_START.md](./QUICK_START.md)** 👈
+
+3 comandi da copiare-incollare e sei online!
+
+---
+
+### 📚 Guide Complete
+
+**Scegli la guida adatta a te:**
+
+1. **[QUICK_START.md](./QUICK_START.md)** - 3 comandi, 15 minuti ⚡
+2. **[GUIDA_DEPLOYMENT_FACILE.md](./GUIDA_DEPLOYMENT_FACILE.md)** - Passo-passo con screenshot 📖
+3. **[REALISTIC_MINING_ARCHITECTURE.md](./REALISTIC_MINING_ARCHITECTURE.md)** - Architettura tecnica completa 🏗️
+4. **[COMPLIANCE_CHECKLIST.md](./COMPLIANCE_CHECKLIST.md)** - Checklist pre-deployment ✅
+
+---
+
+### Prerequisites (se vuoi fare manualmente)
 - GitHub account
 - Vercel account
 - Telegram Bot Token (@BotFather)
