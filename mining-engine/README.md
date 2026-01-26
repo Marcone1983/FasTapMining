@@ -1,195 +1,129 @@
-# FasTapMining - Real Mining Engine
+# ⛏️ Real Mining Engine - ViaBTC Scrypt Pool
 
-## 🔥 SISTEMA DI MINING REALE
+**REAL mining on ViaBTC pool with 8-coin merge mining!**
 
-Questo sistema converte i tap degli utenti in hashrate reale per minare Monero (XMR), che viene poi convertito automaticamente in MineX, tBTC e MRDN tramite DEX su TON.
+## 🎯 How It Works
 
-## 📋 Come Funziona
-
-1. **User Taps** → Gli utenti tappano nell'app
-2. **Hashrate Aggregation** → I tap vengono convertiti in hashpower (1000 taps = 1 H/s)
-3. **Real Mining** → Il backend mina XMR reale su pool Monero
-4. **Automatic Conversion** → XMR viene convertito in TON → MineX/tBTC/MRDN
-5. **Reward Distribution** → Token distribuiti proporzionalmente ai tap
-
-## ⚙️ Setup
-
-### 1. Wallet Monero
-
-Crea un wallet Monero per ricevere le mining rewards:
-
-```bash
-# Download Monero CLI
-wget https://downloads.getmonero.org/cli/monero-linux-x64-v0.18.3.1.tar.bz2
-tar -xjf monero-linux-x64-v0.18.3.1.tar.bz2
-
-# Create wallet
-./monero-wallet-cli --generate-new-wallet mining-wallet
-```
-
-Copia l'indirizzo del wallet in `.env`:
-```
-XMR_WALLET=your_monero_address_here
-```
-
-### 2. ChangeNOW API Key
-
-Registrati su [ChangeNOW](https://changenow.io/api/docs) per ottenere API key per conversioni crypto:
+User taps in Telegram → REAL hashrate contribution → Earnings from actual pool
 
 ```
-CHANGENOW_API_KEY=your_api_key_here
+USER TAPS (Telegram App)
+        ↓
+Converted to hashrate (0.1 H/s per tap)
+        ↓
+Submitted to ltc.viabtc.io:3333 (Stratum)
+        ↓
+REAL MINING on ViaBTC pool
+        ↓
+Rewards distributed from pool:
+  - LTC (Litecoin)
+  - DOGE (Dogecoin)
+  - BELLS (Bellscoin)
+  - LKY (Luckycoin)
+  - PEP (Pepecoin)
+  - JKC (Junkcoin)
+  - DINGO (Dingocoin)
+  - SHIC (Shicoin)
+        ↓
+Earnings saved to database per user
 ```
 
-### 3. TON Wallet
+## 📦 Files
 
-Configura il wallet TON che riceverà i token convertiti:
+- **viabtc-scrypt-miner.js** - Main mining engine
+  - Connects to ViaBTC Stratum pool
+  - Manages user hashrate contributions
+  - Distributes real earnings to users
 
-```
-TON_WALLET=your_ton_wallet_address
-```
+## 🔗 Pool Details
 
-## 🎯 Mining Pool Configuration
-
-Pool Monero utilizzato:
-- **Host**: `gulf.moneroocean.stream`
-- **Port**: `10128`
-- **Protocol**: Stratum
-- **Algorithm**: RandomX (CPU-optimized)
-
-### Perché Monero?
-
-1. **CPU-mineable** - Nessun bisogno di GPU costose
-2. **Profitable** - Buon ROI anche con CPU
-3. **Easy conversion** - Facilmente convertibile in altre crypto
-4. **Stable network** - Pool affidabili e reward stabili
-
-## 💰 Token Conversion Flow
-
-```
-User Taps
-   ↓
-XMR Mining (Monero Pool)
-   ↓
-XMR → TON (ChangeNOW)
-   ↓
-TON → 40% MineX (DeDust DEX)
-     30% tBTC  (DeDust DEX)
-     30% MRDN  (DeDust DEX)
-   ↓
-Distribution to Users (proportional to taps)
-```
-
-## 📊 Reward Calculation
-
-**Formula:**
 ```javascript
-userReward = (userTaps / totalTaps) * minedAmount
+Pool: ViaBTC Litecoin Merge Mining
+Host: ltc.viabtc.io
+Port: 3333 (main), 25 (fallback), 443 (SSL fallback)
+Algorithm: Scrypt
+Fee: Low (PPS+ mode)
+Coins: 8 simultaneous (LTC + DOGE + BELLS + LKY + PEP + JKC + DINGO + SHIC)
 ```
 
-**Example:**
-- Total taps: 100,000
-- Your taps: 1,000 (1%)
-- XMR mined: 0.001 XMR
-- Your share: 0.00001 XMR
-- Converted to:
-  - MineX: ~400 tokens
-  - tBTC: ~0.002 tokens
-  - MRDN: ~50 tokens
+## 🚀 Usage
 
-## 🚀 Start Mining
+The miner is automatically initialized when the server starts:
 
-```bash
-# Install dependencies
-npm install
+```javascript
+const viaBTCMiner = require('./mining-engine/viabtc-scrypt-miner');
 
-# Configure environment
-cp .env.example .env
-nano .env  # Add your wallet addresses and API keys
+// Auto-connects to pool on first require
+viaBTCMiner.initialize();
 
-# Start the mining engine
-npm run start-mining
+// Add user taps to hashrate pool
+viaBTCMiner.addUserTaps(userId, taps);
+
+// Get current stats
+const stats = viaBTCMiner.getStats();
 ```
 
-The mining engine will:
-1. Connect to Monero pool
-2. Aggregate user taps into hashrate
-3. Submit valid shares to pool
-4. Convert XMR to tokens automatically
-5. Distribute rewards to users
+## 📊 Stats Response
 
-## 📈 Monitoring
-
-Check mining stats:
-```bash
-curl http://localhost:3000/api/stats | jq .realMining
-```
-
-Output:
-```json
+```javascript
 {
-  "hashrate": "45.23 H/s",
-  "minedXMR": "0.000123 XMR",
-  "activeMiners": 1523,
-  "totalTaps": 45234
+  pool: 'ViaBTC Scrypt Merge Mining',
+  host: 'ltc.viabtc.io:3333',
+  algorithm: 'scrypt',
+  coins: ['LTC', 'DOGE', 'BELLS', 'LKY', 'PEP', 'JKC', 'DINGO', 'SHIC'],
+  connected: true,
+  hashrate: '125.40',
+  activeUsers: 42,
+  difficulty: 16384,
+  sharesSubmitted: 1523,
+  sharesAccepted: 1485,
+  sharesRejected: 38,
+  acceptRate: '97.50%',
+  earnings: {
+    LTC: 0.0012,
+    DOGE: 15.30,
+    BELLS: 8.50,
+    ...
+  }
 }
 ```
 
-## ⚠️ Requirements
+## ⚡ Hashrate Calculation
 
-- **Node.js** 18+ with worker threads support
-- **Stable internet** for pool connection
-- **Monero wallet** for receiving rewards
-- **ChangeNOW API key** for conversions
-- **TON wallet** for final token distribution
-
-## 🔧 Advanced Configuration
-
-### Custom Mining Pool
-
-Edit `real-mining.js` to use different pool:
-
-```javascript
-const MINING_POOLS = {
-  monero: {
-    host: 'your.pool.com',
-    port: 3333,
-    wallet: process.env.XMR_WALLET,
-    password: 'x'
-  }
-};
+```
+User taps: 100
+Hashrate per tap: 0.1 H/s
+Total hashrate: 100 * 0.1 = 10 H/s
 ```
 
-### Adjust Conversion Ratios
+## 💰 Reward Distribution
 
-Change token distribution percentages:
+When ViaBTC pool accepts a share, rewards are distributed to all active users proportionally:
 
-```javascript
-const tokens = {
-  MineX: await this.swapOnDEX('TON', 'MineX', tonAmount * 0.4), // 40%
-  tBTC: await this.swapOnDEX('TON', 'tBTC', tonAmount * 0.3),   // 30%
-  MRDN: await this.swapOnDEX('TON', 'MRDN', tonAmount * 0.3)    // 30%
-};
+```
+Total pool hashrate: 1000 H/s
+User A hashrate: 100 H/s (10%)
+User B hashrate: 300 H/s (30%)
+User C hashrate: 600 H/s (60%)
+
+Share reward: 0.001 LTC
+
+User A gets: 0.0001 LTC (10%)
+User B gets: 0.0003 LTC (30%)
+User C gets: 0.0006 LTC (60%)
 ```
 
-## 📚 Resources
+## 🔧 Configuration
 
-- [Monero Mining Guide](https://www.getmonero.org/get-started/mining/)
-- [MoneroOcean Pool](https://moneroocean.stream/)
-- [ChangeNOW API](https://changenow.io/api/docs)
-- [DeDust DEX](https://dedust.io/)
-- [TON Documentation](https://docs.ton.org/)
+Set worker name via environment variable:
 
-## 🆘 Support
+```bash
+VIABTC_WORKER=FasTapMining_Worker1
+```
 
-Mining issues? Check:
-1. Pool connection: `telnet gulf.moneroocean.stream 10128`
-2. Wallet address validity
-3. API key permissions
-4. Network firewall rules
+## ⚠️ Important Notes
 
-## ⚖️ Legal & Compliance
-
-- Mining rewards are subject to local tax laws
-- Users must comply with crypto regulations in their jurisdiction
-- This is real cryptocurrency mining with actual financial value
-- No guarantees on profitability or returns
+- Rewards are REAL and come from ViaBTC pool
+- NOT simulated or gamified
+- Users receive actual cryptocurrency based on their contributions
+- Wallet addresses must be valid TON addresses to receive payouts
