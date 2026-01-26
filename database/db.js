@@ -2,15 +2,6 @@
 const { Pool } = require('pg');
 const { createClient } = require('redis');
 
-// DEBUG: Check if DATABASE_URL is set
-console.log('🔍 DATABASE_URL present:', !!process.env.DATABASE_URL);
-if (process.env.DATABASE_URL) {
-  const dbUrl = process.env.DATABASE_URL.replace(/:([^:@]+)@/, ':***@');  // Hide password
-  console.log('🔗 Using DATABASE_URL:', dbUrl);
-} else {
-  console.log('⚠️  DATABASE_URL not found, using individual env vars or defaults');
-}
-
 // PostgreSQL connection pool - Use DATABASE_URL if available, else individual vars
 const poolConfig = process.env.DATABASE_URL ? {
   connectionString: process.env.DATABASE_URL,
