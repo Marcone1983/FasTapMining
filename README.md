@@ -91,14 +91,11 @@ USER TAPS → Generates Hash → Contributes Shares to Pool
 - [x] Real-time state management
 - [x] Responsive mobile-first UI
 
-### Client-Side Mining (Opt-in)
-- [x] **Web Worker background mining** - Boost your hashrate (+2-5 H/s)
-- [x] **Transparent opt-in** - One-click toggle with clear disclosure
-- [x] **Real-time stats** - Hashrate, shares, uptime displayed
-- [x] **CPU throttling** - Max 10% CPU usage, battery-aware
-- [x] **Easy opt-out** - Stop mining anytime instantly
-
-📖 **See [REALISTIC_MINING_ARCHITECTURE.md](./REALISTIC_MINING_ARCHITECTURE.md)** for complete mining infrastructure setup (VPS + client mining)
+### Additional Features
+- [x] **AutoTap System** - Passive share generation
+- [x] **Referral Program** - Invite friends and earn bonuses
+- [x] **Daily Rewards** - Login streak multipliers
+- [x] **Achievements** - Unlock rewards by reaching milestones
 
 ---
 
@@ -126,31 +123,27 @@ FasTapMining/
 
 ## 🔧 Setup & Deployment
 
-### ⚡ QUICK START - 3 Steps (15 minuti)
+### 📖 **GUIDA COMPLETA:**
 
-**Vuoi deployare subito senza leggere guide lunghe?**
+👉 **[Apri DEPLOYMENT.md](./DEPLOYMENT.md)** per la guida step-by-step completa!
 
-👉 **[VAI A QUICK_START.md](./QUICK_START.md)** 👈
+**Include:**
+- Setup Bot Telegram (2 min)
+- Creazione database PostgreSQL (5 min)
+- Deploy su Vercel (5 min)
+- Configurazione TON Connect
+- Troubleshooting
 
-3 comandi da copiare-incollare e sei online!
-
----
-
-### 📚 Guide Complete
-
-**Scegli la guida adatta a te:**
-
-1. **[QUICK_START.md](./QUICK_START.md)** - 3 comandi, 15 minuti ⚡
-2. **[GUIDA_DEPLOYMENT_FACILE.md](./GUIDA_DEPLOYMENT_FACILE.md)** - Passo-passo con screenshot 📖
-3. **[REALISTIC_MINING_ARCHITECTURE.md](./REALISTIC_MINING_ARCHITECTURE.md)** - Architettura tecnica completa 🏗️
-4. **[COMPLIANCE_CHECKLIST.md](./COMPLIANCE_CHECKLIST.md)** - Checklist pre-deployment ✅
+**COSTO TOTALE: €0** - Tutto gratuito fino a 100k utenti!
 
 ---
 
-### Prerequisites (se vuoi fare manualmente)
-- GitHub account
-- Vercel account
-- Telegram Bot Token (@BotFather)
+### Quick Summary
+
+**Cosa serve:**
+- Account Vercel (gratis)
+- Database PostgreSQL (Vercel Postgres o Supabase, gratis)
+- Bot Telegram (crea con @BotFather)
 
 ### Environment Variables
 
