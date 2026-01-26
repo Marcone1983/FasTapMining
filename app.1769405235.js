@@ -307,7 +307,7 @@ function App() {
     ws.onclose = () => {
       console.log('❌ WebSocket disconnected');
       setTimeout(() => {
-        if (walletConnected) window.location.reload();
+      // Reconnection handled by React state
       }, 3000);
     };
 
