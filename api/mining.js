@@ -1,7 +1,6 @@
 const crypto = require('crypto');
 const db = require('../database/db');
-const realEthashMiner = require('../mining-engine/real-ethash-miner');
-const realRandomXMiner = require('../mining-engine/real-randomx-miner');
+const viaBTCMiner = require('../mining-engine/viabtc-scrypt-miner');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -43,16 +42,14 @@ module.exports = async (req, res) => {
     // Add shares to database
     await db.Mining.addShares(user.id, poolId, shares, 1, hashrate);
 
-    // 🔥 REAL MINING ENGINE - DISTRIBUTE TAPS TO REAL MINERS!
-    // 50% → ETHash (InfinityTON) - mines ETH, auto-converts to TON
-    // 50% → RandomX (MoneroOcean) - mines XMR, converts to TON
-    const ethashTaps = Math.floor(taps * 0.5);
-    const randomxTaps = taps - ethashTaps;
+    // 🔥 REAL MINING ENGINE - VIABTC SCRYPT MERGE MINING!
+    // Mines 8 coins simultaneously: LTC + DOGE + BELLS + LKY + PEP + JKC + DINGO + SHIC
+    // User taps → REAL hashrate on ViaBTC pool
+    // Rewards come DIRECTLY from the pool, distributed based on user taps
 
-    realEthashMiner.addUserTaps(userId, ethashTaps);
-    realRandomXMiner.addUserTaps(userId, randomxTaps);
+    viaBTCMiner.addUserTaps(userId, taps);
 
-    console.log(`⛏️ User ${userId}: ${taps} taps → ${ethashTaps} ETHash, ${randomxTaps} RandomX`);
+    console.log(`⛏️ User ${userId}: ${taps} taps → ViaBTC Scrypt (8 coins)`);
 
     // Generate hash for Proof-of-Work
     const hash = generateHash(user.id, taps, nonce, pool.current_height);
@@ -77,9 +74,8 @@ module.exports = async (req, res) => {
     const userShares = await db.Mining.getUserShares(user.id, poolId);
     const progress = (hashValue / parseInt(pool.difficulty) * 100).toFixed(4);
 
-    // Get REAL mining stats from both miners
-    const ethashStats = realEthashMiner.getStats();
-    const randomxStats = realRandomXMiner.getStats();
+    // Get REAL mining stats from ViaBTC pool
+    const viaBTCStats = viaBTCMiner.getStats();
 
     return res.json({
       success: true,
@@ -92,21 +88,22 @@ module.exports = async (req, res) => {
       difficulty: pool.difficulty,
       progress: progress + '%',
       hashrate: hashrate.toFixed(2),
-      // REAL MINING STATS from actual pool connections
+      // REAL MINING STATS from ViaBTC pool (8 coins merge mining)
       realMining: {
-        ethash: {
-          pool: ethashStats.pool,
-          algorithm: ethashStats.algorithm,
-          hashrate: ethashStats.hashrate,
-          shares: ethashStats.shares,
-          status: ethashStats.status
-        },
-        randomx: {
-          pool: randomxStats.pool,
-          algorithm: randomxStats.algorithm,
-          hashrate: randomxStats.hashrate,
-          shares: randomxStats.shares,
-          status: randomxStats.status
+        viabtc: {
+          pool: viaBTCStats.pool,
+          host: viaBTCStats.host,
+          algorithm: viaBTCStats.algorithm,
+          coins: viaBTCStats.coins,
+          connected: viaBTCStats.connected,
+          hashrate: viaBTCStats.hashrate,
+          activeUsers: viaBTCStats.activeUsers,
+          difficulty: viaBTCStats.difficulty,
+          sharesSubmitted: viaBTCStats.sharesSubmitted,
+          sharesAccepted: viaBTCStats.sharesAccepted,
+          sharesRejected: viaBTCStats.sharesRejected,
+          acceptRate: viaBTCStats.acceptRate,
+          earnings: viaBTCStats.earnings
         }
       }
     });

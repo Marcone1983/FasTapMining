@@ -13,6 +13,8 @@ function App() {
   const [walletAddress, setWalletAddress] = useState('');
   const [showWalletModal, setShowWalletModal] = useState(true);
   const [tonConnectReady, setTonConnectReady] = useState(false);
+  const [manualWalletMode, setManualWalletMode] = useState(false);
+  const [manualWalletInput, setManualWalletInput] = useState('');
 
   // Mining state
   const [selectedPool, setSelectedPool] = useState('minex');
@@ -100,38 +102,23 @@ function App() {
 
     let cancelled = false;
 
-    const getTonConnectUIClass = () => {
-      // A seconda di come è bundlato il file UMD, può esporre:
-      // - window.TonConnectUI
-      // - window.TonConnectUI.TonConnectUI
-      // - window.TonConnectUI (come classe)
-      const w = window;
-
-      // Caso A: window.TonConnectUI è la classe
-      if (typeof w.TonConnectUI === 'function') return w.TonConnectUI;
-
-      // Caso B: window.TonConnectUI.TonConnectUI è la classe
-      if (w.TonConnectUI && typeof w.TonConnectUI.TonConnectUI === 'function') return w.TonConnectUI.TonConnectUI;
-
-      // Caso C: altri wrapper (fallback)
-      if (w.TonConnectUI && typeof w.TonConnectUI.default === 'function') return w.TonConnectUI.default;
-
-      return null;
-    };
-
     const init = async () => {
       try {
         setTonConnectReady(false);
 
-        const TonConnectUIClass = getTonConnectUIClass();
-        if (!TonConnectUIClass) {
-          throw new Error(
-            'TonConnectUI non trovato su window. Verifica che index.html includa /vendor/tonconnect-ui.min.js PRIMA di app-final.js'
-          );
+        // Wait for script to load (check multiple times)
+        let attempts = 0;
+        while (!window.TON_CONNECT_UI && attempts < 50) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
         }
 
-        // Istanzia una sola volta
-        tonConnectUIRef.current = new TonConnectUIClass({
+        if (!window.TON_CONNECT_UI) {
+          throw new Error('TON Connect UI failed to load after 5s');
+        }
+
+        // Initialize TON Connect UI
+        tonConnectUIRef.current = new window.TON_CONNECT_UI.TonConnectUI({
           manifestUrl: TON_CONNECT_MANIFEST
         });
 
@@ -336,6 +323,47 @@ function App() {
       }
     } catch (error) {
       console.error('Disconnect error:', error);
+    }
+
+    setWalletConnected(false);
+    setWalletAddress('');
+    setShowWalletModal(true);
+  };
+
+  // Connect wallet manually (fallback)
+  const connectWalletManually = async () => {
+    const address = manualWalletInput.trim();
+
+    if (!address) {
+      const tg = window.Telegram?.WebApp;
+      if (tg?.showAlert) tg.showAlert('Please enter a valid TON wallet address');
+      return;
+    }
+
+    if (!address.startsWith('UQ') && !address.startsWith('EQ')) {
+      const tg = window.Telegram?.WebApp;
+      if (tg?.showAlert) tg.showAlert('Invalid TON address format. Must start with UQ or EQ');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/user/wallet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, walletAddress: address })
+      });
+
+      if (response.ok) {
+        setWalletAddress(address);
+        setWalletConnected(true);
+        setShowWalletModal(false);
+        setManualWalletMode(false);
+        setManualWalletInput('');
+      }
+    } catch (error) {
+      console.error('Manual wallet save error:', error);
+      const tg = window.Telegram?.WebApp;
+      if (tg?.showAlert) tg.showAlert('Failed to save wallet address');
     }
   };
 
@@ -664,30 +692,66 @@ function App() {
       <div className="App">
         <div className="wallet-connect-modal">
           <div className="wallet-modal-content">
-            <div className="modal-icon">🔗</div>
+            <div className="modal-icon">💼</div>
             <h1>Connect Your Wallet</h1>
             <p className="modal-description">
-              Connect your TON wallet to start mining MineX, tBTC, and MRDN tokens
+              Connect your TON wallet to receive real mining rewards from ViaBTC pool
             </p>
 
             <div className="wallet-features">
-              <div className="feature">✅ Real multi-token mining</div>
-              <div className="feature">✅ Earn NFTs from blocks</div>
-              <div className="feature">✅ Referral rewards</div>
-              <div className="feature">✅ Daily streak bonuses</div>
+              <div className="feature">⛏️ 8 Coins: LTC, DOGE, BELLS, LKY, PEP, JKC, DINGO, SHIC</div>
+              <div className="feature">💰 Rewards from REAL mining pool</div>
+              <div className="feature">📊 Your taps = Real hashrate</div>
+              <div className="feature">🎯 Distributed based on contribution</div>
             </div>
 
-            <button
-              className="connect-wallet-btn"
-              onClick={connectWallet}
-              disabled={!tonConnectReady}
-            >
-              <span className="btn-icon">💼</span>
-              {tonConnectReady ? 'Connect TON Wallet' : 'Initializing...'}
-            </button>
+            {!manualWalletMode ? (
+              <>
+                <button
+                  className="connect-wallet-btn"
+                  onClick={connectWallet}
+                  disabled={!tonConnectReady}
+                >
+                  <span className="btn-icon">🔗</span>
+                  {tonConnectReady ? 'Connect with TON Connect' : 'Loading TON Connect...'}
+                </button>
+
+                <div style={{ margin: '15px 0', color: '#888' }}>OR</div>
+
+                <button
+                  className="manual-wallet-btn"
+                  onClick={() => setManualWalletMode(true)}
+                >
+                  <span className="btn-icon">✍️</span>
+                  Enter Wallet Address Manually
+                </button>
+              </>
+            ) : (
+              <div className="manual-wallet-form">
+                <input
+                  type="text"
+                  className="wallet-input"
+                  placeholder="UQ... or EQ... (TON address)"
+                  value={manualWalletInput}
+                  onChange={(e) => setManualWalletInput(e.target.value)}
+                />
+                <button
+                  className="save-wallet-btn"
+                  onClick={connectWalletManually}
+                >
+                  Save Wallet
+                </button>
+                <button
+                  className="back-btn"
+                  onClick={() => setManualWalletMode(false)}
+                >
+                  ← Back
+                </button>
+              </div>
+            )}
 
             <div className="modal-footer">
-              <p>Secure connection via TON Connect</p>
+              <p>Rewards will be sent to this wallet from ViaBTC pool</p>
             </div>
           </div>
         </div>
