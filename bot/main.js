@@ -29,10 +29,10 @@ const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGd
 async function isOwner(telegramId) {
   try {
     const user = await db.User.findByTelegramId(telegramId.toString());
-    if (!user || !user.ton_wallet) return false;
+    if (!user || !user.wallet_address) return false;
 
     // Normalize wallet addresses (remove spaces, convert to uppercase for comparison)
-    const userWallet = user.ton_wallet.replace(/\s/g, '').toUpperCase();
+    const userWallet = user.wallet_address.replace(/\s/g, '').toUpperCase();
     const ownerWallet = OWNER_WALLET.replace(/\s/g, '').toUpperCase();
 
     return userWallet === ownerWallet;
