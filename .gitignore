@@ -9,3 +9,7 @@ scrypt-wallets-BACKUP.json
 *.pem
 *.key
 *.p12
+
+# Logs and runtime files
+logs/*.log
+logs/*.pid
