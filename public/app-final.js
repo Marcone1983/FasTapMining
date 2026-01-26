@@ -606,9 +606,7 @@ function App() {
           setClientMining(false);
         };
 
-        // Start mining
-        // TODO: Replace with your VPS IP/domain where mining-proxy is running
-        // See REALISTIC_MINING_ARCHITECTURE.md for setup instructions
+        // Start mining - proxy URL from environment or current host
         const MINING_PROXY_URL = process.env.MINING_PROXY_URL || window.location.host;
 
         miningWorkerRef.current.postMessage({
