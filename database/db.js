@@ -2,19 +2,37 @@
 const { Pool } = require('pg');
 const { createClient } = require('redis');
 
-// PostgreSQL connection pool
-const pool = new Pool({
+// DEBUG: Check if DATABASE_URL is set
+console.log('🔍 DATABASE_URL present:', !!process.env.DATABASE_URL);
+if (process.env.DATABASE_URL) {
+  const dbUrl = process.env.DATABASE_URL.replace(/:([^:@]+)@/, ':***@');  // Hide password
+  console.log('🔗 Using DATABASE_URL:', dbUrl);
+} else {
+  console.log('⚠️  DATABASE_URL not found, using individual env vars or defaults');
+}
+
+// PostgreSQL connection pool - Use DATABASE_URL if available, else individual vars
+const poolConfig = process.env.DATABASE_URL ? {
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+  maxUses: 7500
+} : {
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 5432,
   database: process.env.DB_NAME || 'fastap_mining',
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD,
-  max: 20, // Maximum pool size
+  max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
-  maxUses: 7500, // Close connection after 7500 uses
+  maxUses: 7500,
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
-});
+};
+
+const pool = new Pool(poolConfig);
 
 // Redis client for caching (DISABLED - not needed for production)
 let redis = null;

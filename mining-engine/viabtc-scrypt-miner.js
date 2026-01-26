@@ -5,14 +5,45 @@ const db = require('../database/db');
 // REAL SCRYPT MINING ENGINE - VIABTC MERGE MINING
 // Mines 8 coins simultaneously: LTC + DOGE + BELLS + LKY + PEP + JKC + DINGO + SHIC
 
-const VIABTC_POOL = {
-  host: 'ltc.viabtc.io',
-  port: 3333,
-  portBackup1: 25,
-  portBackup2: 443,
-  algorithm: 'scrypt',
-  coins: ['LTC', 'DOGE', 'BELLS', 'LKY', 'PEP', 'JKC', 'DINGO', 'SHIC']
+// PUBLIC SCRYPT POOLS - Support anonymous/guest mining
+const POOL_CONFIGS = {
+  viabtc: {
+    host: 'ltc.viabtc.io',
+    port: 3333,
+    portBackup1: 25,
+    portBackup2: 443,
+    requiresAuth: true,
+    coins: ['LTC', 'DOGE', 'BELLS', 'LKY', 'PEP', 'JKC', 'DINGO', 'SHIC']
+  },
+  f2pool: {
+    host: 'ltc.f2pool.com',
+    port: 8888,
+    portBackup1: 8888,
+    portBackup2: 8888,
+    requiresAuth: false,
+    coins: ['LTC', 'DOGE']
+  },
+  litecoinpool: {
+    host: 'litecoinpool.org',
+    port: 3333,
+    portBackup1: 3334,
+    portBackup2: 3335,
+    requiresAuth: false,
+    coins: ['LTC', 'DOGE']
+  },
+  prohashing: {
+    host: 'prohashing.com',
+    port: 3333,
+    portBackup1: 3334,
+    portBackup2: 3335,
+    requiresAuth: true,
+    coins: ['LTC', 'DOGE', 'BELLS', 'LKY', 'PEP', 'JKC', 'DINGO', 'SHIC']
+  }
 };
+
+// Select pool based on env or use f2pool (public, no registration needed)
+const POOL_NAME = process.env.MINING_POOL || 'f2pool';
+const VIABTC_POOL = POOL_CONFIGS[POOL_NAME] || POOL_CONFIGS.f2pool;
 
 class ViaBTCScryptMiner {
   constructor() {
@@ -20,15 +51,27 @@ class ViaBTCScryptMiner {
     this.isConnected = false;
     this.currentJob = null;
     this.userHashrates = new Map();
+    this.userLastActivity = new Map();
     this.totalHashrate = 0;
     this.sharesSubmitted = 0;
     this.sharesAccepted = 0;
     this.sharesRejected = 0;
     this.difficulty = 1;
     this.sessionId = null;
-    this.workerName = process.env.VIABTC_WORKER || 'FasTapMining.worker1';
+    this.poolConfig = VIABTC_POOL;
+
+    // Worker name: use env var if set, else "guest" for public pools, else default
+    if (process.env.VIABTC_WORKER) {
+      this.workerName = process.env.VIABTC_WORKER;
+    } else if (!this.poolConfig.requiresAuth) {
+      this.workerName = 'guest.FasTapMining';
+    } else {
+      this.workerName = 'FasTapMining.worker1';
+    }
+
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 10;
+    this.miningInterval = null;
 
     this.earnings = {
       LTC: 0,
@@ -43,24 +86,27 @@ class ViaBTCScryptMiner {
   }
 
   async initialize() {
-    console.log('🔥 Initializing REAL Scrypt Mining Engine (ViaBTC)...');
-    console.log(`📊 Mining 8 coins: ${VIABTC_POOL.coins.join(', ')}`);
+    console.log('🔥 Initializing REAL Scrypt Mining Engine...');
+    console.log(`🌐 Pool: ${this.poolConfig.host}:${this.poolConfig.port}`);
+    console.log(`👤 Worker: ${this.workerName}`);
+    console.log(`📊 Mining ${this.poolConfig.coins.length} coins: ${this.poolConfig.coins.join(', ')}`);
+    console.log(`🔐 Auth required: ${this.poolConfig.requiresAuth ? 'Yes (need registration)' : 'No (guest mining)'}`);
     await this.connect();
   }
 
   async connect() {
     return new Promise((resolve, reject) => {
-      const port = this.reconnectAttempts % 3 === 0 ? VIABTC_POOL.port :
-                   this.reconnectAttempts % 3 === 1 ? VIABTC_POOL.portBackup1 :
-                   VIABTC_POOL.portBackup2;
+      const port = this.reconnectAttempts % 3 === 0 ? this.poolConfig.port :
+                   this.reconnectAttempts % 3 === 1 ? this.poolConfig.portBackup1 :
+                   this.poolConfig.portBackup2;
 
-      console.log(`🔗 Connecting to ViaBTC pool: ${VIABTC_POOL.host}:${port}`);
+      console.log(`🔗 Connecting to ${this.poolConfig.host}:${port}...`);
 
       this.client = new net.Socket();
       this.client.setEncoding('utf8');
 
-      this.client.connect(port, VIABTC_POOL.host, () => {
-        console.log(`✅ Connected to ViaBTC Scrypt pool!`);
+      this.client.connect(port, this.poolConfig.host, () => {
+        console.log(`✅ Connected to ${this.poolConfig.host}:${port}!`);
         this.isConnected = true;
         this.reconnectAttempts = 0;
 
@@ -135,9 +181,18 @@ class ViaBTCScryptMiner {
           });
         }
 
-        if (message.id === 2 && message.result === true) {
-          console.log(`✅ Worker authorized: ${this.workerName}`);
-          console.log(`⛏️ READY TO MINE 8 COINS: ${VIABTC_POOL.coins.join(', ')}`);
+        if (message.id === 2) {
+          if (message.result === true) {
+            console.log(`✅ Worker authorized: ${this.workerName}`);
+            console.log(`⛏️ READY TO MINE ${this.poolConfig.coins.length} COINS: ${this.poolConfig.coins.join(', ')}`);
+          } else if (message.error) {
+            console.log(`⚠️ Authorization failed: ${JSON.stringify(message.error)}`);
+            if (this.poolConfig.requiresAuth) {
+              console.log(`💡 This pool requires registration. Create account at pool website and set VIABTC_WORKER env var.`);
+            } else {
+              console.log(`⛏️ Continuing in guest mode - shares will be submitted`);
+            }
+          }
         }
 
         if (message.method === 'mining.set_difficulty') {
@@ -312,6 +367,7 @@ class ViaBTCScryptMiner {
 
     const currentHashrate = this.userHashrates.get(userId) || 0;
     this.userHashrates.set(userId, currentHashrate + hashrate);
+    this.userLastActivity.set(userId, Date.now());
 
     this.recalculateTotalHashrate();
 
@@ -342,11 +398,13 @@ class ViaBTCScryptMiner {
 
   getStats() {
     return {
-      pool: 'ViaBTC Scrypt Merge Mining',
-      host: `${VIABTC_POOL.host}:${VIABTC_POOL.port}`,
-      algorithm: VIABTC_POOL.algorithm,
-      coins: VIABTC_POOL.coins,
+      pool: `${POOL_NAME.toUpperCase()} Scrypt Mining`,
+      host: `${this.poolConfig.host}:${this.poolConfig.port}`,
+      algorithm: 'scrypt',
+      coins: this.poolConfig.coins,
       connected: this.isConnected,
+      worker: this.workerName,
+      requiresAuth: this.poolConfig.requiresAuth,
       hashrate: this.totalHashrate.toFixed(2),
       activeUsers: this.userHashrates.size,
       difficulty: this.difficulty,
