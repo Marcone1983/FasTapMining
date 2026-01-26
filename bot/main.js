@@ -22,7 +22,27 @@ console.log('🤖 FasTap Mining Bot Started!');
 console.log(`📱 Web App URL: ${WEBAPP_URL}`);
 console.log(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
 
-// Start command - Handle referrals
+// Owner wallet for automatic admin access
+const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
+
+// Check if user is owner by wallet address
+async function isOwner(telegramId) {
+  try {
+    const user = await db.User.findByTelegramId(telegramId.toString());
+    if (!user || !user.ton_wallet) return false;
+
+    // Normalize wallet addresses (remove spaces, convert to uppercase for comparison)
+    const userWallet = user.ton_wallet.replace(/\s/g, '').toUpperCase();
+    const ownerWallet = OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+
+    return userWallet === ownerWallet;
+  } catch (error) {
+    console.error('Error checking owner status:', error);
+    return false;
+  }
+}
+
+// Start command - Handle referrals and auto-detect owner
 bot.onText(/\/start(.*)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const telegramId = msg.from.id.toString();
@@ -59,7 +79,36 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
       }
     }
 
-    // Check lifetime access
+    // Check if user is owner (automatic admin access)
+    const ownerAccess = await isOwner(telegramId);
+
+    if (ownerAccess) {
+      // Owner detected - show admin dashboard automatically
+      const adminKeyboard = {
+        inline_keyboard: [
+          [
+            { text: '👑 Admin Dashboard', callback_data: 'admin_dashboard' }
+          ],
+          [
+            { text: '⛏️ Start Mining', web_app: { url: WEBAPP_URL } }
+          ],
+          [
+            { text: '💰 My Balance', callback_data: 'balance' },
+            { text: '📊 Statistics', callback_data: 'stats' }
+          ]
+        ]
+      };
+
+      return bot.sendMessage(chatId,
+        `👑 *Welcome, Owner!*\n\n` +
+        `🔐 You have full admin access.\n` +
+        `💎 Platform is ready for you.\n\n` +
+        `Use the Admin Dashboard button to manage the platform.`,
+        { parse_mode: 'Markdown', reply_markup: adminKeyboard }
+      );
+    }
+
+    // Regular user flow
     const hasAccess = user.has_lifetime_access;
 
     const keyboard = {
@@ -86,7 +135,7 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
         `Tap the button below to start mining!`
       : `👋 *Welcome to FasTap Mining!*\n\n` +
         `⛏️ Mine *8 real cryptocurrencies* by tapping!\n` +
-        `💰 LTC, DOGE, BELLS, LKY, PEP, JKC, DINGO, SHIC\n\n` +
+        `💰 LTC, DOGE, TON, BELLS, LKY, PEP, JKC, DINGO\n\n` +
         `🔓 *Get Lifetime Access* for just 1 TON!\n` +
         `✅ Unlimited mining forever\n` +
         `✅ AutoTap features\n` +
@@ -933,6 +982,196 @@ bot.onText(/\/admin_payout (.+)/, async (msg, match) => {
   }
 });
 
+// ============================================
+// OWNER HELPER FUNCTIONS (WALLET-BASED AUTH)
+// ============================================
+
+async function showOwnerStats(chatId) {
+  try {
+    const totalUsersResult = await db.query('SELECT COUNT(*) as count FROM users');
+    const totalUsers = totalUsersResult.rows[0].count;
+
+    const lifetimeUsersResult = await db.query('SELECT COUNT(*) as count FROM users WHERE has_lifetime_access = true');
+    const lifetimeUsers = lifetimeUsersResult.rows[0].count;
+
+    const activeUsersResult = await db.query(`SELECT COUNT(*) as count FROM users WHERE last_active > NOW() - INTERVAL '24 hours'`);
+    const activeUsers = activeUsersResult.rows[0].count;
+
+    const hashrateResult = await db.query('SELECT COALESCE(SUM(hashrate), 0) as total FROM users');
+    const totalHashrate = parseFloat(hashrateResult.rows[0].total);
+
+    const feesResult = await db.query(`SELECT coin, SUM(amount) as total FROM platform_fees WHERE paid_out = false GROUP BY coin`);
+
+    let feesMessage = '';
+    feesResult.rows.forEach(row => {
+      feesMessage += `  ${row.coin}: ${parseFloat(row.total).toFixed(8)}\n`;
+    });
+
+    const revenueResult = await db.query(`SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total FROM lifetime_access_payments WHERE status = 'confirmed'`);
+    const totalPayments = revenueResult.rows[0].count;
+    const totalRevenue = parseFloat(revenueResult.rows[0].total);
+
+    const marketplaceResult = await db.query(`SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total FROM marketplace_purchases WHERE status = 'confirmed'`);
+    const marketplacePurchases = marketplaceResult.rows[0].count;
+    const marketplaceRevenue = parseFloat(marketplaceResult.rows[0].total);
+
+    const message = `
+📊 *Platform Statistics*
+
+👥 *Users:*
+Total Users: ${totalUsers}
+Lifetime Access: ${lifetimeUsers}
+Active (24h): ${activeUsers}
+
+⛏️ *Mining:*
+Total Hashrate: ${totalHashrate.toFixed(2)} H/s
+
+💰 *Fees Collected (Pending):*
+${feesMessage || '  No pending fees'}
+
+💳 *Revenue:*
+Lifetime Access: ${totalPayments} payments (${totalRevenue.toFixed(4)} TON)
+Marketplace: ${marketplacePurchases} purchases (${marketplaceRevenue.toFixed(4)} TON)
+*Total Revenue:* ${(totalRevenue + marketplaceRevenue).toFixed(4)} TON
+    `;
+
+    bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+  } catch (error) {
+    console.error('Error in showOwnerStats:', error);
+    bot.sendMessage(chatId, '❌ Error fetching statistics.');
+  }
+}
+
+async function showOwnerUsers(chatId) {
+  try {
+    const recentUsersResult = await db.query(`SELECT telegram_id, username, hashrate, has_lifetime_access, created_at FROM users ORDER BY created_at DESC LIMIT 20`);
+
+    let message = `👥 *Recent Users (Last 20)*\n\n`;
+
+    recentUsersResult.rows.forEach((user, index) => {
+      const status = user.has_lifetime_access ? '✅' : '🔓';
+      message += `${index + 1}. ${status} @${user.username || user.telegram_id}\n`;
+      message += `   Hashrate: ${user.hashrate || 0} H/s\n`;
+      message += `   Joined: ${new Date(user.created_at).toLocaleDateString()}\n\n`;
+    });
+
+    bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+  } catch (error) {
+    console.error('Error in showOwnerUsers:', error);
+    bot.sendMessage(chatId, '❌ Error fetching users.');
+  }
+}
+
+async function showOwnerFees(chatId) {
+  try {
+    const feesResult = await db.query(`SELECT coin, SUM(amount) as total, COUNT(*) as count FROM platform_fees WHERE paid_out = false GROUP BY coin`);
+
+    if (feesResult.rows.length === 0) {
+      return bot.sendMessage(chatId, '💰 *Fees Collected*\n\nNo pending fees at the moment.', { parse_mode: 'Markdown' });
+    }
+
+    let message = `💰 *Platform Fees (Pending Payout)*\n\n`;
+
+    feesResult.rows.forEach(row => {
+      message += `*${row.coin}:* ${parseFloat(row.total).toFixed(8)} (${row.count} transactions)\n`;
+    });
+
+    message += `\n💡 Use "Trigger Payout" to send all fees to owner wallets.`;
+
+    bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+  } catch (error) {
+    console.error('Error in showOwnerFees:', error);
+    bot.sendMessage(chatId, '❌ Error fetching fees.');
+  }
+}
+
+async function showOwnerPayments(chatId) {
+  try {
+    const paymentsResult = await db.query(`
+      SELECT payment_id, user_id, amount, status, created_at
+      FROM lifetime_access_payments
+      ORDER BY created_at DESC
+      LIMIT 20
+    `);
+
+    if (paymentsResult.rows.length === 0) {
+      return bot.sendMessage(chatId, '💳 *Recent Payments*\n\nNo payments yet.', { parse_mode: 'Markdown' });
+    }
+
+    let message = `💳 *Recent Lifetime Access Payments*\n\n`;
+
+    paymentsResult.rows.forEach((payment, index) => {
+      const statusIcon = payment.status === 'confirmed' ? '✅' : payment.status === 'pending' ? '⏳' : '❌';
+      message += `${index + 1}. ${statusIcon} ${payment.amount} TON\n`;
+      message += `   User ID: ${payment.user_id}\n`;
+      message += `   Date: ${new Date(payment.created_at).toLocaleDateString()}\n\n`;
+    });
+
+    bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+  } catch (error) {
+    console.error('Error in showOwnerPayments:', error);
+    bot.sendMessage(chatId, '❌ Error fetching payments.');
+  }
+}
+
+async function showOwnerHealth(chatId) {
+  try {
+    let message = `🏥 *System Health Check*\n\n`;
+
+    try {
+      await db.query('SELECT 1');
+      message += `✅ Database: Connected\n`;
+    } catch (error) {
+      message += `❌ Database: Error\n`;
+    }
+
+    const requiredEnvVars = ['DATABASE_URL', 'TOKEN_API_BOT', 'OWNER_WALLET_TON', 'TONCENTER_API_KEY', 'ADMIN_KEY'];
+
+    let missingVars = [];
+    requiredEnvVars.forEach(varName => {
+      if (!process.env[varName]) {
+        missingVars.push(varName);
+      }
+    });
+
+    if (missingVars.length === 0) {
+      message += `✅ Environment: All variables set\n`;
+    } else {
+      message += `❌ Environment: Missing ${missingVars.join(', ')}\n`;
+    }
+
+    message += `✅ Bot: Running\n`;
+
+    const uptime = process.uptime();
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    message += `⏱️ Uptime: ${hours}h ${minutes}m\n`;
+
+    const memUsage = process.memoryUsage();
+    message += `💾 Memory: ${(memUsage.heapUsed / 1024 / 1024).toFixed(2)} MB\n`;
+
+    bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+  } catch (error) {
+    console.error('Error in showOwnerHealth:', error);
+    bot.sendMessage(chatId, '❌ Error checking system health.');
+  }
+}
+
+async function triggerOwnerPayout(chatId) {
+  try {
+    const feePayoutService = require('../services/fee-payout-service');
+
+    bot.sendMessage(chatId, '⚡ Starting manual fee payout...');
+
+    await feePayoutService.processAllFees();
+
+    bot.sendMessage(chatId, '✅ Fee payout completed! Check "Fees Collected" for updated status.');
+  } catch (error) {
+    console.error('Error in triggerOwnerPayout:', error);
+    bot.sendMessage(chatId, '❌ Error triggering payout.');
+  }
+}
+
 // Callback query handler
 bot.on('callback_query', async (query) => {
   const chatId = query.message.chat.id;
@@ -940,7 +1179,80 @@ bot.on('callback_query', async (query) => {
   const data = query.data;
 
   try {
-    // Admin callbacks
+    // Owner admin dashboard (wallet-based authentication)
+    if (data === 'admin_dashboard') {
+      const ownerAccess = await isOwner(telegramId);
+
+      if (!ownerAccess) {
+        return bot.answerCallbackQuery(query.id, { text: '❌ Admin access denied' });
+      }
+
+      // Show full admin dashboard
+      const keyboard = {
+        inline_keyboard: [
+          [
+            { text: '📊 Platform Stats', callback_data: 'owner_stats' },
+            { text: '👥 Users', callback_data: 'owner_users' }
+          ],
+          [
+            { text: '💰 Fees Collected', callback_data: 'owner_fees' },
+            { text: '💳 Payments', callback_data: 'owner_payments' }
+          ],
+          [
+            { text: '🏥 Health Check', callback_data: 'owner_health' },
+            { text: '💸 Trigger Payout', callback_data: 'owner_payout' }
+          ],
+          [
+            { text: '🔙 Back to Menu', callback_data: 'back_to_menu' }
+          ]
+        ]
+      };
+
+      bot.sendMessage(chatId,
+        `👑 *Admin Dashboard*\n\n` +
+        `Welcome to FasTap Mining admin panel.\n` +
+        `Select an option below:`,
+        { parse_mode: 'Markdown', reply_markup: keyboard }
+      );
+
+      return bot.answerCallbackQuery(query.id);
+    }
+
+    // Owner admin actions (wallet-based)
+    if (data.startsWith('owner_')) {
+      const ownerAccess = await isOwner(telegramId);
+
+      if (!ownerAccess) {
+        return bot.answerCallbackQuery(query.id, { text: '❌ Admin access denied' });
+      }
+
+      const action = data.replace('owner_', '');
+
+      switch (action) {
+        case 'stats':
+          await showOwnerStats(chatId);
+          break;
+        case 'users':
+          await showOwnerUsers(chatId);
+          break;
+        case 'fees':
+          await showOwnerFees(chatId);
+          break;
+        case 'payments':
+          await showOwnerPayments(chatId);
+          break;
+        case 'health':
+          await showOwnerHealth(chatId);
+          break;
+        case 'payout':
+          await triggerOwnerPayout(chatId);
+          break;
+      }
+
+      return bot.answerCallbackQuery(query.id);
+    }
+
+    // Admin callbacks (legacy key-based)
     if (data.startsWith('admin_')) {
       const parts = data.split('_');
       const action = parts[1];
@@ -976,6 +1288,14 @@ bot.on('callback_query', async (query) => {
 
     // Regular user callbacks
     switch (data) {
+      case 'back_to_menu':
+        bot.sendMessage(chatId, '🔙 Returning to main menu... Send /start to see options!');
+        break;
+
+      case 'cancel':
+        bot.sendMessage(chatId, '❌ Operation cancelled.');
+        break;
+
       case 'balance':
         bot.sendMessage(chatId, 'Use /balance command to see your balances!');
         break;
