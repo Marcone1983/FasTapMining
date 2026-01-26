@@ -1,4 +1,7 @@
 {
+  "buildCommand": "echo 'Static build'",
+  "outputDirectory": ".",
+  "installCommand": "echo 'No install needed'",
   "rewrites": [
     {
       "source": "/api/(.*)",
