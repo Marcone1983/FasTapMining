@@ -1,9 +1,18 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 const TelegramBot = require('node-telegram-bot-api');
 const db = require('../database/db');
 const lifetimeAccessService = require('../services/lifetime-access-service');
 const marketplaceService = require('../services/marketplace-service');
 const referralService = require('../services/referral-service');
+
+// Verify bot token
+if (!process.env.TOKEN_API_BOT) {
+  console.error('❌ ERROR: TOKEN_API_BOT not found in environment variables!');
+  console.error('📁 Make sure .env file exists in project root with TOKEN_API_BOT=your_token');
+  process.exit(1);
+}
 
 // Initialize bot
 const bot = new TelegramBot(process.env.TOKEN_API_BOT, { polling: true });
@@ -11,6 +20,7 @@ const WEBAPP_URL = process.env.WEBAPP_URL || 'https://fas-tap-mining.vercel.app'
 
 console.log('🤖 FasTap Mining Bot Started!');
 console.log(`📱 Web App URL: ${WEBAPP_URL}`);
+console.log(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
 
 // Start command - Handle referrals
 bot.onText(/\/start(.*)/, async (msg, match) => {
@@ -290,6 +300,350 @@ Telegram: @FasTapMiningSupport
   `;
 
   bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+});
+
+// Mine command
+bot.onText(/\/mine/, (msg) => {
+  const chatId = msg.chat.id;
+
+  const keyboard = {
+    inline_keyboard: [
+      [{ text: '⛏️ Start Mining', web_app: { url: WEBAPP_URL } }]
+    ]
+  };
+
+  bot.sendMessage(chatId,
+    `⛏️ *Start Mining!*\n\n` +
+    `Tap the button below to open the mining interface.\n\n` +
+    `You'll be able to:\n` +
+    `• Tap to mine 8 cryptocurrencies\n` +
+    `• View your real-time earnings\n` +
+    `• Track your hashrate\n` +
+    `• Claim your rewards`,
+    { parse_mode: 'Markdown', reply_markup: keyboard }
+  );
+});
+
+// Claim command
+bot.onText(/\/claim/, async (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from.id.toString();
+
+  try {
+    const user = await db.User.findByTelegramId(telegramId);
+
+    if (!user) {
+      return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+    }
+
+    if (!user.wallet_ton) {
+      return bot.sendMessage(chatId,
+        `❌ *Wallet Not Connected*\n\n` +
+        `Please connect your TON wallet first using /wallet or open the mining app.`,
+        { parse_mode: 'Markdown' }
+      );
+    }
+
+    const balances = user.balances || {};
+    let totalValue = 0;
+    let hasBalance = false;
+
+    const coins = ['LTC', 'DOGE', 'TON', 'BELLS', 'LKY', 'PEP', 'JKC', 'DINGO', 'SHIC'];
+
+    for (const coin of coins) {
+      if (balances[coin] && balances[coin] > 0) {
+        hasBalance = true;
+        break;
+      }
+    }
+
+    if (!hasBalance) {
+      return bot.sendMessage(chatId,
+        `💰 *No Rewards to Claim*\n\n` +
+        `Keep mining to earn rewards!\n` +
+        `Use /mine to start mining.`,
+        { parse_mode: 'Markdown' }
+      );
+    }
+
+    // Here you would trigger actual claim logic
+    bot.sendMessage(chatId,
+      `💰 *Claim Rewards*\n\n` +
+      `Open the mining app to claim your rewards.\n` +
+      `Your rewards will be sent to:\n` +
+      `\`${user.wallet_ton}\``,
+      {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '💰 Claim Now', web_app: { url: WEBAPP_URL } }]
+          ]
+        }
+      }
+    );
+
+  } catch (error) {
+    console.error('Error in /claim:', error);
+    bot.sendMessage(chatId, '❌ Error processing claim request.');
+  }
+});
+
+// Wallet command
+bot.onText(/\/wallet/, async (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from.id.toString();
+
+  try {
+    const user = await db.User.findByTelegramId(telegramId);
+
+    if (!user) {
+      return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+    }
+
+    let message = `💼 *Your Wallets*\n\n`;
+
+    if (user.wallet_ton) {
+      message += `*TON Wallet:*\n\`${user.wallet_ton}\`\n\n`;
+    } else {
+      message += `❌ *TON Wallet:* Not connected\n\n`;
+    }
+
+    message += `*Scrypt Coin Wallets:*\n`;
+    const scryptCoins = ['BELLS', 'LKY', 'PEP', 'JKC', 'DINGO', 'SHIC'];
+
+    scryptCoins.forEach(coin => {
+      const walletKey = `wallet_${coin.toLowerCase()}`;
+      if (user[walletKey]) {
+        message += `${coin}: \`${user[walletKey]}\`\n`;
+      } else {
+        message += `${coin}: Not set\n`;
+      }
+    });
+
+    message += `\n💡 Connect wallets in the mining app to receive rewards.`;
+
+    bot.sendMessage(chatId, message, {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '🔗 Connect Wallets', web_app: { url: WEBAPP_URL } }]
+        ]
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in /wallet:', error);
+    bot.sendMessage(chatId, '❌ Error fetching wallet information.');
+  }
+});
+
+// AutoTap command
+bot.onText(/\/autotap/, async (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from.id.toString();
+
+  try {
+    const user = await db.User.findByTelegramId(telegramId);
+
+    if (!user) {
+      return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+    }
+
+    // Check active AutoTap subscription
+    const autotapResult = await db.query(
+      `SELECT mp.*, mi.name, mi.effect
+       FROM marketplace_purchases mp
+       JOIN marketplace_items mi ON mp.item_id = mi.id
+       WHERE mp.user_id = $1
+       AND mi.category = 'autotap'
+       AND mp.status = 'confirmed'
+       AND (mp.expires_at IS NULL OR mp.expires_at > NOW())
+       ORDER BY mp.purchased_at DESC
+       LIMIT 1`,
+      [user.id]
+    );
+
+    if (autotapResult.rows.length > 0) {
+      const autotap = autotapResult.rows[0];
+      const isPermanent = !autotap.expires_at;
+
+      let message = `⚡ *AutoTap Active!*\n\n`;
+      message += `*Tier:* ${autotap.name}\n`;
+      message += `*Effect:* ${autotap.effect}\n`;
+      message += `*Status:* ${isPermanent ? '👑 Permanent' : `📅 Expires ${new Date(autotap.expires_at).toLocaleDateString()}`}\n\n`;
+      message += `Your mining continues automatically even when you're not tapping!`;
+
+      bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+    } else {
+      bot.sendMessage(chatId,
+        `⚡ *AutoTap Not Active*\n\n` +
+        `Activate AutoTap to mine automatically without tapping!\n\n` +
+        `*Benefits:*\n` +
+        `• Passive mining 24/7\n` +
+        `• Multiple tiers available\n` +
+        `• Permanent upgrades\n\n` +
+        `Check /marketplace to purchase AutoTap!`,
+        {
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '🛒 View AutoTap Tiers', callback_data: 'marketplace' }]
+            ]
+          }
+        }
+      );
+    }
+
+  } catch (error) {
+    console.error('Error in /autotap:', error);
+    bot.sendMessage(chatId, '❌ Error fetching AutoTap information.');
+  }
+});
+
+// Boosts command
+bot.onText(/\/boosts/, async (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from.id.toString();
+
+  try {
+    const user = await db.User.findByTelegramId(telegramId);
+
+    if (!user) {
+      return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+    }
+
+    const activeBoosts = await db.query(
+      `SELECT mp.*, mi.name, mi.effect, mi.category
+       FROM marketplace_purchases mp
+       JOIN marketplace_items mi ON mp.item_id = mi.id
+       WHERE mp.user_id = $1
+       AND mp.status = 'confirmed'
+       AND (mp.expires_at IS NULL OR mp.expires_at > NOW())
+       ORDER BY mp.purchased_at DESC`,
+      [user.id]
+    );
+
+    if (activeBoosts.rows.length === 0) {
+      return bot.sendMessage(chatId,
+        `🚀 *No Active Boosts*\n\n` +
+        `Purchase boosts from the marketplace to enhance your mining!\n\n` +
+        `Use /marketplace to see available boosts.`,
+        { parse_mode: 'Markdown' }
+      );
+    }
+
+    let message = `🚀 *Your Active Boosts*\n\n`;
+
+    activeBoosts.rows.forEach((boost, index) => {
+      const isPermanent = !boost.expires_at;
+      message += `${index + 1}. *${boost.name}*\n`;
+      message += `   ${boost.effect}\n`;
+      message += `   Status: ${isPermanent ? '👑 Permanent' : `📅 ${Math.ceil((new Date(boost.expires_at) - new Date()) / (1000 * 60 * 60 * 24))} days left`}\n\n`;
+    });
+
+    bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+
+  } catch (error) {
+    console.error('Error in /boosts:', error);
+    bot.sendMessage(chatId, '❌ Error fetching boosts.');
+  }
+});
+
+// Leaderboard command
+bot.onText(/\/leaderboard/, async (msg) => {
+  const chatId = msg.chat.id;
+
+  try {
+    const topMiners = await db.query(
+      `SELECT username, hashrate, total_shares, blocks_found
+       FROM users
+       WHERE hashrate > 0
+       ORDER BY hashrate DESC
+       LIMIT 10`
+    );
+
+    if (topMiners.rows.length === 0) {
+      return bot.sendMessage(chatId, '👑 *Leaderboard*\n\nNo miners yet. Be the first!', { parse_mode: 'Markdown' });
+    }
+
+    let message = `👑 *Top Miners Leaderboard*\n\n`;
+
+    topMiners.rows.forEach((miner, index) => {
+      const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+      message += `${medal} *${miner.username || 'Anonymous'}*\n`;
+      message += `   ⚡ ${miner.hashrate} H/s | 📦 ${miner.blocks_found} blocks\n\n`;
+    });
+
+    bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+
+  } catch (error) {
+    console.error('Error in /leaderboard:', error);
+    bot.sendMessage(chatId, '❌ Error fetching leaderboard.');
+  }
+});
+
+// Settings command
+bot.onText(/\/settings/, async (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from.id.toString();
+
+  try {
+    const user = await db.User.findByTelegramId(telegramId);
+
+    if (!user) {
+      return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+    }
+
+    const keyboard = {
+      inline_keyboard: [
+        [
+          { text: '🔗 Manage Wallets', callback_data: 'wallet' },
+          { text: '🔔 Notifications', callback_data: 'notifications' }
+        ],
+        [
+          { text: '📊 View Statistics', callback_data: 'stats' },
+          { text: '❓ Help', callback_data: 'help' }
+        ]
+      ]
+    };
+
+    let message = `⚙️ *Settings*\n\n`;
+    message += `*Account:* @${user.username || telegramId}\n`;
+    message += `*Lifetime Access:* ${user.has_lifetime_access ? '✅ Active' : '❌ Not purchased'}\n`;
+    message += `*Hashrate:* ${user.hashrate || 0} H/s\n`;
+    message += `*Member Since:* ${new Date(user.created_at).toLocaleDateString()}\n\n`;
+    message += `Select an option below:`;
+
+    bot.sendMessage(chatId, message, {
+      parse_mode: 'Markdown',
+      reply_markup: keyboard
+    });
+
+  } catch (error) {
+    console.error('Error in /settings:', error);
+    bot.sendMessage(chatId, '❌ Error loading settings.');
+  }
+});
+
+// Set bot commands menu
+bot.setMyCommands([
+  { command: 'start', description: '🚀 Start mining and view dashboard' },
+  { command: 'mine', description: '⛏️ Open mining interface' },
+  { command: 'balance', description: '💰 Check your crypto balances' },
+  { command: 'claim', description: '💎 Claim your mining rewards' },
+  { command: 'wallet', description: '💼 Manage your wallets' },
+  { command: 'stats', description: '📊 View your mining statistics' },
+  { command: 'marketplace', description: '🛒 Browse boost items' },
+  { command: 'autotap', description: '⚡ Check AutoTap status' },
+  { command: 'boosts', description: '🚀 View active boosts' },
+  { command: 'referral', description: '🤝 Get your referral code' },
+  { command: 'leaderboard', description: '👑 View top miners' },
+  { command: 'settings', description: '⚙️ Account settings' },
+  { command: 'help', description: '❓ Show help message' }
+]).then(() => {
+  console.log('✅ Bot commands menu set successfully');
+}).catch(err => {
+  console.error('❌ Error setting bot commands:', err);
 });
 
 // ============================================
