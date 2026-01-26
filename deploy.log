@@ -1,0 +1,106 @@
+
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║   🚀 FasTap Mining - One-Click Deploy                       ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📋 Step 1: Checking Prerequisites
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+./deploy.sh: line 44: NC: command not found
+[0;32m✅ Node.js installed (v24.12.0)
+[0;32m✅ npm installed[0m (11.6.2)
+[0;32m✅ git installed[0m (git version 2.52.0)
+
+📋 Step 2: Installing Dependencies
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+> msgpackr-extract@3.0.3 install
+> node-gyp-build-optional-packages
+
+/data/data/com.termux/files/home/FasTapMining/node_modules/node-gyp-build-optional-packages/node-gyp-build.js:85
+  throw new Error(errMessage)
+  ^
+
+Error: No native build was found for platform=android arch=arm64 runtime=node abi=137 uv=1 armv=8 libc=glibc node=24.12.0
+    attempted loading from: /data/data/com.termux/files/home/FasTapMining/node_modules/msgpackr-extract and package: @msgpackr-extract/msgpackr-extract-android-arm64
+Error resolving package: Cannot find module '@msgpackr-extract/msgpackr-extract-android-arm64'
+Require stack:
+- /data/data/com.termux/files/home/FasTapMining/node_modules/msgpackr-extract/package.json
+
+    at load.resolve.load.path (/data/data/com.termux/files/home/FasTapMining/node_modules/node-gyp-build-optional-packages/node-gyp-build.js:85:9)
+    at load (/data/data/com.termux/files/home/FasTapMining/node_modules/node-gyp-build-optional-packages/node-gyp-build.js:28:30)
+    at Object.<anonymous> (/data/data/com.termux/files/home/FasTapMining/node_modules/node-gyp-build-optional-packages/build-test.js:19:19)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+
+Node.js v24.12.0
+
+The failure above indicates the primary issue with the native builds which are included for all major platforms. Will now attempt to build the package locally in case this can be resolved by re-compiling.
+gyp info it worked if it ends with ok
+gyp info using node-gyp@11.4.2
+gyp info using node@24.12.0 | android | arm64
+gyp info find Python using Python version 3.12.12 found at "/data/data/com.termux/files/usr/bin/python3"
+
+gyp info spawn /data/data/com.termux/files/usr/bin/python3
+gyp info spawn args [
+gyp info spawn args '/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/node-gyp/gyp/gyp_main.py',
+gyp info spawn args 'binding.gyp',
+gyp info spawn args '-f',
+gyp info spawn args 'make',
+gyp info spawn args '-I',
+gyp info spawn args '/data/data/com.termux/files/home/FasTapMining/node_modules/msgpackr-extract/build/config.gypi',
+gyp info spawn args '-I',
+gyp info spawn args '/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/node-gyp/addon.gypi',
+gyp info spawn args '-I',
+gyp info spawn args '/data/data/com.termux/files/home/.cache/node-gyp/24.12.0/include/node/common.gypi',
+gyp info spawn args '-Dlibrary=shared_library',
+gyp info spawn args '-Dvisibility=default',
+gyp info spawn args '-Dnode_root_dir=/data/data/com.termux/files/home/.cache/node-gyp/24.12.0',
+gyp info spawn args '-Dnode_gyp_dir=/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/node-gyp',
+gyp info spawn args '-Dnode_lib_file=/data/data/com.termux/files/home/.cache/node-gyp/24.12.0/<(target_arch)/node.lib',
+gyp info spawn args '-Dmodule_root_dir=/data/data/com.termux/files/home/FasTapMining/node_modules/msgpackr-extract',
+gyp info spawn args '-Dnode_engine=v8',
+gyp info spawn args '--depth=.',
+gyp info spawn args '--no-parallel',
+gyp info spawn args '--generator-output',
+gyp info spawn args 'build',
+gyp info spawn args '-Goutput_dir=.'
+gyp info spawn args ]
+gyp: Undefined variable android_ndk_path in binding.gyp while trying to load binding.gyp
+gyp ERR! configure error 
+gyp ERR! stack Error: `gyp` failed with exit code: 1
+gyp ERR! stack at ChildProcess.<anonymous> (/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/node-gyp/lib/configure.js:317:18)
+gyp ERR! stack at ChildProcess.emit (node:events:508:28)
+gyp ERR! stack at ChildProcess._handle.onexit (node:internal/child_process:294:12)
+gyp ERR! System Linux 6.1.134-android14-11-o-g42bfd68925d3
+gyp ERR! command "/data/data/com.termux/files/usr/bin/node" "/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+gyp ERR! cwd /data/data/com.termux/files/home/FasTapMining/node_modules/msgpackr-extract
+gyp ERR! node -v v24.12.0
+gyp ERR! node-gyp -v v11.4.2
+gyp ERR! not ok 
+
+up to date, audited 348 packages in 5s
+
+100 packages are looking for funding
+  run `npm fund` for details
+
+7 vulnerabilities (4 moderate, 1 high, 2 critical)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[0;32m✅ Dependencies installed[0m
+
+📋 Step 3: Running Database Migrations
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 Starting database migrations...
+
+⚙️  Running migration: 001_add_viabtc_earnings.sql
+❌ Error executing 001_add_viabtc_earnings.sql: relation "users" does not exist

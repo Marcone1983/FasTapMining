@@ -18,7 +18,7 @@ class TonConnectManager {
   async init(manifestUrl) {
     try {
       this.tonConnect = new TonConnectUI({
-        manifestUrl: manifestUrl || 'https://fastapmining.vercel.app/tonconnect-manifest.json',
+        manifestUrl: manifestUrl || 'https://fas-tap-mining.vercel.app/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-button',
         uiPreferences: {
           theme: THEME.DARK,

@@ -253,11 +253,29 @@ class ViaBTCScryptMiner {
     const totalHashrate = this.totalHashrate;
     if (totalHashrate === 0) return;
 
+    const PLATFORM_FEE_PERCENT = 5; // 5% platform fee
+    const ownerWallets = {
+      BELLS: process.env.OWNER_WALLET_BELLS,
+      LKY: process.env.OWNER_WALLET_LKY,
+      PEP: process.env.OWNER_WALLET_PEP,
+      JKC: process.env.OWNER_WALLET_JKC,
+      DINGO: process.env.OWNER_WALLET_DINGO,
+      SHIC: process.env.OWNER_WALLET_SHIC
+    };
+
+    // Calculate platform fees for each coin
+    const platformFees = {};
+    for (const [coin, totalAmount] of Object.entries(rewardDistribution)) {
+      platformFees[coin] = totalAmount * (PLATFORM_FEE_PERCENT / 100);
+    }
+
+    // Distribute 95% to users based on hashrate
     for (const [userId, userHashrate] of this.userHashrates.entries()) {
       const userShare = userHashrate / totalHashrate;
 
       for (const [coin, totalAmount] of Object.entries(rewardDistribution)) {
-        const userAmount = totalAmount * userShare;
+        // User gets their share of 95%
+        const userAmount = (totalAmount * 0.95) * userShare;
 
         try {
           const user = await db.User.findByTelegramId(userId);
@@ -270,7 +288,22 @@ class ViaBTCScryptMiner {
       }
     }
 
-    console.log(`💰 Distributed rewards to ${this.userHashrates.size} users across 8 coins`);
+    // Log platform fees (stored separately for owner payout)
+    for (const [coin, feeAmount] of Object.entries(platformFees)) {
+      if (feeAmount > 0) {
+        try {
+          await db.query(
+            `INSERT INTO platform_fees (coin, amount, owner_wallet, collected_at)
+             VALUES ($1, $2, $3, NOW())`,
+            [coin, feeAmount, ownerWallets[coin] || null]
+          );
+        } catch (error) {
+          console.error(`Error logging platform fee for ${coin}:`, error);
+        }
+      }
+    }
+
+    console.log(`💰 Distributed 95% rewards to ${this.userHashrates.size} users | 5% platform fee collected`);
   }
 
   addUserTaps(userId, taps) {

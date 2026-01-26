@@ -60,7 +60,7 @@ const handleTap = async (e) => {
 ```javascript
 // Linea 70-130: TON Connect initialization
 const tonConnectUI = new TonConnectUI({
-  manifestUrl: 'https://fastapmining.vercel.app/tonconnect-manifest.json'
+  manifestUrl: 'https://fas-tap-mining.vercel.app/tonconnect-manifest.json'
 });
 
 tonConnectUI.onStatusChange((wallet) => {

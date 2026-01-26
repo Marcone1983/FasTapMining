@@ -13,9 +13,6 @@ CREATE INDEX idx_viabtc_earnings_user ON viabtc_earnings(user_id);
 CREATE INDEX idx_viabtc_earnings_coin ON viabtc_earnings(coin);
 CREATE INDEX idx_viabtc_earnings_distributed ON viabtc_earnings(distributed);
 
--- Add column to track total ViaBTC earnings per coin
-ALTER TABLE user_balances ADD COLUMN IF NOT EXISTS viabtc_earned DECIMAL(24, 8) DEFAULT 0;
-
 -- Add ViaBTC stats to system_config
 INSERT INTO system_config (key, value, description) VALUES
   ('viabtc_pool', '{"host": "ltc.viabtc.io", "port": 3333, "algorithm": "scrypt", "coins": ["LTC", "DOGE", "BELLS", "LKY", "PEP", "JKC", "DINGO", "SHIC"]}', 'ViaBTC pool configuration')

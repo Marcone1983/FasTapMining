@@ -177,7 +177,7 @@ module.exports = async (req, res) => {
             'XTR', // currency (Telegram Stars)
             [{ label: item.name, amount: item.price }], // prices array
             {
-              photo_url: `https://fastapmining.vercel.app/icons/${item.icon}.png`,
+              photo_url: `https://fas-tap-mining.vercel.app/icons/${item.icon}.png`,
               photo_width: 512,
               photo_height: 512,
               need_name: false,
@@ -258,7 +258,7 @@ async function handleSuccessfulPayment(userId, payload, telegramPaymentChargeId)
       {
         reply_markup: {
           inline_keyboard: [
-            [{ text: '⚡ Open Mining App', web_app: { url: process.env.WEBAPP_URL || 'https://fastapmining.vercel.app' } }]
+            [{ text: '⚡ Open Mining App', web_app: { url: process.env.WEBAPP_URL || 'https://fas-tap-mining.vercel.app' } }]
           ]
         }
       }

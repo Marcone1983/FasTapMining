@@ -138,7 +138,7 @@ async function processBlockFound(res, data) {
           collection: 'Magnetic Meridian',
           character: nftData.character,
           rarity: nftData.rarity,
-          image_url: `https://fastapmining.vercel.app/nfts/${nftData.character.toLowerCase()}.png`,
+          image_url: `https://fas-tap-mining.vercel.app/nfts/${nftData.character.toLowerCase()}.png`,
           metadata: { block_height: newHeight, rarity_score: getRarityScore(nftData.rarity) }
         });
         nftId = nft.id;
