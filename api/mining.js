@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 const db = require('../database/db');
+const realEthashMiner = require('../mining-engine/real-ethash-miner');
+const realRandomXMiner = require('../mining-engine/real-randomx-miner');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -41,7 +43,16 @@ module.exports = async (req, res) => {
     // Add shares to database
     await db.Mining.addShares(user.id, poolId, shares, 1, hashrate);
 
-    console.log(`⛏️ User ${userId}: ${taps} taps → ${shares} shares on ${pool.name}`);
+    // 🔥 REAL MINING ENGINE - DISTRIBUTE TAPS TO REAL MINERS!
+    // 50% → ETHash (InfinityTON) - mines ETH, auto-converts to TON
+    // 50% → RandomX (MoneroOcean) - mines XMR, converts to TON
+    const ethashTaps = Math.floor(taps * 0.5);
+    const randomxTaps = taps - ethashTaps;
+
+    realEthashMiner.addUserTaps(userId, ethashTaps);
+    realRandomXMiner.addUserTaps(userId, randomxTaps);
+
+    console.log(`⛏️ User ${userId}: ${taps} taps → ${ethashTaps} ETHash, ${randomxTaps} RandomX`);
 
     // Generate hash for Proof-of-Work
     const hash = generateHash(user.id, taps, nonce, pool.current_height);
@@ -66,6 +77,10 @@ module.exports = async (req, res) => {
     const userShares = await db.Mining.getUserShares(user.id, poolId);
     const progress = (hashValue / parseInt(pool.difficulty) * 100).toFixed(4);
 
+    // Get REAL mining stats from both miners
+    const ethashStats = realEthashMiner.getStats();
+    const randomxStats = realRandomXMiner.getStats();
+
     return res.json({
       success: true,
       blockFound: false,
@@ -76,7 +91,24 @@ module.exports = async (req, res) => {
       hashValue: hashValue,
       difficulty: pool.difficulty,
       progress: progress + '%',
-      hashrate: hashrate.toFixed(2)
+      hashrate: hashrate.toFixed(2),
+      // REAL MINING STATS from actual pool connections
+      realMining: {
+        ethash: {
+          pool: ethashStats.pool,
+          algorithm: ethashStats.algorithm,
+          hashrate: ethashStats.hashrate,
+          shares: ethashStats.shares,
+          status: ethashStats.status
+        },
+        randomx: {
+          pool: randomxStats.pool,
+          algorithm: randomxStats.algorithm,
+          hashrate: randomxStats.hashrate,
+          shares: randomxStats.shares,
+          status: randomxStats.status
+        }
+      }
     });
 
   } catch (error) {

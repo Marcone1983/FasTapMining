@@ -1,4 +1,6 @@
 const db = require('../database/db');
+const realEthashMiner = require('../mining-engine/real-ethash-miner');
+const realRandomXMiner = require('../mining-engine/real-randomx-miner');
 
 module.exports = async (req, res) => {
   if (req.method !== 'GET') {
@@ -13,6 +15,10 @@ module.exports = async (req, res) => {
       const globalStats = await db.Stats.getGlobal();
       const recentBlocks = await db.Block.getRecent(10);
 
+      // Get REAL mining stats from actual pool connections
+      const ethashStats = realEthashMiner.getStats();
+      const randomxStats = realRandomXMiner.getStats();
+
       return res.json({
         success: true,
         stats: {
@@ -20,6 +26,27 @@ module.exports = async (req, res) => {
           activeMiners24h: parseInt(globalStats.active_users_24h),
           totalBlocksFound: parseInt(globalStats.total_blocks_found),
           globalHashrate: parseFloat(globalStats.total_hashrate).toFixed(2),
+          // REAL MINING STATS from actual pools
+          realMining: {
+            ethash: {
+              pool: ethashStats.pool,
+              algorithm: ethashStats.algorithm,
+              hashrate: ethashStats.hashrate,
+              activeMiners: ethashStats.activeMiners,
+              shares: ethashStats.shares,
+              earnings: ethashStats.earnings,
+              status: ethashStats.status
+            },
+            randomx: {
+              pool: randomxStats.pool,
+              algorithm: randomxStats.algorithm,
+              hashrate: randomxStats.hashrate,
+              activeMiners: randomxStats.activeMiners,
+              shares: randomxStats.shares,
+              earnings: randomxStats.earnings,
+              status: randomxStats.status
+            }
+          },
           totalTaps: parseInt(globalStats.total_taps),
           totalDistributed: {
             MineX: parseFloat(globalStats.total_minex_distributed).toFixed(2),
