@@ -2,7 +2,7 @@
 // No more bot invoices - all payments direct from connected wallet
 
 import { TonConnectUI, THEME } from '@tonconnect/ui';
-import { Address, toNano, beginCell } from '@ton/ton';
+import { Address, toNano, beginCell, Cell } from '@ton/ton';
 
 class TonConnectManager {
   constructor() {
@@ -336,15 +336,22 @@ class TonConnectManager {
   }
 
   /**
-   * Extract transaction hash from BOC
+   * Extract transaction hash from BOC (Bag of Cells)
+   * Production implementation using TON SDK
    */
   extractTxHash(boc) {
     try {
-      // In production, parse BOC properly
-      // For now, return placeholder that backend will verify
-      return Buffer.from(boc, 'base64').toString('hex').slice(0, 64);
+      // Parse BOC using TON SDK
+      const cell = Cell.fromBoc(Buffer.from(boc, 'base64'))[0];
+
+      // Calculate cell hash (this is the transaction hash)
+      const hash = cell.hash();
+
+      // Convert to hex string
+      return hash.toString('hex');
     } catch (error) {
-      console.error('Extract hash error:', error);
+      console.error('❌ BOC parse error:', error);
+      console.error('Cannot extract transaction hash - invalid BOC format');
       return null;
     }
   }

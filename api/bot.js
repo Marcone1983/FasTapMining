@@ -143,7 +143,7 @@ bot.command('pools', async (ctx) => {
     `Token: MineX\n` +
     `Block Reward: 100 MineX\n` +
     `Difficulty: Medium\n` +
-    `Special: Virtual GPU simulation\n` +
+    `Special: High hashrate contribution rewards\n` +
     `Contract: EQCLQWTYtsNbk8bn7ed8hqpoxKwXQ1iMGadM8Lae6S-rzNfA\n\n` +
     `2️⃣ TonBitcoin Pool (30% weight)\n` +
     `Token: tBTC\n` +

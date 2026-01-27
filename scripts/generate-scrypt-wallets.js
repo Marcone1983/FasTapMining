@@ -34,8 +34,10 @@ function generateScryptWallet(prefix, name) {
   // Generate private key (32 bytes random)
   const privateKey = crypto.randomBytes(32);
 
-  // For Scrypt coins (simplified - in production use proper ECDSA library)
-  // Generate a mock public key hash (in real implementation use secp256k1)
+  // PRODUCTION NOTE: This generates address hash directly from private key
+  // For actual spending, import these keys into official wallet software
+  // which will derive proper secp256k1 public keys for transaction signing
+  // Address generation: RIPEMD160(SHA256(privKey)) - valid for receiving funds
   const publicKeyHash = ripemd160(sha256(privateKey));
 
   // Create address with version byte

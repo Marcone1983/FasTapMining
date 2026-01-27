@@ -9,27 +9,15 @@ let startTime = Date.now();
 let poolWebSocket = null;
 let currentJob = null;
 
-// Keccak256 implementation (lightweight)
-function keccak256(data) {
-  // Simplified Keccak for Web Worker (uses crypto if available)
-  if (self.crypto && self.crypto.subtle) {
-    // Browser crypto API
-    return self.crypto.subtle.digest('SHA-256', data)
-      .then(hash => new Uint8Array(hash));
-  } else {
-    // Fallback: simple hash (not real Keccak, but works for demo)
-    const str = typeof data === 'string' ? data : Array.from(data).join('');
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
-      hash = hash & hash;
-    }
-    const hashBytes = new Uint8Array(32);
-    for (let i = 0; i < 32; i++) {
-      hashBytes[i] = (hash >> (i % 4 * 8)) & 0xFF;
-    }
-    return Promise.resolve(hashBytes);
+// SHA-256 implementation using browser Crypto API (required for real mining)
+function sha256(data) {
+  if (!self.crypto || !self.crypto.subtle) {
+    throw new Error('CRITICAL: Browser Crypto API not available. Cannot perform real mining hashing. Use a modern browser.');
   }
+
+  // Use browser's native SHA-256 implementation
+  return self.crypto.subtle.digest('SHA-256', data)
+    .then(hash => new Uint8Array(hash));
 }
 
 self.onmessage = function(e) {
@@ -166,7 +154,7 @@ async function mineJob(job) {
   for (let batch = 0; batch < 100 && mining; batch++) {
     for (let i = 0; i < batchSize && mining; i++) {
       const blockTemplate = buildBlockTemplate(blob, nonce);
-      const hash = await simpleHash(blockTemplate);
+      const hash = await realHash(blockTemplate);
 
       totalHashes++;
 
@@ -225,26 +213,14 @@ function buildBlockTemplate(blob, nonce) {
   return blobBytes;
 }
 
-async function simpleHash(data) {
-  // Use browser's crypto API if available
-  if (self.crypto && self.crypto.subtle) {
-    const hashBuffer = await self.crypto.subtle.digest('SHA-256', data);
-    return new Uint8Array(hashBuffer);
+async function realHash(data) {
+  // ONLY use browser's native Crypto API - NO FAKE FALLBACKS
+  if (!self.crypto || !self.crypto.subtle) {
+    throw new Error('CRITICAL: Browser Crypto API required for mining. Use Chrome/Firefox/Safari/Edge.');
   }
 
-  // Fallback: simple hash
-  let hash = 0;
-  for (let i = 0; i < data.length; i++) {
-    hash = ((hash << 5) - hash) + data[i];
-    hash = hash & hash;
-  }
-
-  const hashBytes = new Uint8Array(32);
-  for (let i = 0; i < 32; i++) {
-    hashBytes[i] = (hash >> (i % 4 * 8)) & 0xFF;
-  }
-
-  return hashBytes;
+  const hashBuffer = await self.crypto.subtle.digest('SHA-256', data);
+  return new Uint8Array(hashBuffer);
 }
 
 function meetsTarget(hash, target) {

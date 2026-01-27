@@ -112,11 +112,11 @@ class TONDexSwaps {
 
   /**
    * Execute single swap on DeDust
+   * Requires real wallet connection - NO SIMULATION MODE
    */
   async executeSwap(fromTokenAddress, toTokenAddress, amount) {
     if (!this.wallet) {
-      // If no wallet, use API simulation
-      return await this.simulateSwap(fromTokenAddress, toTokenAddress, amount);
+      throw new Error('CRITICAL: Wallet connection required for swaps. Cannot execute swap without wallet. Connect wallet first.');
     }
 
     try {
@@ -260,31 +260,31 @@ class TONDexSwaps {
   /**
    * Simulate swap (when wallet not available)
    */
-  async simulateSwap(fromToken, toToken, amount) {
-    // Use DeDust API to get estimated output
+  /**
+   * DEPRECATED: Use executeSwap() with real wallet connection instead
+   * This function is kept only for price estimation (not for actual swaps)
+   */
+  async estimateSwapOutput(fromToken, toToken, amount) {
+    // Use ONLY real DeDust API - NO FAKE FALLBACKS
     try {
       const response = await axios.get('https://api.dedust.io/v2/estimate', {
         params: {
           fromToken,
           toToken,
           amount
-        }
+        },
+        timeout: 5000
       });
+
+      if (!response.data || !response.data.estimatedOutput) {
+        throw new Error('Invalid API response - no estimated output');
+      }
 
       return response.data.estimatedOutput;
 
     } catch (error) {
-      console.error('Simulation error:', error.message);
-
-      // Fallback: use approximate conversion rates
-      const rates = {
-        'MineX': 40000,  // 1 TON ≈ 40,000 MineX
-        'tBTC': 200,     // 1 TON ≈ 200 tBTC
-        'MRDN': 5000     // 1 TON ≈ 5,000 MRDN
-      };
-
-      const tokenName = Object.keys(TOKENS).find(k => TOKENS[k] === toToken);
-      return amount * (rates[tokenName] || 1);
+      console.error('❌ DeDust API estimate failed:', error.message);
+      throw new Error(`Cannot estimate swap: ${error.message}. DeDust API unavailable.`);
     }
   }
 

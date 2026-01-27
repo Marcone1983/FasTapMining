@@ -23,7 +23,13 @@ const viaBTCMiner = require('../mining-engine/viabtc-scrypt-miner');
 viaBTCMiner.initialize().then(() => {
   console.log('⛏️ ViaBTC Scrypt pool connected - REAL mining active!');
 }).catch(err => {
-  console.error('⚠️  ViaBTC connection failed - running in simulation mode:', err.message);
+  console.error('❌ CRITICAL: ViaBTC pool connection FAILED!');
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('\n⚠️  Mining engine CANNOT function without pool connection.');
+  console.error('⚠️  Bot will continue for user management, but mining is DISABLED.');
+  console.error('⚠️  FIX THE CONNECTION IMMEDIATELY!\n');
+  // Do NOT exit - allow bot to handle user queries, but mining won't work
 });
 
 console.log('🤖 FasTap Mining Bot Started!');
