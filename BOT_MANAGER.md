@@ -2,7 +2,9 @@
 
 ## ✅ Bot Configurato per Girare Sempre!
 
-Il bot ora gira in background con **PM2 Process Manager** e continua a funzionare anche quando chiudi Termux.
+Il bot ora gira in background con **PM2 Process Manager** e **termux-wake-lock** attivo.
+
+**🔒 IMPORTANTE:** Il bot continua a funzionare **anche quando chiudi Termux** grazie al wake lock Android che impedisce al sistema di killare i processi.
 
 ---
 
@@ -60,6 +62,27 @@ Se vuoi avviarlo manualmente:
 ```bash
 cd ~/FasTapMining
 ./start-bot.sh
+```
+
+## 🔒 Wake Lock (IMPORTANTE!)
+
+Il bot usa **termux-wake-lock** per impedire ad Android di killare i processi quando chiudi Termux.
+
+**Cosa significa?**
+- ✅ Il bot continua a girare anche con Termux chiuso
+- ✅ Il telefono può andare in standby, il bot continua
+- ✅ Puoi usare altre app, il bot continua
+- ⚠️ Consuma più batteria (necessario per far girare il bot 24/7)
+
+**Per verificare che il wake lock sia attivo:**
+```bash
+termux-wake-lock
+```
+Nessun output = wake lock già attivo (normale)
+
+**Per disattivare il wake lock (ferma il bot quando chiudi Termux):**
+```bash
+termux-wake-unlock
 ```
 
 ---

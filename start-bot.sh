@@ -4,6 +4,10 @@
 
 echo "🚀 Starting FasTapMining Bot with PM2..."
 
+# Acquire wake lock to prevent Android from killing processes
+termux-wake-lock 2>/dev/null
+echo "🔒 Wake lock acquired - Bot will run even when Termux is closed"
+
 # Navigate to project directory
 cd /data/data/com.termux/files/home/FasTapMining
 
