@@ -2,21 +2,37 @@ const express = require('express');
 const router = express.Router();
 const lifetimeAccessService = require('../services/lifetime-access-service');
 const db = require('../database/db');
+const { validate, TYPES, commonSchemas } = require('../middleware/validate');
+const { rateLimit } = require('../middleware/security');
+const logger = require('../utils/logger').loggers.payment;
+
+// Rate limiting
+const accessReadRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 60,
+  keyGenerator: (req) => req.params?.telegramId || req.params?.paymentId || req.ip
+});
+
+const accessPurchaseRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 10,
+  keyGenerator: (req) => req.body?.telegramId || req.ip
+});
 
 /**
  * Create lifetime access payment request
  * POST /api/lifetime-access/create
  */
-router.post('/create', async (req, res) => {
-  try {
-    const { telegramId } = req.body;
-
-    if (!telegramId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Telegram ID required'
-      });
+router.post('/create',
+  accessPurchaseRateLimit,
+  validate({
+    body: {
+      telegramId: commonSchemas.userId
     }
+  }),
+  async (req, res) => {
+    try {
+      const { telegramId } = req.validated;
 
     // Get or create user
     let user = await db.User.findByTelegramId(telegramId);
@@ -51,7 +67,7 @@ router.post('/create', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Lifetime access creation error:', error);
+    logger.error('❌ Lifetime access creation error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -63,16 +79,23 @@ router.post('/create', async (req, res) => {
  * Check payment status
  * GET /api/lifetime-access/check/:paymentId
  */
-router.get('/check/:paymentId', async (req, res) => {
-  try {
-    const { paymentId } = req.params;
+router.get('/check/:paymentId',
+  accessReadRateLimit,
+  validate({
+    params: {
+      paymentId: { type: TYPES.STRING, required: true, pattern: /^LTA_[0-9]+_[0-9]+$/i, maxLength: 100 }
+    }
+  }),
+  async (req, res) => {
+    try {
+      const { paymentId } = req.validated;
 
     const result = await lifetimeAccessService.checkPayment(paymentId);
 
     res.json(result);
 
   } catch (error) {
-    console.error('❌ Payment check error:', error);
+    logger.error('❌ Payment check error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -84,9 +107,16 @@ router.get('/check/:paymentId', async (req, res) => {
  * Get user's lifetime access status
  * GET /api/lifetime-access/status/:telegramId
  */
-router.get('/status/:telegramId', async (req, res) => {
-  try {
-    const { telegramId } = req.params;
+router.get('/status/:telegramId',
+  accessReadRateLimit,
+  validate({
+    params: {
+      telegramId: commonSchemas.userId
+    }
+  }),
+  async (req, res) => {
+    try {
+      const { telegramId } = req.validated;
 
     const user = await db.User.findByTelegramId(telegramId);
 
@@ -106,7 +136,7 @@ router.get('/status/:telegramId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Status check error:', error);
+    logger.error('❌ Status check error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -118,16 +148,24 @@ router.get('/status/:telegramId', async (req, res) => {
  * Get payment statistics (admin only)
  * GET /api/lifetime-access/stats
  */
-router.get('/stats', async (req, res) => {
-  try {
-    const { adminKey } = req.query;
-
-    if (adminKey !== process.env.ADMIN_KEY) {
-      return res.status(401).json({
-        success: false,
-        error: 'Unauthorized'
-      });
+router.get('/stats',
+  accessReadRateLimit,
+  validate({
+    query: {
+      adminKey: { type: TYPES.STRING, required: true, minLength: 10, maxLength: 500 }
     }
+  }),
+  async (req, res) => {
+    try {
+      const { adminKey } = req.validated;
+
+      if (adminKey !== process.env.ADMIN_KEY) {
+        logger.warn('Unauthorized lifetime access stats attempt', { ip: req.ip });
+        return res.status(401).json({
+          success: false,
+          error: 'Unauthorized'
+        });
+      }
 
     const stats = await lifetimeAccessService.getStats();
 
@@ -137,7 +175,7 @@ router.get('/stats', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Stats error:', error);
+    logger.error('❌ Stats error:', error);
     res.status(500).json({
       success: false,
       error: error.message

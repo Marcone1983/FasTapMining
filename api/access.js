@@ -1,16 +1,27 @@
-// Lifetime Access System - 1 TON one-time payment
-// Users MUST pay 1 TON to unlock the app forever
+// DEPRECATED: Legacy access endpoint with in-memory storage
+// Use /api/lifetime-access/* endpoints instead (database-backed)
 
 const { Address } = require('@ton/core');
+const { validate, TYPES, commonSchemas } = require('../middleware/validate');
+const { rateLimit } = require('../middleware/security');
+const logger = require('../utils/logger').loggers.payment;
+
+// Rate limiting
+const accessLegacyRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 30,
+  keyGenerator: (req) => req.query?.userId || req.body?.userId || req.ip
+});
 
 // Payment configuration
 const LIFETIME_ACCESS_PRICE = 1; // 1 TON
 const PAYMENT_WALLET = 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR'; // Your wallet
 
-// Track paid users (in production: use database)
+// Track paid users (DEPRECATED: use database)
 const paidUsers = new Set();
 
-module.exports = async (req, res) => {
+async function accessLegacyHandler(req, res) {
+  logger.warn('DEPRECATED ENDPOINT USED: /api/access - Use /api/lifetime-access/* instead');
   if (req.method === 'GET') {
     const { userId } = req.query;
 
@@ -73,6 +84,13 @@ module.exports = async (req, res) => {
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Export with rate limiting
+module.exports = async (req, res) => {
+  return accessLegacyRateLimit(req, res, () => {
+    return accessLegacyHandler(req, res);
+  });
 };
 
 function checkLifetimeAccess(userId) {
@@ -88,7 +106,7 @@ function grantLifetimeAccess(userId) {
   // In production: save to database
   // await db.users.update({ userId }, { lifetimeAccess: true, paidAt: Date.now() });
 
-  console.log(`✅ Lifetime access granted to user ${userId}`);
+  logger.info(`✅ Lifetime access granted to user ${userId}`);
 }
 
 function generatePaymentLink(userId) {
@@ -108,7 +126,7 @@ async function verifyTonTransaction(txHash, amount) {
   // 4. Transaction is confirmed
 
   // For now: simulate verification
-  console.log(`Verifying transaction: ${txHash}, amount: ${amount} TON`);
+  logger.info(`Verifying transaction: ${txHash}, amount: ${amount} TON`);
 
   // In production:
   // const tx = await tonApi.getTransaction(txHash);
