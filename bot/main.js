@@ -139,7 +139,21 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
     }
 
     // Regular user flow
-    const hasAccess = user.has_lifetime_access;
+    // Check if user is OWNER (automatic lifetime access)
+    const userWalletNormalized = user.wallet_address ? user.wallet_address.replace(/\s/g, '').toUpperCase() : null;
+    const isOwner = userWalletNormalized === OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+
+    // If user is owner but doesn't have lifetime access in DB, grant it
+    if (isOwner && !user.has_lifetime_access) {
+      await db.query(
+        'UPDATE users SET has_lifetime_access = TRUE, lifetime_access_granted_at = NOW() WHERE id = $1',
+        [user.id]
+      );
+      logger.info(`✅ Owner detected - Lifetime access auto-granted to ${telegramId}`);
+      user.has_lifetime_access = true;
+    }
+
+    const hasAccess = user.has_lifetime_access || isOwner;
 
     const keyboard = {
       inline_keyboard: [
@@ -1346,6 +1360,27 @@ bot.on('callback_query', async (query) => {
         const user = await db.User.findByTelegramId(telegramId);
         if (!user) {
           return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+        }
+
+        // Check if user is OWNER (should have free access)
+        const userWalletNormalized = user.wallet_address ? user.wallet_address.replace(/\s/g, '').toUpperCase() : null;
+        const isOwner = userWalletNormalized === OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+
+        if (isOwner) {
+          // Grant lifetime access to owner for free
+          if (!user.has_lifetime_access) {
+            await db.query(
+              'UPDATE users SET has_lifetime_access = TRUE, lifetime_access_granted_at = NOW() WHERE id = $1',
+              [user.id]
+            );
+          }
+          return bot.sendMessage(chatId,
+            `👑 *Owner Access*\n\n` +
+            `✅ You have lifetime access for FREE!\n` +
+            `💎 All features unlocked\n\n` +
+            `Start mining now! ⛏️`,
+            { parse_mode: 'Markdown' }
+          );
         }
 
         const payment = await lifetimeAccessService.createPaymentRequest(user.id, telegramId);
