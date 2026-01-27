@@ -338,13 +338,35 @@ class ViaBTCScryptMiner {
       const userShare = userHashrate / totalHashrate;
 
       for (const [coin, totalAmount] of Object.entries(rewardDistribution)) {
-        // User gets their share of 95%
-        const userAmount = (totalAmount * 0.95) * userShare;
+        // Calculate user's share of the 95% (after platform fee)
+        const userBaseAmount = (totalAmount * 0.95) * userShare;
 
         try {
           const user = await db.User.findByTelegramId(userId);
           if (user) {
-            await db.User.updateBalance(user.id, coin, userAmount, 'add');
+            // Check if user has a referrer
+            const referralCheck = await db.query(
+              `SELECT r.referrer_id FROM referrals r WHERE r.referred_id = $1`,
+              [user.id]
+            );
+
+            if (referralCheck.rows.length > 0) {
+              // User has referrer: split the user's amount
+              const referrerId = referralCheck.rows[0].referrer_id;
+              const referrerBonus = userBaseAmount * 0.10; // 10% to referrer
+              const userFinalAmount = userBaseAmount * 0.90; // 90% to user
+
+              // Give user 90% of their share
+              await db.User.updateBalance(user.id, coin, userFinalAmount, 'add');
+
+              // Give referrer 10% of user's share
+              await db.User.updateBalance(referrerId, coin, referrerBonus, 'add');
+
+              console.log(`🎁 Referral: User ${userId} gets ${userFinalAmount.toFixed(8)} ${coin} (90%), Referrer ${referrerId} gets ${referrerBonus.toFixed(8)} ${coin} (10%)`);
+            } else {
+              // No referrer: user gets 100% of their share
+              await db.User.updateBalance(user.id, coin, userBaseAmount, 'add');
+            }
           }
         } catch (error) {
           console.error(`Error distributing ${coin} to user ${userId}:`, error);

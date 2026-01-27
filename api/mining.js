@@ -48,26 +48,8 @@ module.exports = async (req, res) => {
       [hashrate, user.id]
     );
 
-    // Check if user has a referrer - give 10% mining reward to referrer
-    const referralCheck = await db.query(
-      `SELECT r.referrer_id, u.telegram_id as referrer_telegram_id
-       FROM referrals r
-       JOIN users u ON r.referrer_id = u.id
-       WHERE r.referred_id = $1`,
-      [user.id]
-    );
-
-    if (referralCheck.rows.length > 0) {
-      const referrer = referralCheck.rows[0];
-      const referralBonus = hashrate * 0.1; // 10% of hashrate to referrer
-
-      await db.query(
-        'UPDATE users SET hashrate = COALESCE(hashrate, 0) + $1 WHERE id = $2',
-        [referralBonus, referrer.referrer_id]
-      );
-
-      console.log(`🎁 Referral bonus: User ${referrer.referrer_telegram_id} gets +${referralBonus.toFixed(2)} H/s (10% of ${user.telegram_id}'s mining)`);
-    }
+    // Referral bonus is handled by mining engine when shares are accepted
+    // Referrer gets 10% of referred user's COIN rewards (not hashrate)
 
     // 🔥 REAL MINING ENGINE - VIABTC SCRYPT MERGE MINING!
     // Mines 8 coins simultaneously: LTC + DOGE + BELLS + LKY + PEP + JKC + DINGO + SHIC

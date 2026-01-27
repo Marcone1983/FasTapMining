@@ -87,11 +87,15 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
           bot.sendMessage(chatId,
             `🤝 *Referral Activated!*\n\n` +
             `You joined via referral code: \`${referrerCode}\`\n\n` +
-            `*Referral Benefits:*\n` +
-            `⛏️ Your referrer gets +10% of your mining hashrate\n` +
-            `💎 You mine normally and keep 100% of your rewards\n` +
-            `🎁 Win-win partnership!\n\n` +
-            `Start mining now to help your referrer earn!`,
+            `*Reward Distribution:*\n` +
+            `💎 You receive: 85% of your mining rewards\n` +
+            `🎁 Your referrer gets: 10% of your mining rewards\n` +
+            `👑 Platform fee: 5%\n\n` +
+            `⛏️ Example: Pool pays 1 LTC\n` +
+            `   • You keep: 0.855 LTC (85%)\n` +
+            `   • Referrer gets: 0.095 LTC (10%)\n` +
+            `   • Platform: 0.05 LTC (5%)\n\n` +
+            `Start mining now! 🚀`,
             { parse_mode: 'Markdown' }
           );
         }
