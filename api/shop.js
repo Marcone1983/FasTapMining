@@ -1,8 +1,24 @@
 const { Telegraf } = require('telegraf');
 const db = require('../database/db');
+const { validate, TYPES, commonSchemas } = require('../middleware/validate');
+const { rateLimit } = require('../middleware/security');
+const logger = require('../utils/logger').loggers.payment;
 
 // Initialize bot for payment invoices
 const bot = new Telegraf(process.env.TOKEN_API_BOT);
+
+// Rate limiting for shop
+const shopReadRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 60,
+  keyGenerator: (req) => req.query?.userId || req.ip
+});
+
+const shopPurchaseRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 10,
+  keyGenerator: (req) => req.body?.userId || req.ip
+});
 
 // OWNER WALLET - ALL PAYMENTS GO HERE (gets everything FREE)
 const OWNER_WALLET = 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
@@ -98,128 +114,116 @@ const SHOP_ITEMS = {
   }
 };
 
-module.exports = async (req, res) => {
-  if (req.method === 'GET') {
-    const { userId } = req.query;
+async function getShopHandler(req, res) {
+  const { userId } = req.validated;
 
-    if (!userId) {
-      return res.status(400).json({ error: 'Missing userId' });
-    }
+  try {
+    const user = await db.User.findByTelegramId(userId);
 
-    try {
-      const user = await db.User.findByTelegramId(userId);
+    // Check if user is GOD (owner wallet)
+    const isGod = user && user.wallet_address === OWNER_WALLET;
 
-      // Check if user is GOD (owner wallet)
-      const isGod = user && user.wallet_address === OWNER_WALLET;
+    // Get user's active boosts
+    const activeBoosts = await getUserActiveBoosts(user?.id);
 
-      // Get user's active boosts
-      const activeBoosts = await getUserActiveBoosts(user?.id);
-
-      return res.json({
-        success: true,
-        items: Object.values(SHOP_ITEMS).map(item => ({
-          ...item,
-          price: isGod ? 0 : item.price, // FREE for GOD
-          currency: 'Stars',
-          alreadyOwned: activeBoosts.some(b => b.item_id === item.id && b.is_active)
-        })),
+    return res.json({
+      success: true,
+      items: Object.values(SHOP_ITEMS).map(item => ({
+        ...item,
+        price: isGod ? 0 : item.price, // FREE for GOD
         currency: 'Stars',
-        isGod: isGod,
-        activeBoosts: activeBoosts
-      });
-    } catch (error) {
-      console.error('Shop GET error:', error);
-      return res.status(500).json({ error: 'Failed to load shop' });
-    }
+        alreadyOwned: activeBoosts.some(b => b.item_id === item.id && b.is_active)
+      })),
+      currency: 'Stars',
+      isGod: isGod,
+      activeBoosts: activeBoosts
+    });
+  } catch (error) {
+    logger.error('Shop GET error:', error);
+    return res.status(500).json({ error: 'Failed to load shop' });
   }
+}
 
-  if (req.method === 'POST') {
-    const { userId, itemId, action } = req.body;
+async function postShopHandler(req, res) {
+  const { userId, itemId, action } = req.validated;
 
-    if (!userId || !itemId) {
-      return res.status(400).json({ error: 'Missing required fields' });
+  try {
+    const user = await db.User.findByTelegramId(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    try {
-      const user = await db.User.findByTelegramId(userId);
-
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-
-      if (!user.wallet_address) {
-        return res.status(400).json({ error: 'Wallet not connected' });
-      }
-
-      const item = SHOP_ITEMS[itemId];
-      if (!item) {
-        return res.status(404).json({ error: 'Item not found' });
-      }
-
-      // Check if user is GOD
-      const isGod = user.wallet_address === OWNER_WALLET;
-
-      // If GOD, activate immediately without payment
-      if (isGod) {
-        return await activateBoost(user, item, null, true, res);
-      }
-
-      // For regular users, send Telegram Stars invoice
-      if (action === 'initiate_purchase') {
-        try {
-          // Create invoice for Telegram Stars
-          const invoice = await bot.telegram.sendInvoice(
-            userId,
-            item.name,
-            item.description,
-            `purchase_${itemId}_${Date.now()}`, // payload
-            '', // provider_token (empty for Stars)
-            'XTR', // currency (Telegram Stars)
-            [{ label: item.name, amount: item.price }], // prices array
-            {
-              photo_url: `https://fas-tap-mining.vercel.app/icons/${item.icon}.png`,
-              photo_width: 512,
-              photo_height: 512,
-              need_name: false,
-              need_phone_number: false,
-              need_email: false,
-              need_shipping_address: false,
-              send_phone_number_to_provider: false,
-              send_email_to_provider: false,
-              is_flexible: false
-            }
-          );
-
-          return res.json({
-            success: true,
-            message: 'Invoice sent to Telegram',
-            invoice_message_id: invoice.message_id
-          });
-        } catch (error) {
-          console.error('Send invoice error:', error);
-          return res.status(500).json({
-            error: 'Failed to create invoice',
-            message: error.message
-          });
-        }
-      }
-
-      return res.status(400).json({
-        error: 'Invalid action',
-        message: 'Use action=initiate_purchase to buy items'
-      });
-
-    } catch (error) {
-      console.error('Shop POST error:', error);
-      return res.status(500).json({
-        error: 'Purchase failed',
-        message: error.message
-      });
+    if (!user.wallet_address) {
+      return res.status(400).json({ error: 'Wallet not connected' });
     }
+
+    const item = SHOP_ITEMS[itemId];
+    if (!item) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+
+    // Check if user is GOD
+    const isGod = user.wallet_address === OWNER_WALLET;
+
+    // If GOD, activate immediately without payment
+    if (isGod) {
+      return await activateBoost(user, item, null, true, res);
+    }
+
+    // For regular users, send Telegram Stars invoice
+    if (action === 'initiate_purchase') {
+      try {
+        // Create invoice for Telegram Stars
+        const invoice = await bot.telegram.sendInvoice(
+          userId,
+          item.name,
+          item.description,
+          `purchase_${itemId}_${Date.now()}`, // payload
+          '', // provider_token (empty for Stars)
+          'XTR', // currency (Telegram Stars)
+          [{ label: item.name, amount: item.price }], // prices array
+          {
+            photo_url: `https://fas-tap-mining.vercel.app/icons/${item.icon}.png`,
+            photo_width: 512,
+            photo_height: 512,
+            need_name: false,
+            need_phone_number: false,
+            need_email: false,
+            need_shipping_address: false,
+            send_phone_number_to_provider: false,
+            send_email_to_provider: false,
+            is_flexible: false
+          }
+        );
+
+        return res.json({
+          success: true,
+          message: 'Invoice sent to Telegram',
+          invoice_message_id: invoice.message_id
+        });
+      } catch (error) {
+        logger.error('Send invoice error:', error);
+        return res.status(500).json({
+          error: 'Failed to create invoice',
+          message: error.message
+        });
+      }
+    }
+
+    return res.status(400).json({
+      error: 'Invalid action',
+      message: 'Use action=initiate_purchase to buy items'
+    });
+
+  } catch (error) {
+    logger.error('Shop POST error:', error);
+    return res.status(500).json({
+      error: 'Purchase failed',
+      message: error.message
+    });
   }
-
-  return res.status(405).json({ error: 'Method not allowed' });
-};
+}
 
 // Handle successful payment (called from bot webhook)
 async function handleSuccessfulPayment(userId, payload, telegramPaymentChargeId) {
@@ -227,7 +231,7 @@ async function handleSuccessfulPayment(userId, payload, telegramPaymentChargeId)
     // Extract itemId from payload: "purchase_autotap_pro_1234567890"
     const match = payload.match(/^purchase_(.+)_\d+$/);
     if (!match) {
-      console.error('Invalid payload format:', payload);
+      logger.error('Invalid payload format:', payload);
       return false;
     }
 
@@ -235,13 +239,13 @@ async function handleSuccessfulPayment(userId, payload, telegramPaymentChargeId)
     const item = SHOP_ITEMS[itemId];
 
     if (!item) {
-      console.error('Item not found:', itemId);
+      logger.error('Item not found:', itemId);
       return false;
     }
 
     const user = await db.User.findByTelegramId(userId);
     if (!user) {
-      console.error('User not found:', userId);
+      logger.error('User not found:', userId);
       return false;
     }
 
@@ -266,7 +270,7 @@ async function handleSuccessfulPayment(userId, payload, telegramPaymentChargeId)
 
     return true;
   } catch (error) {
-    console.error('Handle successful payment error:', error);
+    logger.error('Handle successful payment error:', error);
     return false;
   }
 }
@@ -362,7 +366,7 @@ async function getUserActiveBoosts(userId) {
     );
     return rows;
   } catch (error) {
-    console.error('Get active boosts error:', error);
+    logger.error('Get active boosts error:', error);
     return [];
   }
 }
@@ -386,11 +390,40 @@ async function ensureBoostsTable() {
       CREATE INDEX IF NOT EXISTS idx_user_boosts_active ON user_boosts(is_active) WHERE is_active = TRUE;
     `);
   } catch (error) {
-    console.error('Ensure boosts table error:', error);
+    logger.error('Ensure boosts table error:', error);
   }
 }
 
 ensureBoostsTable();
+
+// Export main handler with middleware
+module.exports = async (req, res) => {
+  if (req.method === 'GET') {
+    return shopReadRateLimit(req, res, () => {
+      return validate({
+        query: {
+          userId: commonSchemas.userId
+        }
+      })(req, res, () => {
+        return getShopHandler(req, res);
+      });
+    });
+  } else if (req.method === 'POST') {
+    return shopPurchaseRateLimit(req, res, () => {
+      return validate({
+        body: {
+          userId: commonSchemas.userId,
+          itemId: { type: TYPES.ENUM, required: true, enum: Object.keys(SHOP_ITEMS) },
+          action: { type: TYPES.ENUM, required: false, enum: ['initiate_purchase'] }
+        }
+      })(req, res, () => {
+        return postShopHandler(req, res);
+      });
+    });
+  } else {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+};
 
 // Export for bot webhook handler
 module.exports.handleSuccessfulPayment = handleSuccessfulPayment;

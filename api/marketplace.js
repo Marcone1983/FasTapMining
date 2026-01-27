@@ -2,12 +2,28 @@ const express = require('express');
 const router = express.Router();
 const marketplaceService = require('../services/marketplace-service');
 const db = require('../database/db');
+const { validate, TYPES, commonSchemas } = require('../middleware/validate');
+const { rateLimit } = require('../middleware/security');
+const logger = require('../utils/logger').loggers.payment;
+
+// Rate limiting
+const marketplaceReadRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 60,
+  keyGenerator: (req) => req.params?.telegramId || req.params?.purchaseId || req.ip
+});
+
+const marketplacePurchaseRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 10,
+  keyGenerator: (req) => req.body?.telegramId || req.ip
+});
 
 /**
  * Get all marketplace items
  * GET /api/marketplace/items
  */
-router.get('/items', async (req, res) => {
+router.get('/items', marketplaceReadRateLimit, async (req, res) => {
   try {
     const items = marketplaceService.getMarketplaceItems();
 
@@ -17,7 +33,7 @@ router.get('/items', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Marketplace items error:', error);
+    logger.error('❌ Marketplace items error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -29,16 +45,17 @@ router.get('/items', async (req, res) => {
  * Create purchase request
  * POST /api/marketplace/purchase
  */
-router.post('/purchase', async (req, res) => {
-  try {
-    const { telegramId, itemType } = req.body;
-
-    if (!telegramId || !itemType) {
-      return res.status(400).json({
-        success: false,
-        error: 'Telegram ID and item type required'
-      });
+router.post('/purchase',
+  marketplacePurchaseRateLimit,
+  validate({
+    body: {
+      telegramId: commonSchemas.userId,
+      itemType: { type: TYPES.STRING, required: true, pattern: /^[a-z0-9_-]+$/, maxLength: 50 }
     }
+  }),
+  async (req, res) => {
+    try {
+      const { telegramId, itemType } = req.validated;
 
     // Get or create user
     let user = await db.User.findByTelegramId(telegramId);
@@ -75,7 +92,7 @@ router.post('/purchase', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Marketplace purchase error:', error);
+    logger.error('❌ Marketplace purchase error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -87,16 +104,23 @@ router.post('/purchase', async (req, res) => {
  * Check purchase payment status
  * GET /api/marketplace/check/:purchaseId
  */
-router.get('/check/:purchaseId', async (req, res) => {
-  try {
-    const { purchaseId } = req.params;
+router.get('/check/:purchaseId',
+  marketplaceReadRateLimit,
+  validate({
+    params: {
+      purchaseId: { type: TYPES.STRING, required: true, pattern: /^MKT_[0-9]+_[a-z0-9_-]+$/i, maxLength: 100 }
+    }
+  }),
+  async (req, res) => {
+    try {
+      const { purchaseId } = req.validated;
 
     const result = await marketplaceService.checkPurchasePayment(purchaseId);
 
     res.json(result);
 
   } catch (error) {
-    console.error('❌ Purchase check error:', error);
+    logger.error('❌ Purchase check error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -108,9 +132,16 @@ router.get('/check/:purchaseId', async (req, res) => {
  * Get user's active items
  * GET /api/marketplace/my-items/:telegramId
  */
-router.get('/my-items/:telegramId', async (req, res) => {
-  try {
-    const { telegramId } = req.params;
+router.get('/my-items/:telegramId',
+  marketplaceReadRateLimit,
+  validate({
+    params: {
+      telegramId: commonSchemas.userId
+    }
+  }),
+  async (req, res) => {
+    try {
+      const { telegramId } = req.validated;
 
     const user = await db.User.findByTelegramId(telegramId);
 
@@ -129,7 +160,7 @@ router.get('/my-items/:telegramId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Active items error:', error);
+    logger.error('❌ Active items error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -141,16 +172,24 @@ router.get('/my-items/:telegramId', async (req, res) => {
  * Get marketplace statistics (admin only)
  * GET /api/marketplace/stats
  */
-router.get('/stats', async (req, res) => {
-  try {
-    const { adminKey } = req.query;
-
-    if (adminKey !== process.env.ADMIN_KEY) {
-      return res.status(401).json({
-        success: false,
-        error: 'Unauthorized'
-      });
+router.get('/stats',
+  marketplaceReadRateLimit,
+  validate({
+    query: {
+      adminKey: { type: TYPES.STRING, required: true, minLength: 10, maxLength: 500 }
     }
+  }),
+  async (req, res) => {
+    try {
+      const { adminKey } = req.validated;
+
+      if (adminKey !== process.env.ADMIN_KEY) {
+        logger.warn('Unauthorized marketplace stats access attempt', { ip: req.ip });
+        return res.status(401).json({
+          success: false,
+          error: 'Unauthorized'
+        });
+      }
 
     const stats = await marketplaceService.getStats();
 
@@ -160,7 +199,7 @@ router.get('/stats', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Stats error:', error);
+    logger.error('❌ Stats error:', error);
     res.status(500).json({
       success: false,
       error: error.message
