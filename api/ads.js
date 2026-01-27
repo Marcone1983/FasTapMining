@@ -1,4 +1,5 @@
 // Telegram Ads Integration - Monetization through Ad Network
+const logger = require("../utils/logger").loggers.api;
 
 // Telegram Ads configuration
 const ADS_CONFIG = {

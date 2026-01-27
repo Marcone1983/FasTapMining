@@ -1,6 +1,8 @@
 // Telegram Cloud Storage - REAL persistent storage
 // NO MORE localStorage - everything saved to Telegram
 
+const logger = require('../utils/logger').loggers.app;
+
 module.exports = {
   // Save user data to Telegram Cloud Storage
   async saveUserData(userId, data) {
@@ -15,7 +17,7 @@ module.exports = {
     // Or PostgreSQL/MongoDB:
     // await db.users.upsert({ userId, data });
 
-    console.log(`Saved data for user ${userId}:`, data);
+    logger.info(`Saved data for user ${userId}:`, data);
     return { success: true };
   },
 
@@ -27,7 +29,7 @@ module.exports = {
     // const data = await redis.get(key);
     // return JSON.parse(data);
 
-    console.log(`Loaded data for user ${userId}`);
+    logger.info(`Loaded data for user ${userId}`);
     return {
       taps: 0,
       rewards: { MineX: 0, tBTC: 0, MRDN: 0, nfts: [] },
@@ -46,7 +48,7 @@ module.exports = {
   // Track referral
   async trackReferral(referrerId, referredId) {
     // Save referral relationship
-    console.log(`Referral: ${referredId} referred by ${referrerId}`);
+    logger.info(`Referral: ${referredId} referred by ${referrerId}`);
 
     // Give bonus to referrer
     const referralBonus = {

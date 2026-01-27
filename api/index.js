@@ -1,6 +1,10 @@
 const { Telegraf } = require('telegraf');
+const { rateLimit } = require('../middleware/security');
+const logger = require('../utils/logger').loggers.api;
 
-module.exports = async (req, res) => {
+const notifyRateLimit = rateLimit({ windowMs: 60000, max: 100, keyGenerator: (req) => req.body?.userId || req.ip });
+
+async function notifyHandler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -70,7 +74,9 @@ Keep tapping! Block reward coming soon! 💪
 
     res.json({ success: true, notified: true });
   } catch (error) {
-    console.error('Notification error:', error);
+    logger.error('Notification error:', error);
     res.json({ success: false, error: error.message });
   }
-};
+}
+
+module.exports = async (req, res) => notifyRateLimit(req, res, () => notifyHandler(req, res));

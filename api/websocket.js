@@ -1,4 +1,5 @@
 // WebSocket Server for Real-Time Stats
+const logger = require("../utils/logger").loggers.api;
 const WebSocket = require('ws');
 const db = require('../database/db');
 
@@ -9,19 +10,19 @@ function initWebSocket(server) {
   wss = new WebSocket.Server({ server, path: '/ws' });
 
   wss.on('connection', (ws) => {
-    console.log('✅ WebSocket client connected');
+    logger.info('✅ WebSocket client connected');
     clients.add(ws);
 
     // Send initial stats
     sendStats(ws);
 
     ws.on('close', () => {
-      console.log('❌ WebSocket client disconnected');
+      logger.info('❌ WebSocket client disconnected');
       clients.delete(ws);
     });
 
     ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
+      logger.error('WebSocket error:', error);
       clients.delete(ws);
     });
   });
@@ -31,7 +32,7 @@ function initWebSocket(server) {
     await broadcastStats();
   }, 2000);
 
-  console.log('✅ WebSocket server initialized');
+  logger.info('✅ WebSocket server initialized');
   return wss;
 }
 
@@ -43,7 +44,7 @@ async function sendStats(ws) {
       data: stats
     }));
   } catch (error) {
-    console.error('Send stats error:', error);
+    logger.error('Send stats error:', error);
   }
 }
 
@@ -63,7 +64,7 @@ async function broadcastStats() {
       }
     });
   } catch (error) {
-    console.error('Broadcast stats error:', error);
+    logger.error('Broadcast stats error:', error);
   }
 }
 
@@ -145,7 +146,7 @@ async function getRealtimeStats() {
       timestamp: Date.now()
     };
   } catch (error) {
-    console.error('Get realtime stats error:', error);
+    logger.error('Get realtime stats error:', error);
     return {
       activeMiners: 0,
       globalHashrate: '0.00',

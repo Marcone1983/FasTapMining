@@ -1,12 +1,29 @@
-module.exports = async (req, res) => {
-  if (req.method === 'POST') {
-    const { transaction } = req.body;
+const { rateLimit } = require('../middleware/security');
+const logger = require('../utils/logger').loggers.api;
 
-    // Verifica transazione e attiva boost
-    console.log('Webhook ricevuto:', transaction);
+// Rate limiting: 100 webhooks per minute
+const webhookRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 100,
+  keyGenerator: (req) => req.ip
+});
 
-    res.json({ status: 'processed' });
-  } else {
-    res.status(405).json({ error: 'Method not allowed' });
+async function webhookHandler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  const { transaction } = req.body;
+
+  // Log webhook received
+  logger.info('Webhook received:', { transaction });
+
+  res.json({ status: 'processed' });
+}
+
+// Export with rate limiting
+module.exports = async (req, res) => {
+  return webhookRateLimit(req, res, () => {
+    return webhookHandler(req, res);
+  });
 };

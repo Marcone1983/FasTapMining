@@ -1,4 +1,5 @@
 const { Telegraf } = require('telegraf');
+const logger = require("../utils/logger").loggers.api;
 
 // Initialize bot
 const bot = new Telegraf(process.env.TOKEN_API_BOT);
@@ -271,7 +272,7 @@ bot.on('pre_checkout_query', async (ctx) => {
     // Validation already done when invoice was created
     await ctx.answerPreCheckoutQuery(true);
   } catch (error) {
-    console.error('Pre-checkout error:', error);
+    logger.error('Pre-checkout error:', error);
     await ctx.answerPreCheckoutQuery(false, 'Payment processing error. Please try again.');
   }
 });
@@ -284,7 +285,7 @@ bot.on('successful_payment', async (ctx) => {
     const payload = payment.invoice_payload;
     const telegramPaymentChargeId = payment.telegram_payment_charge_id;
 
-    console.log('Payment received:', {
+    logger.info('Payment received:', {
       userId,
       payload,
       amount: payment.total_amount,
@@ -306,7 +307,7 @@ bot.on('successful_payment', async (ctx) => {
       );
     }
   } catch (error) {
-    console.error('Successful payment handler error:', error);
+    logger.error('Successful payment handler error:', error);
     await ctx.reply(
       '⚠️ Payment received but there was an error.\n\n' +
       'Don\'t worry - we received your payment.\n' +
@@ -321,7 +322,7 @@ module.exports = async (req, res) => {
     await bot.handleUpdate(req.body);
     res.status(200).json({ ok: true });
   } catch (error) {
-    console.error('Bot error:', error);
+    logger.error('Bot error:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -329,7 +330,7 @@ module.exports = async (req, res) => {
 // For local development
 if (require.main === module) {
   bot.launch();
-  console.log('✅ Bot started');
+  logger.info('✅ Bot started');
 
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));

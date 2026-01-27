@@ -1,4 +1,5 @@
 // AutoTap Passive Mining System - REAL passive income
+const logger = require("../utils/logger").loggers.api;
 // Generates mining shares automatically even when app is closed
 
 // AutoTap tiers (prices in Telegram Stars)
@@ -167,7 +168,7 @@ function activateAutoTap(userId, tier) {
   // In production: save to database
   // await db.autoTaps.insert(autoTap);
 
-  console.log(`✅ AutoTap activated for user ${userId}: ${tier.name}`);
+  logger.info(`✅ AutoTap activated for user ${userId}: ${tier.name}`);
 
   return autoTap;
 }
@@ -185,7 +186,7 @@ function calculateAccumulatedShares(userId, autoTap) {
 
 // Background worker: Apply AutoTap shares to mining pools
 module.exports.applyAutoTapShares = async () => {
-  console.log('Running AutoTap background worker...');
+  logger.info('Running AutoTap background worker...');
 
   for (const [userId, autoTap] of activeAutoTaps.entries()) {
     // Check if expired
@@ -200,7 +201,7 @@ module.exports.applyAutoTapShares = async () => {
     if (shares > 0) {
       // Apply shares to user's selected pool
       // This would call the mining API to add shares
-      console.log(`AutoTap: Adding ${shares} shares for user ${userId}`);
+      logger.info(`AutoTap: Adding ${shares} shares for user ${userId}`);
 
       // In production: call mining API
       // await addSharesToPool(userId, shares);

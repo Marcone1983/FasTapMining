@@ -1,5 +1,6 @@
 // API endpoint for cryptocurrency prices
 const axios = require('axios');
+const logger = require('../utils/logger').loggers.api;
 
 // Cache prices for 60 seconds to avoid hitting rate limits
 let priceCache = {
@@ -79,7 +80,7 @@ module.exports = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error fetching prices:', error.message);
+    logger.error('Error fetching prices:', error.message);
 
     // Return cached data even if expired in case of API error
     if (priceCache.data) {
