@@ -33,6 +33,12 @@ console.log(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
 // Owner wallet for automatic admin access
 const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
 
+// Generate referral code for user
+function generateReferralCode(userId) {
+  const code = Buffer.from(userId.toString()).toString('base64url').slice(0, 8);
+  return `FTM${code}`;
+}
+
 // Check if user is owner by wallet address
 async function isOwner(telegramId) {
   try {
@@ -55,32 +61,37 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const telegramId = msg.from.id.toString();
   const username = msg.from.username || msg.from.first_name;
-  const referralCode = match[1] ? match[1].trim() : null;
+  const referrerCode = match[1] ? match[1].trim() : null;
 
   try {
     // Get or create user
     let user = await db.User.findByTelegramId(telegramId);
 
     if (!user) {
+      // Generate referral code for new user
+      const newUserCode = generateReferralCode(telegramId);
+
       user = await db.User.create({
         telegram_id: telegramId,
-        username: username
+        username: username,
+        first_name: msg.from.first_name || '',
+        referral_code: newUserCode
       });
-      console.log(`✨ New user created: ${telegramId}`);
+      console.log(`✨ New user created: ${telegramId} with referral code: ${newUserCode}`);
 
-      // Process referral if code provided
-      if (referralCode) {
-        const referralResult = await referralService.processReferral(telegramId, referralCode);
+      // Process referral if code provided (user joined via someone's referral link)
+      if (referrerCode) {
+        const referralResult = await referralService.processReferral(telegramId, referrerCode);
 
         if (referralResult.success) {
           bot.sendMessage(chatId,
-            `🎁 *Welcome Bonus!*\n\n` +
-            `You joined via referral code: \`${referralCode}\`\n\n` +
-            `*You received:*\n` +
-            `✅ 0.0005 LTC\n` +
-            `✅ 0.5 DOGE\n` +
-            `✅ 0.05 TON\n\n` +
-            `Your referrer also got rewards! 🎉`,
+            `🤝 *Referral Activated!*\n\n` +
+            `You joined via referral code: \`${referrerCode}\`\n\n` +
+            `*Referral Benefits:*\n` +
+            `⛏️ Your referrer gets +10% of your mining hashrate\n` +
+            `💎 You mine normally and keep 100% of your rewards\n` +
+            `🎁 Win-win partnership!\n\n` +
+            `Start mining now to help your referrer earn!`,
             { parse_mode: 'Markdown' }
           );
         }

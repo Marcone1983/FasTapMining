@@ -191,10 +191,10 @@ const User = {
 
   async create(data) {
     const { rows } = await query(
-      `INSERT INTO users (telegram_id, username, first_name, last_name, referral_code, referred_by_id)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO users (telegram_id, username, first_name, referral_code)
+       VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [data.telegram_id, data.username, data.first_name, data.last_name, data.referral_code, data.referred_by_id]
+      [data.telegram_id, data.username, data.first_name, data.referral_code]
     );
 
     await invalidateCache(`user:${rows[0].id}`);
