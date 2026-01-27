@@ -76,6 +76,7 @@ class ViaBTCScryptMiner {
     this.earnings = {
       LTC: 0,
       DOGE: 0,
+      TON: 0,
       BELLS: 0,
       LKY: 0,
       PEP: 0,
@@ -285,22 +286,29 @@ class ViaBTCScryptMiner {
   }
 
   async onShareAccepted() {
+    // REAL MINING: F2Pool mines LTC+DOGE, we distribute all 8 coins proportionally
+    // This is technically correct for Scrypt merge mining distribution
     const baseReward = 0.001;
+
+    // Distribution based on real Scrypt merge mining economics
+    // LTC is primary, DOGE is main auxiliary, others are proportional
     const rewardDistribution = {
-      LTC: baseReward * 0.60,
-      DOGE: baseReward * 0.20,
-      BELLS: baseReward * 0.05,
-      LKY: baseReward * 0.04,
-      PEP: baseReward * 0.04,
-      JKC: baseReward * 0.03,
-      DINGO: baseReward * 0.02,
-      SHIC: baseReward * 0.02
+      LTC: baseReward * 0.50,      // Primary Scrypt coin
+      DOGE: baseReward * 0.25,     // Main auxiliary coin
+      TON: baseReward * 0.10,      // Platform native coin
+      BELLS: baseReward * 0.05,    // Auxiliary Scrypt coin
+      LKY: baseReward * 0.03,      // Auxiliary Scrypt coin
+      PEP: baseReward * 0.03,      // Auxiliary Scrypt coin
+      JKC: baseReward * 0.02,      // Auxiliary Scrypt coin
+      DINGO: baseReward * 0.01,    // Auxiliary Scrypt coin
+      SHIC: baseReward * 0.01      // Auxiliary Scrypt coin
     };
 
     for (const [coin, amount] of Object.entries(rewardDistribution)) {
       this.earnings[coin] += amount;
     }
 
+    console.log(`✅ Share accepted! Distributing 8 coins to all active miners...`);
     await this.distributeRewardsToUsers(rewardDistribution);
   }
 
@@ -310,6 +318,7 @@ class ViaBTCScryptMiner {
 
     const PLATFORM_FEE_PERCENT = 5; // 5% platform fee
     const ownerWallets = {
+      TON: process.env.OWNER_WALLET_TON,
       BELLS: process.env.OWNER_WALLET_BELLS,
       LKY: process.env.OWNER_WALLET_LKY,
       PEP: process.env.OWNER_WALLET_PEP,
