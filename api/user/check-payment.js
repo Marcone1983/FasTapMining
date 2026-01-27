@@ -1,16 +1,26 @@
 // API endpoint to verify TON payment and unlock lifetime mining access
 const db = require('../../database/db');
 const lifetimeAccessService = require('../../services/lifetime-access-service');
+const { validate, TYPES, commonSchemas } = require('../../middleware/validate');
+const { rateLimit } = require('../../middleware/security');
+const logger = require('../../utils/logger').loggers.payment;
 
-module.exports = async (req, res) => {
-  const { userId, walletAddress } = req.body;
+// Rate limiting: 20 checks per minute per user
+const checkPaymentRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 20,
+  keyGenerator: (req) => req.body?.userId || req.ip
+});
 
-  if (!userId || !walletAddress) {
-    return res.status(400).json({
-      success: false,
-      error: 'User ID and wallet address required'
-    });
+const checkPaymentValidation = validate({
+  body: {
+    userId: commonSchemas.userId,
+    walletAddress: commonSchemas.walletAddress
   }
+});
+
+async function checkPaymentHandler(req, res) {
+  const { userId, walletAddress } = req.validated;
 
   try {
     // Get user from database
@@ -50,7 +60,7 @@ module.exports = async (req, res) => {
         [user.id]
       );
 
-      console.log(`✅ Lifetime access granted to user ${userId} (paid 1 TON)`);
+      logger.info(`✅ Lifetime access granted to user ${userId} (paid 1 TON)`);
 
       return res.json({
         success: true,
@@ -67,11 +77,20 @@ module.exports = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('Error checking payment:', error);
+    logger.error('Error checking payment:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
       message: error.message
     });
   }
+}
+
+// Export with middleware
+module.exports = async (req, res) => {
+  return checkPaymentRateLimit(req, res, () => {
+    return checkPaymentValidation(req, res, () => {
+      return checkPaymentHandler(req, res);
+    });
+  });
 };

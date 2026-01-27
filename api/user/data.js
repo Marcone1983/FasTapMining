@@ -1,15 +1,24 @@
 // API endpoint for complete user data
 const db = require('../../database/db');
+const { validate, TYPES, commonSchemas } = require('../../middleware/validate');
+const { rateLimit } = require('../../middleware/security');
+const logger = require('../../utils/logger').loggers.api;
 
-module.exports = async (req, res) => {
-  const { userId } = req.query;
+// Rate limiting: 60 requests per minute per user
+const userDataRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 60,
+  keyGenerator: (req) => req.query?.userId || req.ip
+});
 
-  if (!userId) {
-    return res.status(400).json({
-      success: false,
-      error: 'User ID required'
-    });
+const userDataValidation = validate({
+  query: {
+    userId: commonSchemas.userId
   }
+});
+
+async function userDataHandler(req, res) {
+  const { userId } = req.validated;
 
   try {
     // Get user from database
@@ -84,12 +93,21 @@ module.exports = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    logger.error('Error fetching user data:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
     });
   }
+}
+
+// Export with middleware
+module.exports = async (req, res) => {
+  return userDataRateLimit(req, res, () => {
+    return userDataValidation(req, res, () => {
+      return userDataHandler(req, res);
+    });
+  });
 };
 
 // Helper function to get active boosts
@@ -117,7 +135,7 @@ async function getActiveBoosts(userId) {
         null
     }));
   } catch (error) {
-    console.error('Error getting active boosts:', error);
+    logger.error('Error getting active boosts:', error);
     return [];
   }
 }
@@ -140,7 +158,7 @@ async function getAchievements(userId) {
       earned: row.earned_at
     }));
   } catch (error) {
-    console.error('Error getting achievements:', error);
+    logger.error('Error getting achievements:', error);
     return [];
   }
 }

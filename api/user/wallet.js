@@ -1,24 +1,28 @@
 const db = require('../../database/db');
+const { validate, TYPES, commonSchemas } = require('../../middleware/validate');
+const { rateLimit } = require('../../middleware/security');
+const logger = require('../../utils/logger').loggers.api;
 
-module.exports = async (req, res) => {
+// Rate limiting: 10 wallet updates per minute per user
+const walletRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 10,
+  keyGenerator: (req) => req.body?.userId || req.ip
+});
+
+const walletValidation = validate({
+  body: {
+    userId: commonSchemas.userId,
+    walletAddress: commonSchemas.walletAddress
+  }
+});
+
+async function walletHandler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { userId, walletAddress } = req.body;
-
-  if (!userId || !walletAddress) {
-    return res.status(400).json({ error: 'Missing userId or walletAddress' });
-  }
-
-  // Validate TON address format
-  if (!walletAddress.startsWith('UQ') && !walletAddress.startsWith('EQ')) {
-    return res.status(400).json({ error: 'Invalid TON address format' });
-  }
-
-  if (walletAddress.length !== 48) {
-    return res.status(400).json({ error: 'Invalid TON address length' });
-  }
+  const { userId, walletAddress } = req.validated;
 
   try {
     // Find or create user
@@ -45,12 +49,21 @@ module.exports = async (req, res) => {
       walletAddress: walletAddress
     });
   } catch (error) {
-    console.error('Save wallet error:', error);
+    logger.error('Save wallet error:', error);
     return res.status(500).json({
       error: 'Failed to save wallet address',
       message: error.message
     });
   }
+}
+
+// Export with middleware
+module.exports = async (req, res) => {
+  return walletRateLimit(req, res, () => {
+    return walletValidation(req, res, () => {
+      return walletHandler(req, res);
+    });
+  });
 };
 
 function generateReferralCode(userId) {
