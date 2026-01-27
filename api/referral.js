@@ -1,6 +1,18 @@
-// Real Referral System - Earn rewards for inviting friends
+// DEPRECATED: Legacy referral endpoint with in-memory storage
+// Use /api/referrals/* endpoints instead (database-backed)
 
-const referralData = new Map(); // In production: use database
+const { validate, TYPES, commonSchemas } = require('../middleware/validate');
+const { rateLimit } = require('../middleware/security');
+const logger = require('../utils/logger').loggers.api;
+
+const referralData = new Map(); // DEPRECATED: In-memory storage, not production-ready
+
+// Rate limiting
+const referralLegacyRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 30,
+  keyGenerator: (req) => req.query?.userId || req.body?.userId || req.ip
+});
 
 // Referral rewards configuration
 const REFERRAL_REWARDS = {
@@ -16,9 +28,11 @@ const REFERRAL_REWARDS = {
   }
 };
 
-module.exports = async (req, res) => {
+async function referralLegacyHandler(req, res) {
+  logger.warn('DEPRECATED ENDPOINT USED: /api/referral - Use /api/referrals/* instead');
+
   if (req.method === 'GET') {
-    const { userId } = req.query;
+    const { userId } = req.validated || req.query;
 
     if (!userId) {
       return res.status(400).json({ error: 'Missing userId' });
@@ -51,7 +65,7 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'POST') {
-    const { userId, referralCode } = req.body;
+    const { userId, referralCode } = req.validated || req.body;
 
     if (!userId || !referralCode) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -76,8 +90,8 @@ module.exports = async (req, res) => {
     const referrerReward = REFERRAL_REWARDS.referrer;
     const referredReward = REFERRAL_REWARDS.referred;
 
-    // In production: save to database
-    console.log(`Referral success: ${userId} invited by ${referrerId}`);
+    // DEPRECATED: Should save to database instead
+    logger.info(`Referral success: ${userId} invited by ${referrerId}`);
 
     return res.json({
       success: true,
@@ -91,6 +105,13 @@ module.exports = async (req, res) => {
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Export with rate limiting
+module.exports = async (req, res) => {
+  return referralLegacyRateLimit(req, res, () => {
+    return referralLegacyHandler(req, res);
+  });
 };
 
 function generateReferralCode(userId) {

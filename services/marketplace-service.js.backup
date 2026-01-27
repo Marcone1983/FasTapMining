@@ -1,5 +1,4 @@
 const db = require('../database/db');
-const logger = require('../utils/logger').loggers.app;
 const axios = require('axios');
 
 /**
@@ -146,10 +145,10 @@ class MarketplaceService {
 
       const purchase = result.rows[0];
 
-      logger.info(`🛒 Created marketplace purchase for user ${userId}`);
-      logger.info(`   Item: ${item.name}`);
-      logger.info(`   Price: ${item.price} TON`);
-      logger.info(`   Expires: ${expiresAt.toISOString()}`);
+      console.log(`🛒 Created marketplace purchase for user ${userId}`);
+      console.log(`   Item: ${item.name}`);
+      console.log(`   Price: ${item.price} TON`);
+      console.log(`   Expires: ${expiresAt.toISOString()}`);
 
       return {
         success: true,
@@ -165,7 +164,7 @@ class MarketplaceService {
       };
 
     } catch (error) {
-      logger.error('❌ Error creating marketplace purchase:', error);
+      console.error('❌ Error creating marketplace purchase:', error);
       return {
         success: false,
         error: error.message
@@ -245,7 +244,7 @@ class MarketplaceService {
       };
 
     } catch (error) {
-      logger.error('❌ Error checking purchase payment:', error);
+      console.error('❌ Error checking purchase payment:', error);
       return {
         success: false,
         error: error.message
@@ -276,18 +275,18 @@ class MarketplaceService {
       // Apply item effects to user
       await this.applyItemEffects(userId, itemType, item);
 
-      logger.info(`✅ Marketplace item activated for user ${userId}`);
-      logger.info(`   Item: ${item.name}`);
-      logger.info(`   Purchase ID: ${purchaseId}`);
-      logger.info(`   TX Hash: ${txHash}`);
+      console.log(`✅ Marketplace item activated for user ${userId}`);
+      console.log(`   Item: ${item.name}`);
+      console.log(`   Purchase ID: ${purchaseId}`);
+      console.log(`   TX Hash: ${txHash}`);
       if (expiresOn) {
-        logger.info(`   Expires: ${expiresOn.toISOString()}`);
+        console.log(`   Expires: ${expiresOn.toISOString()}`);
       }
 
       return { success: true };
 
     } catch (error) {
-      logger.error('❌ Error activating purchase:', error);
+      console.error('❌ Error activating purchase:', error);
       throw error;
     }
   }
@@ -342,7 +341,7 @@ class MarketplaceService {
       }));
 
     } catch (error) {
-      logger.error('❌ Error getting user active items:', error);
+      console.error('❌ Error getting user active items:', error);
       return [];
     }
   }
@@ -367,7 +366,7 @@ class MarketplaceService {
       return response.data.result || [];
 
     } catch (error) {
-      logger.error('❌ Error fetching TON transactions:', error.message);
+      console.error('❌ Error fetching TON transactions:', error.message);
       return [];
     }
   }
@@ -409,18 +408,18 @@ class MarketplaceService {
          WHERE status = 'pending' AND expires_at > NOW()`
       );
 
-      logger.info(`🔍 Monitoring ${pending.rows.length} pending marketplace purchases...`);
+      console.log(`🔍 Monitoring ${pending.rows.length} pending marketplace purchases...`);
 
       for (const purchase of pending.rows) {
         const result = await this.checkPurchasePayment(purchase.id);
 
         if (result.status === 'confirmed') {
-          logger.info(`✅ Purchase confirmed: ${purchase.id} (${purchase.item_type})`);
+          console.log(`✅ Purchase confirmed: ${purchase.id} (${purchase.item_type})`);
         }
       }
 
     } catch (error) {
-      logger.error('❌ Error monitoring purchases:', error);
+      console.error('❌ Error monitoring purchases:', error);
     }
   }
 
@@ -437,11 +436,11 @@ class MarketplaceService {
       );
 
       if (result.rows.length > 0) {
-        logger.info(`⏰ Expired ${result.rows.length} old marketplace purchases`);
+        console.log(`⏰ Expired ${result.rows.length} old marketplace purchases`);
       }
 
     } catch (error) {
-      logger.error('❌ Error expiring purchases:', error);
+      console.error('❌ Error expiring purchases:', error);
     }
   }
 
@@ -480,7 +479,7 @@ class MarketplaceService {
       };
 
     } catch (error) {
-      logger.error('❌ Error getting marketplace stats:', error);
+      console.error('❌ Error getting marketplace stats:', error);
       return null;
     }
   }

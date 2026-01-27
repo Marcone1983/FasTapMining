@@ -1,5 +1,4 @@
 const net = require('net');
-const logger = require('../utils/logger').loggers.mining;
 const crypto = require('crypto');
 const db = require('../database/db');
 
@@ -88,11 +87,11 @@ class ViaBTCScryptMiner {
   }
 
   async initialize() {
-    logger.info('🔥 Initializing REAL Scrypt Mining Engine...');
-    logger.info(`🌐 Pool: ${this.poolConfig.host}:${this.poolConfig.port}`);
-    logger.info(`👤 Worker: ${this.workerName}`);
-    logger.info(`📊 Mining ${this.poolConfig.coins.length} coins: ${this.poolConfig.coins.join(', ')}`);
-    logger.info(`🔐 Auth required: ${this.poolConfig.requiresAuth ? 'Yes (need registration)' : 'No (guest mining)'}`);
+    console.log('🔥 Initializing REAL Scrypt Mining Engine...');
+    console.log(`🌐 Pool: ${this.poolConfig.host}:${this.poolConfig.port}`);
+    console.log(`👤 Worker: ${this.workerName}`);
+    console.log(`📊 Mining ${this.poolConfig.coins.length} coins: ${this.poolConfig.coins.join(', ')}`);
+    console.log(`🔐 Auth required: ${this.poolConfig.requiresAuth ? 'Yes (need registration)' : 'No (guest mining)'}`);
     await this.connect();
   }
 
@@ -102,13 +101,13 @@ class ViaBTCScryptMiner {
                    this.reconnectAttempts % 3 === 1 ? this.poolConfig.portBackup1 :
                    this.poolConfig.portBackup2;
 
-      logger.info(`🔗 Connecting to ${this.poolConfig.host}:${port}...`);
+      console.log(`🔗 Connecting to ${this.poolConfig.host}:${port}...`);
 
       this.client = new net.Socket();
       this.client.setEncoding('utf8');
 
       this.client.connect(port, this.poolConfig.host, () => {
-        logger.info(`✅ Connected to ${this.poolConfig.host}:${port}!`);
+        console.log(`✅ Connected to ${this.poolConfig.host}:${port}!`);
         this.isConnected = true;
         this.reconnectAttempts = 0;
 
@@ -126,12 +125,12 @@ class ViaBTCScryptMiner {
       });
 
       this.client.on('error', (error) => {
-        logger.error('❌ Pool connection error:', error.message);
+        console.error('❌ Pool connection error:', error.message);
         this.isConnected = false;
 
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
           this.reconnectAttempts++;
-          logger.info(`🔄 Reconnecting in 10s... (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+          console.log(`🔄 Reconnecting in 10s... (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
           setTimeout(() => this.connect(), 10000);
         } else {
           reject(error);
@@ -139,12 +138,12 @@ class ViaBTCScryptMiner {
       });
 
       this.client.on('close', () => {
-        logger.info('🔌 Disconnected from pool');
+        console.log('🔌 Disconnected from pool');
         this.isConnected = false;
 
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
           this.reconnectAttempts++;
-          logger.info(`🔄 Reconnecting in 10s... (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+          console.log(`🔄 Reconnecting in 10s... (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
           setTimeout(() => this.connect(), 10000);
         }
       });
@@ -153,7 +152,7 @@ class ViaBTCScryptMiner {
 
   send(message) {
     if (!this.client || !this.isConnected) {
-      logger.error('❌ Cannot send - not connected to pool');
+      console.error('❌ Cannot send - not connected to pool');
       return;
     }
 
@@ -173,8 +172,8 @@ class ViaBTCScryptMiner {
           const extraNonce1 = message.result[1];
           const extraNonce2Size = message.result[2];
 
-          logger.info(`✅ Subscribed! Session: ${this.sessionId}`);
-          logger.info(`📋 ExtraNonce1: ${extraNonce1}, ExtraNonce2 size: ${extraNonce2Size}`);
+          console.log(`✅ Subscribed! Session: ${this.sessionId}`);
+          console.log(`📋 ExtraNonce1: ${extraNonce1}, ExtraNonce2 size: ${extraNonce2Size}`);
 
           this.send({
             id: 2,
@@ -185,21 +184,21 @@ class ViaBTCScryptMiner {
 
         if (message.id === 2) {
           if (message.result === true) {
-            logger.info(`✅ Worker authorized: ${this.workerName}`);
-            logger.info(`⛏️ READY TO MINE ${this.poolConfig.coins.length} COINS: ${this.poolConfig.coins.join(', ')}`);
+            console.log(`✅ Worker authorized: ${this.workerName}`);
+            console.log(`⛏️ READY TO MINE ${this.poolConfig.coins.length} COINS: ${this.poolConfig.coins.join(', ')}`);
           } else if (message.error) {
-            logger.info(`⚠️ Authorization failed: ${JSON.stringify(message.error)}`);
+            console.log(`⚠️ Authorization failed: ${JSON.stringify(message.error)}`);
             if (this.poolConfig.requiresAuth) {
-              logger.info(`💡 This pool requires registration. Create account at pool website and set VIABTC_WORKER env var.`);
+              console.log(`💡 This pool requires registration. Create account at pool website and set VIABTC_WORKER env var.`);
             } else {
-              logger.info(`⛏️ Continuing in guest mode - shares will be submitted`);
+              console.log(`⛏️ Continuing in guest mode - shares will be submitted`);
             }
           }
         }
 
         if (message.method === 'mining.set_difficulty') {
           this.difficulty = message.params[0];
-          logger.info(`⚙️ Difficulty set to: ${this.difficulty}`);
+          console.log(`⚙️ Difficulty set to: ${this.difficulty}`);
         }
 
         if (message.method === 'mining.notify') {
@@ -210,12 +209,12 @@ class ViaBTCScryptMiner {
           if (message.result === true) {
             this.sharesAccepted++;
             const acceptRate = ((this.sharesAccepted / this.sharesSubmitted) * 100).toFixed(2);
-            logger.info(`✅ Share #${this.sharesSubmitted} ACCEPTED! (${this.sharesAccepted}/${this.sharesSubmitted} = ${acceptRate}%)`);
+            console.log(`✅ Share #${this.sharesSubmitted} ACCEPTED! (${this.sharesAccepted}/${this.sharesSubmitted} = ${acceptRate}%)`);
 
             this.onShareAccepted();
           } else if (message.error) {
             this.sharesRejected++;
-            logger.info(`❌ Share REJECTED: ${JSON.stringify(message.error)}`);
+            console.log(`❌ Share REJECTED: ${JSON.stringify(message.error)}`);
           }
         }
 
@@ -240,7 +239,7 @@ class ViaBTCScryptMiner {
       clean: cleanJobs
     };
 
-    logger.info(`⛏️ NEW JOB: ${jobId.substring(0, 12)}... | Clean: ${cleanJobs} | Time: ${new Date(parseInt(nTime, 16) * 1000).toISOString()}`);
+    console.log(`⛏️ NEW JOB: ${jobId.substring(0, 12)}... | Clean: ${cleanJobs} | Time: ${new Date(parseInt(nTime, 16) * 1000).toISOString()}`);
 
     this.mineCurrentJob();
   }
@@ -309,7 +308,7 @@ class ViaBTCScryptMiner {
       this.earnings[coin] += amount;
     }
 
-    logger.info(`✅ Share accepted! Distributing 8 coins to all active miners...`);
+    console.log(`✅ Share accepted! Distributing 8 coins to all active miners...`);
     await this.distributeRewardsToUsers(rewardDistribution);
   }
 
@@ -363,14 +362,14 @@ class ViaBTCScryptMiner {
               // Give referrer 10% of user's share
               await db.User.updateBalance(referrerId, coin, referrerBonus, 'add');
 
-              logger.info(`🎁 Referral: User ${userId} gets ${userFinalAmount.toFixed(8)} ${coin} (90%), Referrer ${referrerId} gets ${referrerBonus.toFixed(8)} ${coin} (10%)`);
+              console.log(`🎁 Referral: User ${userId} gets ${userFinalAmount.toFixed(8)} ${coin} (90%), Referrer ${referrerId} gets ${referrerBonus.toFixed(8)} ${coin} (10%)`);
             } else {
               // No referrer: user gets 100% of their share
               await db.User.updateBalance(user.id, coin, userBaseAmount, 'add');
             }
           }
         } catch (error) {
-          logger.error(`Error distributing ${coin} to user ${userId}:`, error);
+          console.error(`Error distributing ${coin} to user ${userId}:`, error);
         }
       }
     }
@@ -385,12 +384,12 @@ class ViaBTCScryptMiner {
             [coin, feeAmount, ownerWallets[coin] || null]
           );
         } catch (error) {
-          logger.error(`Error logging platform fee for ${coin}:`, error);
+          console.error(`Error logging platform fee for ${coin}:`, error);
         }
       }
     }
 
-    logger.info(`💰 Distributed 95% rewards to ${this.userHashrates.size} users | 5% platform fee collected`);
+    console.log(`💰 Distributed 95% rewards to ${this.userHashrates.size} users | 5% platform fee collected`);
   }
 
   addUserTaps(userId, taps) {
@@ -403,7 +402,7 @@ class ViaBTCScryptMiner {
 
     this.recalculateTotalHashrate();
 
-    logger.info(`👤 User ${userId}: +${taps} taps = +${hashrate.toFixed(2)} H/s (total: ${(currentHashrate + hashrate).toFixed(2)} H/s)`);
+    console.log(`👤 User ${userId}: +${taps} taps = +${hashrate.toFixed(2)} H/s (total: ${(currentHashrate + hashrate).toFixed(2)} H/s)`);
   }
 
   recalculateTotalHashrate() {
@@ -421,7 +420,7 @@ class ViaBTCScryptMiner {
       if (now - lastActivity > inactiveTimeout) {
         this.userHashrates.delete(userId);
         this.userLastActivity.delete(userId);
-        logger.info(`🗑️ Removed inactive user ${userId}`);
+        console.log(`🗑️ Removed inactive user ${userId}`);
       }
     }
 

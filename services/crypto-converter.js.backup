@@ -1,5 +1,4 @@
 const axios = require('axios');
-const logger = require('../utils/logger').loggers.app;
 
 // ChangeNOW API v2
 const CHANGENOW_API = 'https://api.changenow.io/v2';
@@ -47,7 +46,7 @@ class CryptoConverter {
         rate: parseFloat(response.data.toAmount) / parseFloat(amount)
       };
     } catch (error) {
-      logger.error('ChangeNOW estimation error:', error.response?.data || error.message);
+      console.error('ChangeNOW estimation error:', error.response?.data || error.message);
       return {
         success: false,
         error: error.response?.data?.message || error.message
@@ -88,7 +87,7 @@ class CryptoConverter {
         status: response.data.status
       };
     } catch (error) {
-      logger.error('ChangeNOW exchange creation error:', error.response?.data || error.message);
+      console.error('ChangeNOW exchange creation error:', error.response?.data || error.message);
       return {
         success: false,
         error: error.response?.data?.message || error.message
@@ -117,7 +116,7 @@ class CryptoConverter {
         payoutHash: response.data.payoutHash
       };
     } catch (error) {
-      logger.error('ChangeNOW status check error:', error.response?.data || error.message);
+      console.error('ChangeNOW status check error:', error.response?.data || error.message);
       return {
         success: false,
         error: error.response?.data?.message || error.message
@@ -264,7 +263,7 @@ class CryptoConverter {
 
         minimums[currency.toUpperCase()] = parseFloat(response.data.minAmount);
       } catch (error) {
-        logger.error(`Failed to get minimum for ${currency}:`, error.message);
+        console.error(`Failed to get minimum for ${currency}:`, error.message);
         minimums[currency.toUpperCase()] = 0.001; // Default fallback
       }
     }

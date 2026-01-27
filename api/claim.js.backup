@@ -41,111 +41,117 @@ async function getBalanceHandler(req, res) {
   try {
     const user = await db.User.findByTelegramId(userId);
 
-    if (!user) {
-      return res.json({
-        success: true,
-        rewards: { MineX: 0, tBTC: 0, MRDN: 0 },
-        nfts: [],
-        totalValue: 0,
-        canClaim: false,
-        walletConnected: false
-      });
-    }
+    try {
+      const user = await db.User.findByTelegramId(userId);
 
-    const balances = await db.User.getBalances(user.id);
-    const nfts = await db.NFT.getUserNFTs(user.id);
-
-    const totalValue = calculateTotalValue(balances);
-    const canClaim = totalValue >= 1 && !!user.wallet_address;
-
-    return res.json({
-      success: true,
-      rewards: {
-        MineX: balances.MineX?.balance || 0,
-        tBTC: balances.tBTC?.balance || 0,
-        MRDN: balances.MRDN?.balance || 0
-      },
-      nfts: nfts.map(nft => ({
-        id: nft.id,
-        collection: nft.collection,
-        character: nft.character,
-        rarity: nft.rarity,
-        image: nft.image_url
-      })),
-      totalValue: totalValue,
-      canClaim: canClaim,
-      walletConnected: !!user.wallet_address,
-      walletAddress: user.wallet_address,
-      minClaimThreshold: 1
-    });
-
-  } catch (error) {
-    logger.error('Get balance error:', error);
-    return res.status(500).json({ error: 'Failed to get balance' });
-  }
-
-}
-
-async function claimHandler(req, res) {
-  const { userId, walletAddress } = req.validated;
-
-  try {
-    const user = await db.User.findByTelegramId(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // If walletAddress provided, update it (from TON Connect)
-    if (walletAddress) {
-      try {
-        Address.parse(walletAddress);
-      } catch (e) {
-        return res.status(400).json({ error: 'Invalid TON wallet address' });
+      if (!user) {
+        return res.json({
+          success: true,
+          rewards: { MineX: 0, tBTC: 0, MRDN: 0 },
+          nfts: [],
+          totalValue: 0,
+          canClaim: false,
+          walletConnected: false
+        });
       }
 
-      await db.User.connectWallet(user.id, walletAddress);
-    }
+      const balances = await db.User.getBalances(user.id);
+      const nfts = await db.NFT.getUserNFTs(user.id);
 
-    // Use wallet from database (connected via TON Connect)
-    const finalWalletAddress = walletAddress || user.wallet_address;
+      const totalValue = calculateTotalValue(balances);
+      const canClaim = totalValue >= 1 && !!user.wallet_address;
 
-    if (!finalWalletAddress) {
-      return res.status(400).json({
-        error: 'Wallet not connected',
-        message: 'Please connect your wallet using TON Connect first'
+      return res.json({
+        success: true,
+        rewards: {
+          MineX: balances.MineX?.balance || 0,
+          tBTC: balances.tBTC?.balance || 0,
+          MRDN: balances.MRDN?.balance || 0
+        },
+        nfts: nfts.map(nft => ({
+          id: nft.id,
+          collection: nft.collection,
+          character: nft.character,
+          rarity: nft.rarity,
+          image: nft.image_url
+        })),
+        totalValue: totalValue,
+        canClaim: canClaim,
+        walletConnected: !!user.wallet_address,
+        walletAddress: user.wallet_address,
+        minClaimThreshold: 1
       });
+
+    } catch (error) {
+      console.error('Get balance error:', error);
+      return res.status(500).json({ error: 'Failed to get balance' });
+    }
+  }
+
+  if (req.method === 'POST') {
+    const { userId, walletAddress } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'Missing userId' });
     }
 
-    // Get user balances
-    const balances = await db.User.getBalances(user.id);
+    try {
+      const user = await db.User.findByTelegramId(userId);
 
-    // Calculate total value
-    const totalValue = calculateTotalValue(balances);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
 
-    // Minimum claim threshold
-    if (totalValue < 1) {
-      return res.status(400).json({
-        error: 'Minimum claim threshold not met',
-        threshold: 1,
-        current: totalValue,
-        rewards: balances
-      });
-    }
+      // If walletAddress provided, update it (from TON Connect)
+      if (walletAddress) {
+        try {
+          Address.parse(walletAddress);
+        } catch (e) {
+          return res.status(400).json({ error: 'Invalid TON wallet address' });
+        }
 
-    // Apply 5% royalty to owner wallet
-    const { rows: [config] } = await db.query(
-      `SELECT value FROM system_config WHERE key = 'owner_wallet'`
-    );
-    const OWNER_WALLET = config.value.replace(/"/g, '');
+        await db.User.connectWallet(user.id, walletAddress);
+      }
 
-    const { rows: [feeConfig] } = await db.query(
-      `SELECT value FROM system_config WHERE key = 'platform_fee_percent'`
-    );
-    const ROYALTY_PERCENT = parseFloat(feeConfig.value);
+      // Use wallet from database (connected via TON Connect)
+      const finalWalletAddress = walletAddress || user.wallet_address;
 
-    // Process claim with database transaction
-    return await db.transaction(async (client) => {
+      if (!finalWalletAddress) {
+        return res.status(400).json({
+          error: 'Wallet not connected',
+          message: 'Please connect your wallet using TON Connect first'
+        });
+      }
+
+      // Get user balances
+      const balances = await db.User.getBalances(user.id);
+
+      // Calculate total value
+      const totalValue = calculateTotalValue(balances);
+
+      // Minimum claim threshold
+      if (totalValue < 1) {
+        return res.status(400).json({
+          error: 'Minimum claim threshold not met',
+          threshold: 1,
+          current: totalValue,
+          rewards: balances
+        });
+      }
+
+      // ✅ APPLY 5% ROYALTY TO OWNER WALLET
+      const { rows: [config] } = await db.query(
+        `SELECT value FROM system_config WHERE key = 'owner_wallet'`
+      );
+      const OWNER_WALLET = config.value.replace(/"/g, '');
+
+      const { rows: [feeConfig] } = await db.query(
+        `SELECT value FROM system_config WHERE key = 'platform_fee_percent'`
+      );
+      const ROYALTY_PERCENT = parseFloat(feeConfig.value);
+
+      // Process claim with database transaction
+      return await db.transaction(async (client) => {
         const transactions = [];
         const royaltyTransactions = [];
 
@@ -260,14 +266,17 @@ async function claimHandler(req, res) {
         });
       });
 
-  } catch (error) {
-    logger.error('Claim error:', error);
-    return res.status(500).json({
-      error: 'Claim failed',
-      message: error.message
-    });
+    } catch (error) {
+      console.error('Claim error:', error);
+      return res.status(500).json({
+        error: 'Claim failed',
+        message: error.message
+      });
+    }
   }
-}
+
+  return res.status(405).json({ error: 'Method not allowed' });
+};
 
 function calculateTotalValue(balances) {
   // Approximate USD value (in production use real-time price oracle)
@@ -286,22 +295,3 @@ function calculateTotalValue(balances) {
 
   return total;
 }
-
-// Export with middleware chain - routes based on HTTP method
-module.exports = async (req, res) => {
-  if (req.method === 'GET') {
-    // GET /api/claim?userId=... - Get balance
-    return getBalanceValidation(req, res, () => {
-      return getBalanceHandler(req, res);
-    });
-  } else if (req.method === 'POST') {
-    // POST /api/claim - Claim rewards
-    return claimRateLimit(req, res, () => {
-      return claimValidation(req, res, () => {
-        return claimHandler(req, res);
-      });
-    });
-  } else {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-};

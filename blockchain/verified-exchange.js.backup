@@ -1,5 +1,4 @@
 const axios = require('axios');
-const logger = require('../utils/logger').loggers.blockchain;
 const crypto = require('crypto');
 const db = require('../database/db');
 
@@ -34,8 +33,8 @@ class VerifiedExchange {
       // Step 1: Get estimated exchange rate
       const estimate = await this.getEstimate('xmr', 'ton', xmrAmount);
 
-      logger.info(`💱 Estimate: ${xmrAmount} XMR → ${estimate.toAmount} TON`);
-      logger.info(`   Rate: 1 XMR = ${(estimate.toAmount / xmrAmount).toFixed(6)} TON`);
+      console.log(`💱 Estimate: ${xmrAmount} XMR → ${estimate.toAmount} TON`);
+      console.log(`   Rate: 1 XMR = ${(estimate.toAmount / xmrAmount).toFixed(6)} TON`);
 
       // Step 2: Create exchange transaction
       const exchange = await axios.post(
@@ -59,10 +58,10 @@ class VerifiedExchange {
 
       const exchangeData = exchange.data;
 
-      logger.info('✅ Exchange created:');
-      logger.info(`   ID: ${exchangeData.id}`);
-      logger.info(`   Deposit address (XMR): ${exchangeData.payinAddress}`);
-      logger.info(`   Expected TON: ${exchangeData.toAmount}`);
+      console.log('✅ Exchange created:');
+      console.log(`   ID: ${exchangeData.id}`);
+      console.log(`   Deposit address (XMR): ${exchangeData.payinAddress}`);
+      console.log(`   Expected TON: ${exchangeData.toAmount}`);
 
       // Save exchange for tracking
       this.pendingExchanges.set(exchangeData.id, {
@@ -104,7 +103,7 @@ class VerifiedExchange {
       };
 
     } catch (error) {
-      logger.error('❌ Exchange creation failed:', error.response?.data || error.message);
+      console.error('❌ Exchange creation failed:', error.response?.data || error.message);
       throw new Error(`Exchange failed: ${error.response?.data?.message || error.message}`);
     }
   }
@@ -132,7 +131,7 @@ class VerifiedExchange {
 
       return response.data;
     } catch (error) {
-      logger.error('Estimate error:', error.response?.data || error.message);
+      console.error('Estimate error:', error.response?.data || error.message);
       throw error;
     }
   }
@@ -155,7 +154,7 @@ class VerifiedExchange {
       const status = response.data.status;
       const txHash = response.data.payoutHash;
 
-      logger.info(`📊 Exchange ${exchangeId}: ${status}`);
+      console.log(`📊 Exchange ${exchangeId}: ${status}`);
 
       // Update database
       await db.query(
@@ -166,7 +165,7 @@ class VerifiedExchange {
       );
 
       if (status === 'finished' && txHash) {
-        logger.info(`✅ Exchange COMPLETED! TON TX: ${txHash}`);
+        console.log(`✅ Exchange COMPLETED! TON TX: ${txHash}`);
 
         // Verify on TON blockchain
         const verified = await this.verifyTONTransaction(txHash);
@@ -193,7 +192,7 @@ class VerifiedExchange {
       };
 
     } catch (error) {
-      logger.error('Status check error:', error.response?.data || error.message);
+      console.error('Status check error:', error.response?.data || error.message);
       return { status: 'error', error: error.message };
     }
   }
@@ -224,17 +223,17 @@ class VerifiedExchange {
       const tx = transactions.find(t => t.transaction_id.hash === txHash);
 
       if (tx) {
-        logger.info(`✅ TON transaction VERIFIED on blockchain!`);
-        logger.info(`   Amount: ${tx.in_msg.value / 1e9} TON`);
-        logger.info(`   Block: ${tx.transaction_id.lt}`);
+        console.log(`✅ TON transaction VERIFIED on blockchain!`);
+        console.log(`   Amount: ${tx.in_msg.value / 1e9} TON`);
+        console.log(`   Block: ${tx.transaction_id.lt}`);
         return true;
       } else {
-        logger.info(`⏳ TON transaction not yet confirmed...`);
+        console.log(`⏳ TON transaction not yet confirmed...`);
         return false;
       }
 
     } catch (error) {
-      logger.error('TON verification error:', error.message);
+      console.error('TON verification error:', error.message);
       return false;
     }
   }
@@ -249,7 +248,7 @@ class VerifiedExchange {
 
         if (status.verified) {
           exchange.status = 'completed';
-          logger.info(`✅ Exchange ${exchangeId} completed and verified!`);
+          console.log(`✅ Exchange ${exchangeId} completed and verified!`);
 
           // Trigger TON → token swaps
           await this.triggerTokenSwaps(exchange.toAmount);
@@ -262,7 +261,7 @@ class VerifiedExchange {
    * Trigger swaps from TON to MineX/tBTC/MRDN
    */
   async triggerTokenSwaps(tonAmount) {
-    logger.info(`🔄 Triggering token swaps for ${tonAmount} TON...`);
+    console.log(`🔄 Triggering token swaps for ${tonAmount} TON...`);
 
     // Will be implemented in ton-dex-swaps.js
     const { swapTONtoTokens } = require('./ton-dex-swaps');

@@ -1,5 +1,4 @@
 const path = require('path');
-const logger = require('../utils/logger').loggers.bot;
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -10,8 +9,8 @@ const referralService = require('../services/referral-service');
 
 // Verify bot token
 if (!process.env.TOKEN_API_BOT) {
-  logger.error('❌ ERROR: TOKEN_API_BOT not found in environment variables!');
-  logger.error('📁 Make sure .env file exists in project root with TOKEN_API_BOT=your_token');
+  console.error('❌ ERROR: TOKEN_API_BOT not found in environment variables!');
+  console.error('📁 Make sure .env file exists in project root with TOKEN_API_BOT=your_token');
   process.exit(1);
 }
 
@@ -22,20 +21,20 @@ const WEBAPP_URL = process.env.WEBAPP_URL || 'https://fas-tap-mining.vercel.app'
 // Initialize REAL mining engine - Connect to ViaBTC pool
 const viaBTCMiner = require('../mining-engine/viabtc-scrypt-miner');
 viaBTCMiner.initialize().then(() => {
-  logger.info('⛏️ ViaBTC Scrypt pool connected - REAL mining active!');
+  console.log('⛏️ ViaBTC Scrypt pool connected - REAL mining active!');
 }).catch(err => {
-  logger.error('❌ CRITICAL: ViaBTC pool connection FAILED!');
-  logger.error('Error:', err.message);
-  logger.error('Stack:', err.stack);
-  logger.error('\n⚠️  Mining engine CANNOT function without pool connection.');
-  logger.error('⚠️  Bot will continue for user management, but mining is DISABLED.');
-  logger.error('⚠️  FIX THE CONNECTION IMMEDIATELY!\n');
+  console.error('❌ CRITICAL: ViaBTC pool connection FAILED!');
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('\n⚠️  Mining engine CANNOT function without pool connection.');
+  console.error('⚠️  Bot will continue for user management, but mining is DISABLED.');
+  console.error('⚠️  FIX THE CONNECTION IMMEDIATELY!\n');
   // Do NOT exit - allow bot to handle user queries, but mining won't work
 });
 
-logger.info('🤖 FasTap Mining Bot Started!');
-logger.info(`📱 Web App URL: ${WEBAPP_URL}`);
-logger.info(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
+console.log('🤖 FasTap Mining Bot Started!');
+console.log(`📱 Web App URL: ${WEBAPP_URL}`);
+console.log(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
 
 // Owner wallet for automatic admin access
 const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
@@ -58,7 +57,7 @@ async function isOwner(telegramId) {
 
     return userWallet === ownerWallet;
   } catch (error) {
-    logger.error('Error checking owner status:', error);
+    console.error('Error checking owner status:', error);
     return false;
   }
 }
@@ -84,7 +83,7 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
         first_name: msg.from.first_name || '',
         referral_code: newUserCode
       });
-      logger.info(`✨ New user created: ${telegramId} with referral code: ${newUserCode}`);
+      console.log(`✨ New user created: ${telegramId} with referral code: ${newUserCode}`);
 
       // Process referral if code provided (user joined via someone's referral link)
       if (referrerCode) {
@@ -178,7 +177,7 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
     });
 
   } catch (error) {
-    logger.error('Error in /start:', error);
+    console.error('Error in /start:', error);
     bot.sendMessage(chatId, '❌ Error starting bot. Please try again.');
   }
 });
@@ -212,7 +211,7 @@ bot.onText(/\/balance/, async (msg) => {
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 
   } catch (error) {
-    logger.error('Error in /balance:', error);
+    console.error('Error in /balance:', error);
     bot.sendMessage(chatId, '❌ Error fetching balance.');
   }
 });
@@ -261,7 +260,7 @@ bot.onText(/\/stats/, async (msg) => {
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 
   } catch (error) {
-    logger.error('Error in /stats:', error);
+    console.error('Error in /stats:', error);
     bot.sendMessage(chatId, '❌ Error fetching statistics.');
   }
 });
@@ -339,7 +338,7 @@ bot.onText(/\/referral/, async (msg) => {
     });
 
   } catch (error) {
-    logger.error('Error in /referral:', error);
+    console.error('Error in /referral:', error);
     bot.sendMessage(chatId, '❌ Error fetching referral info.');
   }
 });
@@ -462,7 +461,7 @@ bot.onText(/\/claim/, async (msg) => {
     );
 
   } catch (error) {
-    logger.error('Error in /claim:', error);
+    console.error('Error in /claim:', error);
     bot.sendMessage(chatId, '❌ Error processing claim request.');
   }
 });
@@ -511,7 +510,7 @@ bot.onText(/\/wallet/, async (msg) => {
     });
 
   } catch (error) {
-    logger.error('Error in /wallet:', error);
+    console.error('Error in /wallet:', error);
     bot.sendMessage(chatId, '❌ Error fetching wallet information.');
   }
 });
@@ -574,7 +573,7 @@ bot.onText(/\/autotap/, async (msg) => {
     }
 
   } catch (error) {
-    logger.error('Error in /autotap:', error);
+    console.error('Error in /autotap:', error);
     bot.sendMessage(chatId, '❌ Error fetching AutoTap information.');
   }
 });
@@ -623,7 +622,7 @@ bot.onText(/\/boosts/, async (msg) => {
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 
   } catch (error) {
-    logger.error('Error in /boosts:', error);
+    console.error('Error in /boosts:', error);
     bot.sendMessage(chatId, '❌ Error fetching boosts.');
   }
 });
@@ -656,7 +655,7 @@ bot.onText(/\/leaderboard/, async (msg) => {
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 
   } catch (error) {
-    logger.error('Error in /leaderboard:', error);
+    console.error('Error in /leaderboard:', error);
     bot.sendMessage(chatId, '❌ Error fetching leaderboard.');
   }
 });
@@ -699,7 +698,7 @@ bot.onText(/\/settings/, async (msg) => {
     });
 
   } catch (error) {
-    logger.error('Error in /settings:', error);
+    console.error('Error in /settings:', error);
     bot.sendMessage(chatId, '❌ Error loading settings.');
   }
 });
@@ -720,9 +719,9 @@ bot.setMyCommands([
   { command: 'settings', description: '⚙️ Account settings' },
   { command: 'help', description: '❓ Show help message' }
 ]).then(() => {
-  logger.info('✅ Bot commands menu set successfully');
+  console.log('✅ Bot commands menu set successfully');
 }).catch(err => {
-  logger.error('❌ Error setting bot commands:', err);
+  console.error('❌ Error setting bot commands:', err);
 });
 
 // ============================================
@@ -829,7 +828,7 @@ Marketplace: ${marketplacePurchases} purchases (${marketplaceRevenue.toFixed(4)}
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 
   } catch (error) {
-    logger.error('Error in admin_stats:', error);
+    console.error('Error in admin_stats:', error);
     bot.sendMessage(chatId, '❌ Error fetching statistics.');
   }
 });
@@ -858,7 +857,7 @@ bot.onText(/\/admin_users (.+)/, async (msg, match) => {
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 
   } catch (error) {
-    logger.error('Error in admin_users:', error);
+    console.error('Error in admin_users:', error);
     bot.sendMessage(chatId, '❌ Error fetching users.');
   }
 });
@@ -895,7 +894,7 @@ bot.onText(/\/admin_fees (.+)/, async (msg, match) => {
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 
   } catch (error) {
-    logger.error('Error in admin_fees:', error);
+    console.error('Error in admin_fees:', error);
     bot.sendMessage(chatId, '❌ Error fetching fees.');
   }
 });
@@ -931,7 +930,7 @@ bot.onText(/\/admin_payments (.+)/, async (msg, match) => {
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 
   } catch (error) {
-    logger.error('Error in admin_payments:', error);
+    console.error('Error in admin_payments:', error);
     bot.sendMessage(chatId, '❌ Error fetching payments.');
   }
 });
@@ -983,7 +982,7 @@ bot.onText(/\/admin_health (.+)/, async (msg, match) => {
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
 
   } catch (error) {
-    logger.error('Error in admin_health:', error);
+    console.error('Error in admin_health:', error);
     bot.sendMessage(chatId, '❌ Error checking system health.');
   }
 });
@@ -1007,7 +1006,7 @@ bot.onText(/\/admin_payout (.+)/, async (msg, match) => {
     bot.sendMessage(chatId, '✅ Fee payout completed! Check /admin_fees for updated status.');
 
   } catch (error) {
-    logger.error('Error in admin_payout:', error);
+    console.error('Error in admin_payout:', error);
     bot.sendMessage(chatId, '❌ Error triggering payout.');
   }
 });
@@ -1067,7 +1066,7 @@ Marketplace: ${marketplacePurchases} purchases (${marketplaceRevenue.toFixed(4)}
 
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
   } catch (error) {
-    logger.error('Error in showOwnerStats:', error);
+    console.error('Error in showOwnerStats:', error);
     bot.sendMessage(chatId, '❌ Error fetching statistics.');
   }
 }
@@ -1087,7 +1086,7 @@ async function showOwnerUsers(chatId) {
 
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
   } catch (error) {
-    logger.error('Error in showOwnerUsers:', error);
+    console.error('Error in showOwnerUsers:', error);
     bot.sendMessage(chatId, '❌ Error fetching users.');
   }
 }
@@ -1110,7 +1109,7 @@ async function showOwnerFees(chatId) {
 
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
   } catch (error) {
-    logger.error('Error in showOwnerFees:', error);
+    console.error('Error in showOwnerFees:', error);
     bot.sendMessage(chatId, '❌ Error fetching fees.');
   }
 }
@@ -1139,7 +1138,7 @@ async function showOwnerPayments(chatId) {
 
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
   } catch (error) {
-    logger.error('Error in showOwnerPayments:', error);
+    console.error('Error in showOwnerPayments:', error);
     bot.sendMessage(chatId, '❌ Error fetching payments.');
   }
 }
@@ -1182,7 +1181,7 @@ async function showOwnerHealth(chatId) {
 
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
   } catch (error) {
-    logger.error('Error in showOwnerHealth:', error);
+    console.error('Error in showOwnerHealth:', error);
     bot.sendMessage(chatId, '❌ Error checking system health.');
   }
 }
@@ -1197,7 +1196,7 @@ async function triggerOwnerPayout(chatId) {
 
     bot.sendMessage(chatId, '✅ Fee payout completed! Check "Fees Collected" for updated status.');
   } catch (error) {
-    logger.error('Error in triggerOwnerPayout:', error);
+    console.error('Error in triggerOwnerPayout:', error);
     bot.sendMessage(chatId, '❌ Error triggering payout.');
   }
 }
@@ -1406,25 +1405,25 @@ bot.on('callback_query', async (query) => {
     bot.answerCallbackQuery(query.id);
 
   } catch (error) {
-    logger.error('Error handling callback:', error);
+    console.error('Error handling callback:', error);
     bot.answerCallbackQuery(query.id, { text: '❌ Error processing request' });
   }
 });
 
 // Error handler
 bot.on('polling_error', (error) => {
-  logger.error('Polling error:', error);
+  console.error('Polling error:', error);
 });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  logger.info('\n🛑 Bot shutting down...');
+  console.log('\n🛑 Bot shutting down...');
   bot.stopPolling();
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  logger.info('\n🛑 Bot shutting down...');
+  console.log('\n🛑 Bot shutting down...');
   bot.stopPolling();
   process.exit(0);
 });

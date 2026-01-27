@@ -1,12 +1,48 @@
 const db = require('../database/db');
 const viaBTCMiner = require('../mining-engine/viabtc-scrypt-miner');
+const { validate, TYPES, commonSchemas } = require('../middleware/validate');
+const { rateLimit } = require('../middleware/security');
+const logger = require('../utils/logger').loggers.api;
 
-module.exports = async (req, res) => {
+// Rate limiting: 120 requests per minute per IP (public endpoint)
+const statsRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 120,
+  keyGenerator: (req) => req.query?.userId || req.ip
+});
+
+// Validation schemas for different query combinations
+const globalStatsValidation = validate({
+  query: {}
+});
+
+const poolStatsValidation = validate({
+  query: {
+    poolId: { type: TYPES.STRING, required: true, pattern: /^[a-z0-9_-]+$/, maxLength: 50 }
+  }
+});
+
+const leaderboardValidation = validate({
+  query: {
+    type: { type: TYPES.ENUM, required: true, enum: ['leaderboard'] },
+    metric: { type: TYPES.ENUM, required: false, enum: ['blocks', 'taps', 'nfts', 'referrals'] },
+    limit: { type: TYPES.INTEGER, required: false, min: 1, max: 1000 }
+  }
+});
+
+const userStatsValidation = validate({
+  query: {
+    userId: commonSchemas.userId
+  }
+});
+
+async function statsHandler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { poolId, type, userId } = req.query;
+  // Extract from validated or query (middleware handles validation)
+  const { poolId, type, userId, metric, limit } = req.validated || req.query;
 
   try {
     // Get global stats
@@ -96,10 +132,10 @@ module.exports = async (req, res) => {
 
     // Get leaderboard
     if (type === 'leaderboard') {
-      const leaderboardType = req.query.metric || 'blocks';
-      const limit = parseInt(req.query.limit) || 100;
+      const leaderboardType = metric || 'blocks';
+      const leaderboardLimit = limit || 100;
 
-      const leaderboard = await db.Stats.getLeaderboard(leaderboardType, limit);
+      const leaderboard = await db.Stats.getLeaderboard(leaderboardType, leaderboardLimit);
 
       return res.json({
         success: true,
@@ -195,10 +231,33 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Invalid request parameters' });
 
   } catch (error) {
-    console.error('Stats error:', error);
+    logger.error('Stats error:', error);
     return res.status(500).json({
       error: 'Failed to fetch stats',
       message: error.message
     });
   }
+}
+
+// Export with middleware and dynamic validation
+module.exports = async (req, res) => {
+  // Apply rate limiting first
+  return statsRateLimit(req, res, () => {
+    // Determine which validation to apply based on query parameters
+    const { poolId, type, userId } = req.query;
+
+    let validationMiddleware = globalStatsValidation;
+    if (userId) {
+      validationMiddleware = userStatsValidation;
+    } else if (type === 'leaderboard') {
+      validationMiddleware = leaderboardValidation;
+    } else if (poolId) {
+      validationMiddleware = poolStatsValidation;
+    }
+
+    // Apply selected validation and then handler
+    return validationMiddleware(req, res, () => {
+      return statsHandler(req, res);
+    });
+  });
 };

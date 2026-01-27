@@ -1,5 +1,4 @@
 const db = require('../database/db');
-const logger = require('../utils/logger').loggers.app;
 
 /**
  * Referral System Service
@@ -38,7 +37,7 @@ class ReferralService {
       return this.defaultRewards;
 
     } catch (error) {
-      logger.error('❌ Error getting referral config:', error);
+      console.error('❌ Error getting referral config:', error);
       return this.defaultRewards;
     }
   }
@@ -98,7 +97,7 @@ class ReferralService {
         [referralCode, user.id]
       );
 
-      logger.info(`🎫 Generated referral code for user ${telegramId}: ${referralCode}`);
+      console.log(`🎫 Generated referral code for user ${telegramId}: ${referralCode}`);
 
       return {
         success: true,
@@ -107,7 +106,7 @@ class ReferralService {
       };
 
     } catch (error) {
-      logger.error('❌ Error getting referral code:', error);
+      console.error('❌ Error getting referral code:', error);
       return {
         success: false,
         error: error.message
@@ -170,8 +169,8 @@ class ReferralService {
         [referrer.id, newUser.id]
       );
 
-      logger.info(`🎁 Referral created: User ${referrer.telegram_id} referred ${newUser.telegram_id}`);
-      logger.info(`💡 Referrer will get 10% of referred user's mining hashrate automatically`);
+      console.log(`🎁 Referral created: User ${referrer.telegram_id} referred ${newUser.telegram_id}`);
+      console.log(`💡 Referrer will get 10% of referred user's mining hashrate automatically`);
 
       return {
         success: true,
@@ -181,7 +180,7 @@ class ReferralService {
       };
 
     } catch (error) {
-      logger.error('❌ Error processing referral:', error);
+      console.error('❌ Error processing referral:', error);
       return {
         success: false,
         error: error.message
@@ -204,13 +203,13 @@ class ReferralService {
       // Give rewards to referrer
       for (const [coin, amount] of Object.entries(rewardsConfig.referrer)) {
         await db.User.updateBalance(referrerId, coin, amount, 'add');
-        logger.info(`   💰 Referrer +${amount} ${coin}`);
+        console.log(`   💰 Referrer +${amount} ${coin}`);
       }
 
       // Give rewards to referred user
       for (const [coin, amount] of Object.entries(rewardsConfig.referred)) {
         await db.User.updateBalance(referredId, coin, amount, 'add');
-        logger.info(`   💰 Referred user +${amount} ${coin}`);
+        console.log(`   💰 Referred user +${amount} ${coin}`);
       }
 
       // Mark rewards as given
@@ -221,12 +220,12 @@ class ReferralService {
         [JSON.stringify(rewardsGiven), referrerId, referredId]
       );
 
-      logger.info(`✅ Referral rewards distributed successfully`);
+      console.log(`✅ Referral rewards distributed successfully`);
 
       return { success: true };
 
     } catch (error) {
-      logger.error('❌ Error distributing referral rewards:', error);
+      console.error('❌ Error distributing referral rewards:', error);
       throw error;
     }
   }
@@ -303,7 +302,7 @@ class ReferralService {
       };
 
     } catch (error) {
-      logger.error('❌ Error getting referral stats:', error);
+      console.error('❌ Error getting referral stats:', error);
       return {
         success: false,
         error: error.message
@@ -339,7 +338,7 @@ class ReferralService {
       };
 
     } catch (error) {
-      logger.error('❌ Error getting leaderboard:', error);
+      console.error('❌ Error getting leaderboard:', error);
       return {
         success: false,
         error: error.message
@@ -370,7 +369,7 @@ class ReferralService {
       };
 
     } catch (error) {
-      logger.error('❌ Error getting system stats:', error);
+      console.error('❌ Error getting system stats:', error);
       return {
         success: false,
         error: error.message

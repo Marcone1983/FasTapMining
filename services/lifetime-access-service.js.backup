@@ -1,5 +1,4 @@
 const db = require('../database/db');
-const logger = require('../utils/logger').loggers.app;
 const axios = require('axios');
 
 /**
@@ -66,10 +65,10 @@ class LifetimeAccessService {
 
       const payment = result.rows[0];
 
-      logger.info(`💳 Created lifetime access payment request for user ${userId}`);
-      logger.info(`   Amount: ${this.price} TON`);
-      logger.info(`   Wallet: ${this.ownerWallet}`);
-      logger.info(`   Expires: ${expiresAt.toISOString()}`);
+      console.log(`💳 Created lifetime access payment request for user ${userId}`);
+      console.log(`   Amount: ${this.price} TON`);
+      console.log(`   Wallet: ${this.ownerWallet}`);
+      console.log(`   Expires: ${expiresAt.toISOString()}`);
 
       return {
         success: true,
@@ -83,7 +82,7 @@ class LifetimeAccessService {
       };
 
     } catch (error) {
-      logger.error('❌ Error creating lifetime access payment:', error);
+      console.error('❌ Error creating lifetime access payment:', error);
       return {
         success: false,
         error: error.message
@@ -160,7 +159,7 @@ class LifetimeAccessService {
       };
 
     } catch (error) {
-      logger.error('❌ Error checking payment:', error);
+      console.error('❌ Error checking payment:', error);
       return {
         success: false,
         error: error.message
@@ -189,14 +188,14 @@ class LifetimeAccessService {
         [userId]
       );
 
-      logger.info(`✅ Lifetime access granted to user ${userId}`);
-      logger.info(`   Payment ID: ${paymentId}`);
-      logger.info(`   TX Hash: ${txHash}`);
+      console.log(`✅ Lifetime access granted to user ${userId}`);
+      console.log(`   Payment ID: ${paymentId}`);
+      console.log(`   TX Hash: ${txHash}`);
 
       return { success: true };
 
     } catch (error) {
-      logger.error('❌ Error confirming payment:', error);
+      console.error('❌ Error confirming payment:', error);
       throw error;
     }
   }
@@ -221,7 +220,7 @@ class LifetimeAccessService {
       return response.data.result || [];
 
     } catch (error) {
-      logger.error('❌ Error fetching TON transactions:', error.message);
+      console.error('❌ Error fetching TON transactions:', error.message);
       return [];
     }
   }
@@ -266,18 +265,18 @@ class LifetimeAccessService {
          WHERE status = 'pending' AND expires_at > NOW()`
       );
 
-      logger.info(`🔍 Monitoring ${pendingPayments.rows.length} pending payments...`);
+      console.log(`🔍 Monitoring ${pendingPayments.rows.length} pending payments...`);
 
       for (const payment of pendingPayments.rows) {
         const result = await this.checkPayment(payment.id);
 
         if (result.status === 'confirmed') {
-          logger.info(`✅ Payment confirmed: ${payment.id}`);
+          console.log(`✅ Payment confirmed: ${payment.id}`);
         }
       }
 
     } catch (error) {
-      logger.error('❌ Error monitoring payments:', error);
+      console.error('❌ Error monitoring payments:', error);
     }
   }
 
@@ -294,11 +293,11 @@ class LifetimeAccessService {
       );
 
       if (result.rows.length > 0) {
-        logger.info(`⏰ Expired ${result.rows.length} old payments`);
+        console.log(`⏰ Expired ${result.rows.length} old payments`);
       }
 
     } catch (error) {
-      logger.error('❌ Error expiring payments:', error);
+      console.error('❌ Error expiring payments:', error);
     }
   }
 
@@ -308,16 +307,16 @@ class LifetimeAccessService {
    */
   async verifyDirectPayment(fromWallet, toWallet, expectedAmount) {
     try {
-      logger.info(`🔍 Verifying direct payment:`);
-      logger.info(`   From: ${fromWallet}`);
-      logger.info(`   To: ${toWallet}`);
-      logger.info(`   Expected: ${expectedAmount} TON`);
+      console.log(`🔍 Verifying direct payment:`);
+      console.log(`   From: ${fromWallet}`);
+      console.log(`   To: ${toWallet}`);
+      console.log(`   Expected: ${expectedAmount} TON`);
 
       // Get recent transactions for the owner wallet
       const transactions = await this.getWalletTransactions(toWallet);
 
       if (transactions.length === 0) {
-        logger.info('⚠️  No recent transactions found');
+        console.log('⚠️  No recent transactions found');
         return false;
       }
 
@@ -343,24 +342,24 @@ class LifetimeAccessService {
                                fromWallet.toLowerCase().includes(sourceAddress.toLowerCase().slice(-20));
 
           if (amountMatches && senderMatches) {
-            logger.info(`✅ Payment verified!`);
-            logger.info(`   TX Hash: ${tx.transaction_id.hash}`);
-            logger.info(`   Amount: ${receivedNanotons / 1e9} TON`);
-            logger.info(`   Time: ${new Date(tx.utime * 1000).toISOString()}`);
+            console.log(`✅ Payment verified!`);
+            console.log(`   TX Hash: ${tx.transaction_id.hash}`);
+            console.log(`   Amount: ${receivedNanotons / 1e9} TON`);
+            console.log(`   Time: ${new Date(tx.utime * 1000).toISOString()}`);
             return true;
           }
 
           if (amountMatches) {
-            logger.info(`⚠️  Amount matches but sender doesn't: ${sourceAddress}`);
+            console.log(`⚠️  Amount matches but sender doesn't: ${sourceAddress}`);
           }
         }
       }
 
-      logger.info('❌ No matching transaction found');
+      console.log('❌ No matching transaction found');
       return false;
 
     } catch (error) {
-      logger.error('❌ Error verifying direct payment:', error);
+      console.error('❌ Error verifying direct payment:', error);
       return false;
     }
   }
@@ -389,7 +388,7 @@ class LifetimeAccessService {
       };
 
     } catch (error) {
-      logger.error('❌ Error getting payment stats:', error);
+      console.error('❌ Error getting payment stats:', error);
       return null;
     }
   }

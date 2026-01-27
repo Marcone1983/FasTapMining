@@ -1,5 +1,4 @@
 const db = require('../database/db');
-const logger = require('../utils/logger').loggers.app;
 const cryptoConverter = require('./crypto-converter');
 
 // Fee Payout Service - Handles automated distribution of collected platform fees
@@ -31,7 +30,7 @@ class FeePayoutService {
    * Process all pending fee payouts
    */
   async processAllPayouts() {
-    logger.info('🏦 Starting platform fee payout processing...');
+    console.log('🏦 Starting platform fee payout processing...');
 
     const results = {
       LTC: null,
@@ -53,7 +52,7 @@ class FeePayoutService {
         results.totalTONReceived += results.LTC.tonReceived;
       }
     } catch (error) {
-      logger.error('❌ LTC payout error:', error);
+      console.error('❌ LTC payout error:', error);
       results.errors.push({ coin: 'LTC', error: error.message });
     }
 
@@ -64,7 +63,7 @@ class FeePayoutService {
         results.totalTONReceived += results.DOGE.tonReceived;
       }
     } catch (error) {
-      logger.error('❌ DOGE payout error:', error);
+      console.error('❌ DOGE payout error:', error);
       results.errors.push({ coin: 'DOGE', error: error.message });
     }
 
@@ -74,13 +73,13 @@ class FeePayoutService {
       try {
         results[token] = await this.processSmallTokenFees(token);
       } catch (error) {
-        logger.error(`❌ ${token} payout error:`, error);
+        console.error(`❌ ${token} payout error:`, error);
         results.errors.push({ coin: token, error: error.message });
       }
     }
 
-    logger.info('✅ Platform fee payout processing complete');
-    logger.info(`💰 Total TON received from conversions: ${results.totalTONReceived.toFixed(4)} TON`);
+    console.log('✅ Platform fee payout processing complete');
+    console.log(`💰 Total TON received from conversions: ${results.totalTONReceived.toFixed(4)} TON`);
 
     return results;
   }
@@ -98,11 +97,11 @@ class FeePayoutService {
     const totalLTC = parseFloat(unpaidFees.rows[0].total);
 
     if (totalLTC < this.minimumPayoutThresholds.LTC) {
-      logger.info(`⏳ LTC fees below threshold: ${totalLTC} < ${this.minimumPayoutThresholds.LTC}`);
+      console.log(`⏳ LTC fees below threshold: ${totalLTC} < ${this.minimumPayoutThresholds.LTC}`);
       return { success: false, reason: 'below_threshold', amount: totalLTC };
     }
 
-    logger.info(`💸 Converting ${totalLTC} LTC to TON...`);
+    console.log(`💸 Converting ${totalLTC} LTC to TON...`);
 
     // Create exchange via ChangeNOW
     const exchange = await cryptoConverter.createExchange(
@@ -127,9 +126,9 @@ class FeePayoutService {
       [exchange.exchangeId]
     );
 
-    logger.info(`✅ LTC conversion initiated: ${totalLTC} LTC → ~${exchange.toAmount} TON`);
-    logger.info(`📋 Exchange ID: ${exchange.exchangeId}`);
-    logger.info(`💳 Payin address: ${exchange.payinAddress}`);
+    console.log(`✅ LTC conversion initiated: ${totalLTC} LTC → ~${exchange.toAmount} TON`);
+    console.log(`📋 Exchange ID: ${exchange.exchangeId}`);
+    console.log(`💳 Payin address: ${exchange.payinAddress}`);
 
     return {
       success: true,
@@ -155,11 +154,11 @@ class FeePayoutService {
     const totalDOGE = parseFloat(unpaidFees.rows[0].total);
 
     if (totalDOGE < this.minimumPayoutThresholds.DOGE) {
-      logger.info(`⏳ DOGE fees below threshold: ${totalDOGE} < ${this.minimumPayoutThresholds.DOGE}`);
+      console.log(`⏳ DOGE fees below threshold: ${totalDOGE} < ${this.minimumPayoutThresholds.DOGE}`);
       return { success: false, reason: 'below_threshold', amount: totalDOGE };
     }
 
-    logger.info(`💸 Converting ${totalDOGE} DOGE to TON...`);
+    console.log(`💸 Converting ${totalDOGE} DOGE to TON...`);
 
     // Create exchange via ChangeNOW
     const exchange = await cryptoConverter.createExchange(
@@ -184,9 +183,9 @@ class FeePayoutService {
       [exchange.exchangeId]
     );
 
-    logger.info(`✅ DOGE conversion initiated: ${totalDOGE} DOGE → ~${exchange.toAmount} TON`);
-    logger.info(`📋 Exchange ID: ${exchange.exchangeId}`);
-    logger.info(`💳 Payin address: ${exchange.payinAddress}`);
+    console.log(`✅ DOGE conversion initiated: ${totalDOGE} DOGE → ~${exchange.toAmount} TON`);
+    console.log(`📋 Exchange ID: ${exchange.exchangeId}`);
+    console.log(`💳 Payin address: ${exchange.payinAddress}`);
 
     return {
       success: true,
@@ -213,7 +212,7 @@ class FeePayoutService {
     const totalAmount = parseFloat(unpaidFees.rows[0].total);
 
     if (totalAmount < this.minimumPayoutThresholds[coin]) {
-      logger.info(`⏳ ${coin} fees below threshold: ${totalAmount} < ${this.minimumPayoutThresholds[coin]}`);
+      console.log(`⏳ ${coin} fees below threshold: ${totalAmount} < ${this.minimumPayoutThresholds[coin]}`);
       return { success: false, reason: 'below_threshold', amount: totalAmount };
     }
 
@@ -230,7 +229,7 @@ class FeePayoutService {
       [coin]
     );
 
-    logger.info(`📦 ${coin} fees marked for withdrawal: ${totalAmount} ${coin} → ${ownerWallet}`);
+    console.log(`📦 ${coin} fees marked for withdrawal: ${totalAmount} ${coin} → ${ownerWallet}`);
 
     return {
       success: true,

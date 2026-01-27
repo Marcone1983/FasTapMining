@@ -1,5 +1,4 @@
 const { TonClient, WalletContractV4, internal } = require('@ton/ton');
-const logger = require('../utils/logger').loggers.blockchain;
 const { mnemonicToPrivateKey } = require('@ton/crypto');
 const { Address, toNano, fromNano } = require('@ton/core');
 const axios = require('axios');
@@ -49,15 +48,15 @@ class TONDexSwaps {
           publicKey: keyPair.publicKey
         });
 
-        logger.info('✅ TON wallet initialized:', this.wallet.address.toString());
+        console.log('✅ TON wallet initialized:', this.wallet.address.toString());
       } else {
-        logger.warn('⚠️ TON_MNEMONIC not set, swaps will not execute');
+        console.warn('⚠️ TON_MNEMONIC not set, swaps will not execute');
       }
 
       this.initialized = true;
 
     } catch (error) {
-      logger.error('❌ TON initialization failed:', error);
+      console.error('❌ TON initialization failed:', error);
       throw error;
     }
   }
@@ -71,7 +70,7 @@ class TONDexSwaps {
   async swapTONtoTokens(tonAmount, distribution = { MineX: 0.4, tBTC: 0.3, MRDN: 0.3 }) {
     await this.initialize();
 
-    logger.info(`🔄 Swapping ${tonAmount} TON to tokens...`);
+    console.log(`🔄 Swapping ${tonAmount} TON to tokens...`);
 
     const results = {};
 
@@ -79,11 +78,11 @@ class TONDexSwaps {
       const swapAmount = tonAmount * percentage;
 
       if (swapAmount < 0.01) {
-        logger.info(`⏭️ Skipping ${token}, amount too small (${swapAmount} TON)`);
+        console.log(`⏭️ Skipping ${token}, amount too small (${swapAmount} TON)`);
         continue;
       }
 
-      logger.info(`   → Swapping ${swapAmount} TON for ${token}...`);
+      console.log(`   → Swapping ${swapAmount} TON for ${token}...`);
 
       try {
         const received = await this.executeSwap(
@@ -93,10 +92,10 @@ class TONDexSwaps {
         );
 
         results[token] = received;
-        logger.info(`   ✅ Received ${received} ${token}`);
+        console.log(`   ✅ Received ${received} ${token}`);
 
       } catch (error) {
-        logger.error(`   ❌ Swap failed for ${token}:`, error.message);
+        console.error(`   ❌ Swap failed for ${token}:`, error.message);
         results[token] = 0;
       }
     }
@@ -128,8 +127,8 @@ class TONDexSwaps {
         throw new Error('No swap route found');
       }
 
-      logger.info(`   Route: ${route.path.join(' → ')}`);
-      logger.info(`   Expected output: ${route.expectedOutput}`);
+      console.log(`   Route: ${route.path.join(' → ')}`);
+      console.log(`   Expected output: ${route.expectedOutput}`);
 
       // Build swap transaction
       const swapTx = await this.buildSwapTransaction(route, amount);
@@ -137,20 +136,20 @@ class TONDexSwaps {
       // Send transaction to blockchain
       const txHash = await this.sendTransaction(swapTx);
 
-      logger.info(`   📤 Transaction sent: ${txHash}`);
+      console.log(`   📤 Transaction sent: ${txHash}`);
 
       // Wait for confirmation
       const confirmed = await this.waitForConfirmation(txHash);
 
       if (confirmed) {
-        logger.info(`   ✅ Swap confirmed on blockchain!`);
+        console.log(`   ✅ Swap confirmed on blockchain!`);
         return route.expectedOutput;
       } else {
         throw new Error('Transaction not confirmed');
       }
 
     } catch (error) {
-      logger.error('Swap execution error:', error);
+      console.error('Swap execution error:', error);
       throw error;
     }
   }
@@ -184,7 +183,7 @@ class TONDexSwaps {
       return null;
 
     } catch (error) {
-      logger.error('Route fetch error:', error.message);
+      console.error('Route fetch error:', error.message);
       return null;
     }
   }
@@ -284,7 +283,7 @@ class TONDexSwaps {
       return response.data.estimatedOutput;
 
     } catch (error) {
-      logger.error('❌ DeDust API estimate failed:', error.message);
+      console.error('❌ DeDust API estimate failed:', error.message);
       throw new Error(`Cannot estimate swap: ${error.message}. DeDust API unavailable.`);
     }
   }
@@ -316,7 +315,7 @@ class TONDexSwaps {
         return response.data.balance || 0;
       }
     } catch (error) {
-      logger.error('Balance fetch error:', error);
+      console.error('Balance fetch error:', error);
       return 0;
     }
   }
