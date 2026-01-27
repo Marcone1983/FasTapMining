@@ -1010,9 +1010,9 @@ function App() {
               {/* Trust Signals */}
               <div style={{ marginTop: '20px', fontSize: '11px', opacity: 0.6, lineHeight: '1.5' }}>
                 <div>💳 Secure payment via TON Connect</div>
-                <div style={{ marginTop: '5px' }}>🔐 Payment to: <span style={{ fontFamily: 'monospace' }}>UQArbh...Pbviy</span></div>
+                <div style={{ marginTop: '5px' }}>🔐 Payment to: <span style={{ fontFamily: 'monospace', fontSize: '9px' }}>UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR</span></div>
                 <div style={{ marginTop: '8px', fontSize: '12px', opacity: 0.8, color: '#FFD700' }}>
-                  ⚡ <strong>Limited time:</strong> 1 TON (~$5) - Price may increase soon!
+                  ⚡ <strong>Limited time:</strong> 1 TON (~$1.5) - Price may increase soon!
                 </div>
               </div>
             </div>
