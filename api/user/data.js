@@ -79,7 +79,8 @@ module.exports = async (req, res) => {
       referralCode,
       referralStats,
       activeBoosts,
-      achievements
+      achievements,
+      hasLifetimeAccess: user.has_lifetime_access || false
     });
 
   } catch (error) {

@@ -105,6 +105,8 @@ function App() {
   const [tonConnectReady, setTonConnectReady] = useState(false);
   const [manualWalletMode, setManualWalletMode] = useState(false);
   const [manualWalletInput, setManualWalletInput] = useState('');
+  const [hasLifetimeAccess, setHasLifetimeAccess] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
 
   // Mining state
   const [taps, setTaps] = useState(0);
@@ -345,6 +347,7 @@ function App() {
         setReferralStats(data.referralStats || referralStats);
         setAchievements(data.achievements || []);
         setActiveBoosts(data.activeBoosts || []);
+        setHasLifetimeAccess(data.hasLifetimeAccess || false);
       }
     } catch (error) {
       console.error('Load user data error:', error);
@@ -449,11 +452,71 @@ function App() {
   };
 
   // ============================================
+  // LIFETIME ACCESS / PAYMENT
+  // ============================================
+
+  const unlockMining = async () => {
+    if (!walletAddress) {
+      showNotif('Connect wallet first!', 'error');
+      return;
+    }
+
+    setCheckingPayment(true);
+
+    try {
+      // Send 1 TON payment transaction via TON Connect
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes
+        messages: [
+          {
+            address: 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR', // Owner wallet
+            amount: '1000000000', // 1 TON in nanotons
+            payload: btoa(`lifetime_access_${userId}`) // Comment with user ID
+          }
+        ]
+      };
+
+      await tonConnectUIRef.current.sendTransaction(transaction);
+
+      showNotif('Payment sent! Verifying...', 'info');
+
+      // Wait 3 seconds then check payment
+      setTimeout(async () => {
+        const res = await fetch(`${API_BASE}/api/user/check-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, walletAddress })
+        });
+
+        const data = await res.json();
+
+        if (data.success && data.hasLifetimeAccess) {
+          setHasLifetimeAccess(true);
+          showNotif('✅ Mining Unlocked Forever!', 'success');
+        } else {
+          showNotif('Payment verification pending...', 'info');
+        }
+
+        setCheckingPayment(false);
+      }, 3000);
+
+    } catch (error) {
+      console.error('Payment error:', error);
+      showNotif('Payment failed or cancelled', 'error');
+      setCheckingPayment(false);
+    }
+  };
+
+  // ============================================
   // MINING FUNCTIONS
   // ============================================
 
   const handleTap = async (e) => {
     if (!userId) return;
+    if (!hasLifetimeAccess) {
+      showNotif('Unlock mining first! Pay 1 TON', 'error');
+      return;
+    }
 
     hapticFeedback('light');
 
@@ -793,6 +856,171 @@ function App() {
       {/* Mining View */}
       {view === 'mining' && (
         <div className="view mining-view">
+
+          {/* Premium Paywall - Marketing Focused */}
+          {!hasLifetimeAccess && (
+            <div className="paywall glassmorphic" style={{
+              position: 'relative',
+              padding: '35px 25px',
+              margin: '15px',
+              textAlign: 'center',
+              borderRadius: '25px',
+              background: 'linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,140,0,0.15) 50%, rgba(138,43,226,0.15) 100%)',
+              border: '3px solid rgba(255,215,0,0.4)',
+              boxShadow: '0 15px 50px rgba(255,215,0,0.2)'
+            }}>
+              {/* Hero Section */}
+              <div style={{ fontSize: '70px', marginBottom: '15px', lineHeight: '1' }}>⛏️💰</div>
+              <h1 style={{
+                fontSize: '28px',
+                marginBottom: '10px',
+                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontWeight: 'bold',
+                letterSpacing: '-0.5px'
+              }}>
+                Unlock Real Crypto Mining
+              </h1>
+              <p style={{ fontSize: '15px', marginBottom: '25px', opacity: 0.85, lineHeight: '1.4' }}>
+                Join <strong>thousands of miners</strong> earning real cryptocurrency daily.<br/>
+                One-time payment of <strong style={{ color: '#FFD700', fontSize: '18px' }}>1 TON</strong> = <strong>Lifetime Access</strong>
+              </p>
+
+              {/* 8 Coins Showcase */}
+              <div style={{
+                marginBottom: '25px',
+                padding: '20px 15px',
+                background: 'rgba(0,0,0,0.4)',
+                borderRadius: '18px',
+                border: '1px solid rgba(255,215,0,0.2)'
+              }}>
+                <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '15px', color: '#FFD700' }}>
+                  ⚡ Mine 8 Real Cryptocurrencies Simultaneously
+                </div>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '10px',
+                  marginBottom: '15px'
+                }}>
+                  <div style={{ padding: '10px 5px', background: 'rgba(255,215,0,0.1)', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '24px' }}>🪙</div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFD700' }}>LTC</div>
+                  </div>
+                  <div style={{ padding: '10px 5px', background: 'rgba(255,215,0,0.1)', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '24px' }}>🐕</div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFD700' }}>DOGE</div>
+                  </div>
+                  <div style={{ padding: '10px 5px', background: 'rgba(255,215,0,0.1)', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '24px' }}>💎</div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFD700' }}>TON</div>
+                  </div>
+                  <div style={{ padding: '10px 5px', background: 'rgba(255,215,0,0.1)', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '24px' }}>🔔</div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFD700' }}>BELLS</div>
+                  </div>
+                  <div style={{ padding: '10px 5px', background: 'rgba(255,215,0,0.1)', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '24px' }}>🍀</div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFD700' }}>LKY</div>
+                  </div>
+                  <div style={{ padding: '10px 5px', background: 'rgba(255,215,0,0.1)', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '24px' }}>🐸</div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFD700' }}>PEP</div>
+                  </div>
+                  <div style={{ padding: '10px 5px', background: 'rgba(255,215,0,0.1)', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '24px' }}>🃏</div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFD700' }}>JKC</div>
+                  </div>
+                  <div style={{ padding: '10px 5px', background: 'rgba(255,215,0,0.1)', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '24px' }}>🦴</div>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFD700' }}>DINGO</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '13px', opacity: 0.8, fontStyle: 'italic' }}>
+                  Connected to <strong>ViaBTC Pool</strong> - Real mining, real rewards
+                </div>
+              </div>
+
+              {/* Benefits List */}
+              <div style={{
+                textAlign: 'left',
+                maxWidth: '320px',
+                margin: '0 auto 25px',
+                padding: '18px',
+                background: 'rgba(255,255,255,0.05)',
+                borderRadius: '15px'
+              }}>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '12px', textAlign: 'center', color: '#FFD700' }}>
+                  🎁 What You Get
+                </div>
+                <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px', fontSize: '16px' }}>⚡</span>
+                    <span><strong>8 real cryptos</strong> - LTC, DOGE, TON, BELLS, LKY, PEP, JKC, DINGO</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px', fontSize: '16px' }}>♾️</span>
+                    <span><strong>Lifetime access</strong> - Pay once, mine forever (no subscriptions)</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px', fontSize: '16px' }}>💰</span>
+                    <span><strong>Keep 85-95%</strong> of all mining rewards</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px', fontSize: '16px' }}>🎯</span>
+                    <span><strong>Real pool mining</strong> - Connected to ViaBTC Scrypt pool</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px', fontSize: '16px' }}>👥</span>
+                    <span><strong>Referral bonuses</strong> - Earn 10% from every referral</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px', fontSize: '16px' }}>🚀</span>
+                    <span><strong>Instant withdrawals</strong> - Your coins, your wallet</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <button
+                className="unlock-btn primary-gradient"
+                onClick={unlockMining}
+                disabled={checkingPayment}
+                style={{
+                  width: '90%',
+                  maxWidth: '320px',
+                  padding: '18px 0',
+                  fontSize: '19px',
+                  fontWeight: 'bold',
+                  borderRadius: '18px',
+                  border: 'none',
+                  cursor: checkingPayment ? 'not-allowed' : 'pointer',
+                  opacity: checkingPayment ? 0.6 : 1,
+                  background: checkingPayment ? '#666' : 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+                  color: '#000',
+                  boxShadow: '0 8px 25px rgba(255,215,0,0.4)',
+                  transition: 'all 0.3s ease',
+                  transform: checkingPayment ? 'scale(0.98)' : 'scale(1)'
+                }}
+              >
+                {checkingPayment ? '⏳ Processing Payment...' : '🔓 Unlock Lifetime Mining - 1 TON'}
+              </button>
+
+              {/* Trust Signals */}
+              <div style={{ marginTop: '20px', fontSize: '11px', opacity: 0.6, lineHeight: '1.5' }}>
+                <div>💳 Secure payment via TON Connect</div>
+                <div style={{ marginTop: '5px' }}>🔐 Payment to: <span style={{ fontFamily: 'monospace' }}>UQArbh...Pbviy</span></div>
+                <div style={{ marginTop: '8px', fontSize: '12px', opacity: 0.8, color: '#FFD700' }}>
+                  ⚡ <strong>Limited time:</strong> 1 TON (~$5) - Price may increase soon!
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Mining interface - only show if has access */}
+          {hasLifetimeAccess && (
+            <>
           <div
             className="tap-zone glassmorphic"
             onClick={handleTap}
@@ -854,6 +1082,8 @@ function App() {
                 </div>
               ))}
             </div>
+          )}
+            </>
           )}
         </div>
       )}

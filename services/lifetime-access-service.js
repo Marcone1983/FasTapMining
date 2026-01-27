@@ -302,6 +302,69 @@ class LifetimeAccessService {
   }
 
   /**
+   * Verify direct payment from user wallet to owner wallet
+   * Used for TON Connect direct payments
+   */
+  async verifyDirectPayment(fromWallet, toWallet, expectedAmount) {
+    try {
+      console.log(`🔍 Verifying direct payment:`);
+      console.log(`   From: ${fromWallet}`);
+      console.log(`   To: ${toWallet}`);
+      console.log(`   Expected: ${expectedAmount} TON`);
+
+      // Get recent transactions for the owner wallet
+      const transactions = await this.getWalletTransactions(toWallet);
+
+      if (transactions.length === 0) {
+        console.log('⚠️  No recent transactions found');
+        return false;
+      }
+
+      const expectedNanotons = Math.floor(expectedAmount * 1e9);
+      const recentTimeThreshold = Date.now() / 1000 - 600; // Last 10 minutes
+
+      // Look for matching transaction
+      for (const tx of transactions) {
+        // Skip old transactions
+        if (tx.utime < recentTimeThreshold) continue;
+
+        // Check incoming messages
+        if (tx.in_msg && tx.in_msg.value && tx.in_msg.source) {
+          const receivedNanotons = parseInt(tx.in_msg.value);
+          const sourceAddress = tx.in_msg.source;
+
+          // Allow 2% tolerance for gas fees
+          const tolerance = expectedNanotons * 0.02;
+          const amountMatches = Math.abs(receivedNanotons - expectedNanotons) <= tolerance;
+
+          // Check if sender matches (case-insensitive, handle different formats)
+          const senderMatches = sourceAddress.toLowerCase().includes(fromWallet.toLowerCase().slice(-20)) ||
+                               fromWallet.toLowerCase().includes(sourceAddress.toLowerCase().slice(-20));
+
+          if (amountMatches && senderMatches) {
+            console.log(`✅ Payment verified!`);
+            console.log(`   TX Hash: ${tx.transaction_id.hash}`);
+            console.log(`   Amount: ${receivedNanotons / 1e9} TON`);
+            console.log(`   Time: ${new Date(tx.utime * 1000).toISOString()}`);
+            return true;
+          }
+
+          if (amountMatches) {
+            console.log(`⚠️  Amount matches but sender doesn't: ${sourceAddress}`);
+          }
+        }
+      }
+
+      console.log('❌ No matching transaction found');
+      return false;
+
+    } catch (error) {
+      console.error('❌ Error verifying direct payment:', error);
+      return false;
+    }
+  }
+
+  /**
    * Get payment statistics
    */
   async getStats() {
