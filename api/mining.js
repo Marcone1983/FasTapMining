@@ -1,17 +1,40 @@
 const crypto = require('crypto');
 const db = require('../database/db');
 const viaBTCMiner = require('../mining-engine/viabtc-scrypt-miner');
+const { validate, TYPES, commonSchemas } = require('../middleware/validate');
+const { rateLimit } = require('../middleware/security');
+const logger = require('../utils/logger').loggers.mining;
 
-module.exports = async (req, res) => {
+// Apply rate limiting: max 60 taps per minute per user
+const miningRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 60,
+  keyGenerator: (req) => req.body.userId || req.ip,
+  skipSuccessfulRequests: false
+});
+
+// Validation schema for mining endpoint
+const miningValidation = validate({
+  body: {
+    userId: commonSchemas.userId,
+    taps: commonSchemas.taps,
+    poolId: commonSchemas.poolId,
+    nonce: {
+      type: TYPES.INTEGER,
+      required: false,
+      min: 0
+    }
+  }
+});
+
+// Main mining handler
+async function miningHandler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { userId, taps, poolId, nonce } = req.body;
-
-  if (!userId || !taps || !poolId) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
+  // Use validated input
+  const { userId, taps, poolId, nonce } = req.validated;
 
   try {
     // Get pool from database
@@ -58,7 +81,7 @@ module.exports = async (req, res) => {
 
     viaBTCMiner.addUserTaps(userId, taps);
 
-    console.log(`⛏️ User ${userId}: ${taps} taps → ViaBTC Scrypt (8 coins)`);
+    logger.info(`⛏️ User ${userId}: ${taps} taps → ViaBTC Scrypt (8 coins)`);
 
     // Generate hash for Proof-of-Work
     const hash = generateHash(user.id, taps, nonce, pool.current_height);
@@ -146,7 +169,7 @@ module.exports = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Mining error:', error);
+    logger.error('Mining error:', error);
     return res.status(500).json({
       error: 'Mining failed',
       message: error.message
@@ -291,7 +314,7 @@ async function processBlockFound(res, data) {
     });
 
   } catch (error) {
-    console.error('Block processing error:', error);
+    logger.error('Block processing error:', error);
     return res.status(500).json({
       error: 'Block processing failed',
       message: error.message
@@ -365,10 +388,10 @@ setInterval(async () => {
   try {
     const deleted = await db.Mining.clearExpiredShares();
     if (deleted > 0) {
-      console.log(`✅ Cleared ${deleted} expired mining shares`);
+      logger.info(`✅ Cleared ${deleted} expired mining shares`);
     }
   } catch (error) {
-    console.error('Clear expired shares error:', error);
+    logger.error('Clear expired shares error:', error);
   }
 }, 300000);
 
@@ -377,10 +400,10 @@ setInterval(async () => {
   try {
     const deactivated = await db.AutoTap.deactivateExpired();
     if (deactivated > 0) {
-      console.log(`✅ Deactivated ${deactivated} expired AutoTap subscriptions`);
+      logger.info(`✅ Deactivated ${deactivated} expired AutoTap subscriptions`);
     }
   } catch (error) {
-    console.error('Deactivate AutoTap error:', error);
+    logger.error('Deactivate AutoTap error:', error);
   }
 }, 600000);
 
@@ -388,8 +411,12 @@ setInterval(async () => {
 setInterval(async () => {
   try {
     await db.Stats.updateGlobal();
-    console.log('✅ Global stats updated');
+    logger.info('✅ Global stats updated');
   } catch (error) {
-    console.error('Update global stats error:', error);
+    logger.error('Update global stats error:', error);
   }
 }, 120000);
+
+
+// Export with middleware chain
+module.exports = [miningRateLimit, miningValidation, miningHandler];
