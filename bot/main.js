@@ -365,6 +365,21 @@ bot.onText(/\/referral/, async (msg) => {
   }
 });
 
+// Show my Telegram ID command
+bot.onText(/\/myid/, (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from.id;
+  const username = msg.from.username || 'N/A';
+
+  bot.sendMessage(chatId,
+    `🆔 *Your Telegram Info*\n\n` +
+    `*Telegram ID:* \`${telegramId}\`\n` +
+    `*Username:* @${username}\n\n` +
+    `Use this ID to set yourself as owner in environment variables.`,
+    { parse_mode: 'Markdown' }
+  );
+});
+
 // Help command
 bot.onText(/\/help/, (msg) => {
   const chatId = msg.chat.id;

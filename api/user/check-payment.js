@@ -43,21 +43,56 @@ async function checkPaymentHandler(req, res) {
       });
     }
 
-    // OWNER WALLET - FREE LIFETIME ACCESS
+    // OWNER TELEGRAM ID - FREE LIFETIME ACCESS (primary check)
+    const OWNER_TELEGRAM_IDS = (process.env.OWNER_TELEGRAM_IDS || '').split(',').map(id => id.trim()).filter(id => id);
+
+    if (OWNER_TELEGRAM_IDS.includes(userId.toString())) {
+      // Grant FREE lifetime access to owner by Telegram ID
+      await db.query(
+        'UPDATE users SET has_lifetime_access = TRUE, lifetime_access_granted_at = NOW(), wallet_address = $1 WHERE id = $2',
+        [walletAddress, user.id]
+      );
+
+      logger.info(`👑 OWNER detected by Telegram ID - FREE lifetime access granted to user ${userId}`);
+
+      return res.json({
+        success: true,
+        hasLifetimeAccess: true,
+        ownerAccess: true,
+        message: '👑 Owner Access - Lifetime mining unlocked FREE!'
+      });
+    }
+
+    // OWNER WALLET - FREE LIFETIME ACCESS (secondary check)
     const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
-    const normalizedUserWallet = walletAddress.replace(/\s/g, '').toUpperCase();
-    const normalizedOwnerWallet = OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+
+    // Normalize both addresses: remove spaces, convert to uppercase, extract hash part
+    const normalizeWallet = (addr) => {
+      if (!addr) return '';
+      // Remove spaces and convert to uppercase
+      let normalized = addr.replace(/\s/g, '').toUpperCase();
+      // Extract the hash part (everything after UQ, EQ, or 0:)
+      // This handles both bounce (EQ) and non-bounce (UQ) formats
+      if (normalized.startsWith('UQ') || normalized.startsWith('EQ')) {
+        normalized = normalized.substring(2); // Remove UQ or EQ prefix
+      }
+      return normalized;
+    };
+
+    const normalizedUserWallet = normalizeWallet(walletAddress);
+    const normalizedOwnerWallet = normalizeWallet(OWNER_WALLET);
 
     // DEBUG LOG
     logger.info(`🔍 OWNER CHECK DEBUG:
       User ID: ${userId}
       User Wallet (raw): ${walletAddress}
-      User Wallet (normalized): ${normalizedUserWallet}
+      User Wallet (normalized hash): ${normalizedUserWallet}
       Owner Wallet (raw): ${OWNER_WALLET}
-      Owner Wallet (normalized): ${normalizedOwnerWallet}
+      Owner Wallet (normalized hash): ${normalizedOwnerWallet}
       Match: ${normalizedUserWallet === normalizedOwnerWallet}
     `);
 
+    // Check if normalized hashes match (this handles UQ vs EQ formats)
     if (normalizedUserWallet === normalizedOwnerWallet) {
       // Grant FREE lifetime access to owner
       await db.query(
