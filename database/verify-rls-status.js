@@ -8,6 +8,21 @@ const pool = new Pool({
 
 (async () => {
   try {
+    // GRANT OWNER ACCESS FIRST
+    console.log('🔧 Granting owner access...');
+    const ownerResult = await pool.query(`
+      UPDATE users
+      SET has_lifetime_access = TRUE, lifetime_access_granted_at = NOW()
+      WHERE UPPER(REPLACE(wallet_address, ' ', '')) = 'UQARBHBVEIKN4XSWIS30YIRNNGDMOTBBIMBDUGENTEQRPBVIYR'
+      RETURNING telegram_id, username
+    `);
+    if (ownerResult.rows.length > 0) {
+      console.log('✅ Owner access granted:', ownerResult.rows[0]);
+    } else {
+      console.log('⚠️  No user with owner wallet found');
+    }
+    console.log('');
+
     console.log('\n' + '='.repeat(70));
     console.log('🔐 RLS SECURITY FIX - VERIFICATION REPORT');
     console.log('='.repeat(70) + '\n');

@@ -39,6 +39,8 @@ logger.info(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
 
 // Owner wallet for automatic admin access
 const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
+// Owner Telegram IDs (comma-separated in env, or hardcoded fallback)
+const OWNER_TELEGRAM_IDS = (process.env.OWNER_TELEGRAM_IDS || '').split(',').filter(id => id.trim());
 
 // Generate referral code for user
 function generateReferralCode(userId) {
@@ -139,9 +141,11 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
     }
 
     // Regular user flow
-    // Check if user is OWNER (automatic lifetime access)
+    // Check if user is OWNER (via Telegram ID OR wallet address)
     const userWalletNormalized = user.wallet_address ? user.wallet_address.replace(/\s/g, '').toUpperCase() : null;
-    const isOwner = userWalletNormalized === OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+    const isOwnerByWallet = userWalletNormalized === OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+    const isOwnerByTelegramId = OWNER_TELEGRAM_IDS.includes(telegramId.toString());
+    const isOwner = isOwnerByWallet || isOwnerByTelegramId;
 
     // If user is owner but doesn't have lifetime access in DB, grant it
     if (isOwner && !user.has_lifetime_access) {
@@ -149,7 +153,7 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
         'UPDATE users SET has_lifetime_access = TRUE, lifetime_access_granted_at = NOW() WHERE id = $1',
         [user.id]
       );
-      logger.info(`✅ Owner detected - Lifetime access auto-granted to ${telegramId}`);
+      logger.info(`✅ Owner detected (${isOwnerByWallet ? 'by wallet' : 'by Telegram ID'}) - Lifetime access auto-granted to ${telegramId}`);
       user.has_lifetime_access = true;
     }
 
