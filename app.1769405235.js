@@ -322,6 +322,40 @@ function App() {
   }, []);
 
   // ============================================
+  // CHECK INITIAL LIFETIME ACCESS STATUS
+  // ============================================
+
+  useEffect(() => {
+    // Check if user already has lifetime access when userId and wallet are available
+    if (!userId || !walletAddress || hasLifetimeAccess) return;
+
+    const checkInitialAccess = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/user/check-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, walletAddress })
+        });
+
+        const data = await res.json();
+
+        if (data.success && data.hasLifetimeAccess) {
+          setHasLifetimeAccess(true);
+          if (data.ownerAccess) {
+            showNotif('👑 Owner Access Activated - Mine FREE Forever!', 'success');
+          } else {
+            showNotif('✅ Lifetime Access Active - Mine Forever!', 'success');
+          }
+        }
+      } catch (error) {
+        console.error('Initial access check error:', error);
+      }
+    };
+
+    checkInitialAccess();
+  }, [userId, walletAddress, hasLifetimeAccess]);
+
+  // ============================================
   // WEBSOCKET REAL-TIME STATS
   // ============================================
 
@@ -522,8 +556,8 @@ function App() {
         messages: [
           {
             address: 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR', // Owner wallet
-            amount: '1000000000', // 1 TON in nanotons
-            payload: btoa(`lifetime_access_${userId}`) // Comment with user ID
+            amount: '1000000000' // 1 TON in nanotons
+            // No payload - TON Connect validates payload format strictly
           }
         ]
       };
