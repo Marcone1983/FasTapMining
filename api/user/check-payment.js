@@ -48,6 +48,16 @@ async function checkPaymentHandler(req, res) {
     const normalizedUserWallet = walletAddress.replace(/\s/g, '').toUpperCase();
     const normalizedOwnerWallet = OWNER_WALLET.replace(/\s/g, '').toUpperCase();
 
+    // DEBUG LOG
+    logger.info(`🔍 OWNER CHECK DEBUG:
+      User ID: ${userId}
+      User Wallet (raw): ${walletAddress}
+      User Wallet (normalized): ${normalizedUserWallet}
+      Owner Wallet (raw): ${OWNER_WALLET}
+      Owner Wallet (normalized): ${normalizedOwnerWallet}
+      Match: ${normalizedUserWallet === normalizedOwnerWallet}
+    `);
+
     if (normalizedUserWallet === normalizedOwnerWallet) {
       // Grant FREE lifetime access to owner
       await db.query(

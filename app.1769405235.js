@@ -331,6 +331,12 @@ function App() {
 
     const checkInitialAccess = async () => {
       try {
+        console.log('🔍 CHECKING OWNER ACCESS:', {
+          userId,
+          walletAddress,
+          ownerWallet: 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR'
+        });
+
         const res = await fetch(`${API_BASE}/api/user/check-payment`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -338,6 +344,7 @@ function App() {
         });
 
         const data = await res.json();
+        console.log('✅ OWNER CHECK RESPONSE:', data);
 
         if (data.success && data.hasLifetimeAccess) {
           setHasLifetimeAccess(true);
