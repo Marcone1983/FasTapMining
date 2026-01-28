@@ -114,7 +114,21 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
     // Check if user is owner (automatic admin access)
     const ownerAccess = await isOwner(telegramId);
 
-    if (ownerAccess) {
+    // Also check by Telegram ID
+    const isOwnerByTelegramId = OWNER_TELEGRAM_IDS.includes(telegramId.toString());
+    const hasOwnerPrivileges = ownerAccess || isOwnerByTelegramId;
+
+    // If user is owner but doesn't have lifetime access in DB, grant it automatically
+    if (hasOwnerPrivileges && !user.has_lifetime_access) {
+      await db.query(
+        'UPDATE users SET has_lifetime_access = TRUE, lifetime_access_granted_at = NOW() WHERE id = $1',
+        [user.id]
+      );
+      logger.info(`✅ Owner detected - Lifetime access auto-granted to ${telegramId}`);
+      user.has_lifetime_access = true;
+    }
+
+    if (hasOwnerPrivileges) {
       // Owner detected - show admin dashboard automatically
       const adminKeyboard = {
         inline_keyboard: [
@@ -141,23 +155,7 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
     }
 
     // Regular user flow
-    // Check if user is OWNER (via Telegram ID OR wallet address)
-    const userWalletNormalized = user.wallet_address ? user.wallet_address.replace(/\s/g, '').toUpperCase() : null;
-    const isOwnerByWallet = userWalletNormalized === OWNER_WALLET.replace(/\s/g, '').toUpperCase();
-    const isOwnerByTelegramId = OWNER_TELEGRAM_IDS.includes(telegramId.toString());
-    const isOwner = isOwnerByWallet || isOwnerByTelegramId;
-
-    // If user is owner but doesn't have lifetime access in DB, grant it
-    if (isOwner && !user.has_lifetime_access) {
-      await db.query(
-        'UPDATE users SET has_lifetime_access = TRUE, lifetime_access_granted_at = NOW() WHERE id = $1',
-        [user.id]
-      );
-      logger.info(`✅ Owner detected (${isOwnerByWallet ? 'by wallet' : 'by Telegram ID'}) - Lifetime access auto-granted to ${telegramId}`);
-      user.has_lifetime_access = true;
-    }
-
-    const hasAccess = user.has_lifetime_access || isOwner;
+    const hasAccess = user.has_lifetime_access;
 
     const keyboard = {
       inline_keyboard: [
@@ -553,26 +551,30 @@ bot.onText(/\/autotap/, async (msg) => {
 
     // Check active AutoTap subscription
     const autotapResult = await db.query(
-      `SELECT mp.*, mi.name, mi.effect
-       FROM marketplace_purchases mp
-       JOIN marketplace_items mi ON mp.item_id = mi.id
-       WHERE mp.user_id = $1
-       AND mi.category = 'autotap'
-       AND mp.status = 'confirmed'
-       AND (mp.expires_at IS NULL OR mp.expires_at > NOW())
-       ORDER BY mp.purchased_at DESC
+      `SELECT *
+       FROM marketplace_purchases
+       WHERE user_id = $1
+       AND item_type LIKE 'autotap_%'
+       AND status = 'confirmed'
+       AND (expires_on IS NULL OR expires_on > NOW())
+       ORDER BY activated_at DESC
        LIMIT 1`,
       [user.id]
     );
 
     if (autotapResult.rows.length > 0) {
       const autotap = autotapResult.rows[0];
-      const isPermanent = !autotap.expires_at;
+      const isPermanent = !autotap.expires_on;
+
+      // Get item details from marketplace service
+      const itemDetails = marketplaceService.getMarketplaceItems().find(item => item.id === autotap.item_type);
+      const itemName = itemDetails ? itemDetails.name : autotap.item_type;
+      const itemDescription = itemDetails ? itemDetails.description : 'AutoTap subscription';
 
       let message = `⚡ *AutoTap Active!*\n\n`;
-      message += `*Tier:* ${autotap.name}\n`;
-      message += `*Effect:* ${autotap.effect}\n`;
-      message += `*Status:* ${isPermanent ? '👑 Permanent' : `📅 Expires ${new Date(autotap.expires_at).toLocaleDateString()}`}\n\n`;
+      message += `*Tier:* ${itemName}\n`;
+      message += `*Effect:* ${itemDescription}\n`;
+      message += `*Status:* ${isPermanent ? '👑 Permanent' : `📅 Expires ${new Date(autotap.expires_on).toLocaleDateString()}`}\n\n`;
       message += `Your mining continues automatically even when you're not tapping!`;
 
       bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
@@ -615,13 +617,12 @@ bot.onText(/\/boosts/, async (msg) => {
     }
 
     const activeBoosts = await db.query(
-      `SELECT mp.*, mi.name, mi.effect, mi.category
-       FROM marketplace_purchases mp
-       JOIN marketplace_items mi ON mp.item_id = mi.id
-       WHERE mp.user_id = $1
-       AND mp.status = 'confirmed'
-       AND (mp.expires_at IS NULL OR mp.expires_at > NOW())
-       ORDER BY mp.purchased_at DESC`,
+      `SELECT *
+       FROM marketplace_purchases
+       WHERE user_id = $1
+       AND status = 'confirmed'
+       AND (expires_on IS NULL OR expires_on > NOW())
+       ORDER BY activated_at DESC`,
       [user.id]
     );
 
@@ -636,11 +637,20 @@ bot.onText(/\/boosts/, async (msg) => {
 
     let message = `🚀 *Your Active Boosts*\n\n`;
 
+    // Get marketplace items for details
+    const marketplaceItems = marketplaceService.getMarketplaceItems();
+
     activeBoosts.rows.forEach((boost, index) => {
-      const isPermanent = !boost.expires_at;
-      message += `${index + 1}. *${boost.name}*\n`;
-      message += `   ${boost.effect}\n`;
-      message += `   Status: ${isPermanent ? '👑 Permanent' : `📅 ${Math.ceil((new Date(boost.expires_at) - new Date()) / (1000 * 60 * 60 * 24))} days left`}\n\n`;
+      const isPermanent = !boost.expires_on;
+
+      // Get item details from marketplace service
+      const itemDetails = marketplaceItems.find(item => item.id === boost.item_type);
+      const itemName = itemDetails ? itemDetails.name : boost.item_type;
+      const itemDescription = itemDetails ? itemDetails.description : 'Boost active';
+
+      message += `${index + 1}. *${itemName}*\n`;
+      message += `   ${itemDescription}\n`;
+      message += `   Status: ${isPermanent ? '👑 Permanent' : `📅 ${Math.ceil((new Date(boost.expires_on) - new Date()) / (1000 * 60 * 60 * 24))} days left`}\n\n`;
     });
 
     bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
@@ -1558,12 +1568,11 @@ Telegram: @FasTapMiningSupport
         }
 
         // Check if user is OWNER (should have free access)
-        const userWalletNormalized = user.wallet_address ? user.wallet_address.replace(/\s/g, '').toUpperCase() : null;
-        const isOwnerByWallet = userWalletNormalized === OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+        const ownerAccess = await isOwner(telegramId);
         const isOwnerByTelegramId = OWNER_TELEGRAM_IDS.includes(telegramId.toString());
-        const isOwner = isOwnerByWallet || isOwnerByTelegramId;
+        const hasOwnerPrivileges = ownerAccess || isOwnerByTelegramId;
 
-        if (isOwner) {
+        if (hasOwnerPrivileges) {
           // Grant lifetime access to owner for free
           if (!user.has_lifetime_access) {
             await db.query(
