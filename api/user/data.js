@@ -113,27 +113,38 @@ module.exports = async (req, res) => {
 // Helper function to get active boosts
 async function getActiveBoosts(userId) {
   try {
+    const marketplaceService = require('../../services/marketplace-service');
+
     const result = await db.query(
-      `SELECT mp.*, mi.name as item_name, mi.effect
-       FROM marketplace_purchases mp
-       JOIN marketplace_items mi ON mp.item_id = mi.id
-       WHERE mp.user_id = $1
-       AND mp.status = 'confirmed'
-       AND (mp.expires_at IS NULL OR mp.expires_at > NOW())
-       ORDER BY mp.purchased_at DESC`,
+      `SELECT *
+       FROM marketplace_purchases
+       WHERE user_id = $1
+       AND status = 'confirmed'
+       AND (expires_on IS NULL OR expires_on > NOW())
+       ORDER BY activated_at DESC`,
       [userId]
     );
 
-    return result.rows.map(row => ({
-      id: row.id,
-      itemName: row.item_name,
-      effect: row.effect,
-      isPermanent: !row.expires_at,
-      expiresAt: row.expires_at,
-      daysRemaining: row.expires_at ?
-        Math.ceil((new Date(row.expires_at) - new Date()) / (1000 * 60 * 60 * 24)) :
-        null
-    }));
+    // Get marketplace items for details
+    const marketplaceItems = marketplaceService.getMarketplaceItems();
+
+    return result.rows.map(row => {
+      // Get item details from marketplace service
+      const itemDetails = marketplaceItems.find(item => item.id === row.item_type);
+      const itemName = itemDetails ? itemDetails.name : row.item_type;
+      const itemDescription = itemDetails ? itemDetails.description : 'Boost active';
+
+      return {
+        id: row.id,
+        itemName: itemName,
+        effect: itemDescription,
+        isPermanent: !row.expires_on,
+        expiresAt: row.expires_on,
+        daysRemaining: row.expires_on ?
+          Math.ceil((new Date(row.expires_on) - new Date()) / (1000 * 60 * 60 * 24)) :
+          null
+      };
+    });
   } catch (error) {
     logger.error('Error getting active boosts:', error);
     return [];
