@@ -1373,7 +1373,9 @@ bot.on('callback_query', async (query) => {
 
         // Check if user is OWNER (should have free access)
         const userWalletNormalized = user.wallet_address ? user.wallet_address.replace(/\s/g, '').toUpperCase() : null;
-        const isOwner = userWalletNormalized === OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+        const isOwnerByWallet = userWalletNormalized === OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+        const isOwnerByTelegramId = OWNER_TELEGRAM_IDS.includes(telegramId.toString());
+        const isOwner = isOwnerByWallet || isOwnerByTelegramId;
 
         if (isOwner) {
           // Grant lifetime access to owner for free
@@ -1392,58 +1394,47 @@ bot.on('callback_query', async (query) => {
           );
         }
 
-        const payment = await lifetimeAccessService.createPaymentRequest(user.id, telegramId);
+        // Send Telegram Invoice for TON payment (uses TON Connect automatically!)
+        const tonPrice = parseFloat(process.env.LIFETIME_ACCESS_PRICE || 1.0);
+        const priceInNanoTON = Math.floor(tonPrice * 1000000000); // Convert TON to nanoTON
 
-        if (!payment.success) {
-          return bot.sendMessage(chatId, `❌ ${payment.error}`);
+        try {
+          await bot.sendInvoice(
+            chatId,
+            '🔓 Lifetime Mining Access', // title
+            'Get unlimited mining access forever! ⛏️\n\n' +
+            '✅ Unlimited mining\n' +
+            '✅ All features unlocked\n' +
+            '✅ AutoTap & multipliers available\n' +
+            '✅ Priority support', // description
+            `lifetime_${user.id}_${Date.now()}`, // payload
+            '', // provider_token (empty for Telegram Stars)
+            'TON', // currency
+            [{ label: 'Lifetime Access', amount: priceInNanoTON }], // prices
+            {
+              need_name: false,
+              need_phone_number: false,
+              need_email: false,
+              need_shipping_address: false,
+              is_flexible: false,
+              photo_url: 'https://fas-tap-mining.vercel.app/icon-512.png',
+              photo_width: 512,
+              photo_height: 512
+            }
+          );
+        } catch (error) {
+          logger.error('❌ Send invoice error:', error);
+          return bot.sendMessage(chatId,
+            `❌ Payment system error. Please try again or contact support.\n\n` +
+            `Error: ${error.message}`
+          );
         }
-
-        const paymentMsg =
-          `🔓 *Lifetime Access - 1 TON*\n\n` +
-          `Send exactly *${payment.amount} TON* to:\n` +
-          `\`${payment.paymentAddress}\`\n\n` +
-          `*Payment expires in 60 minutes*\n\n` +
-          `After payment, you'll get:\n` +
-          `✅ Unlimited mining forever\n` +
-          `✅ Access to all features\n` +
-          `✅ AutoTap & multipliers available\n\n` +
-          `Payment will be confirmed automatically! ⚡`;
-
-        bot.sendMessage(chatId, paymentMsg, {
-          parse_mode: 'Markdown',
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: '✅ I Sent the Payment', callback_data: `check_payment_${payment.paymentId}` }],
-              [{ text: '❌ Cancel', callback_data: 'cancel' }]
-            ]
-          }
-        });
         break;
 
       default:
-        if (data.startsWith('check_payment_')) {
-          const paymentId = data.replace('check_payment_', '');
-          const status = await lifetimeAccessService.checkPayment(paymentId);
-
-          if (status.status === 'confirmed') {
-            bot.sendMessage(chatId,
-              `🎉 *Payment Confirmed!*\n\n` +
-              `✅ Lifetime Access Activated!\n\n` +
-              `You now have unlimited mining access.\n` +
-              `Start mining and enjoy all features! 💎`,
-              { parse_mode: 'Markdown' }
-            );
-          } else if (status.status === 'pending') {
-            bot.sendMessage(chatId,
-              `⏳ Payment is still pending...\n\n` +
-              `Time remaining: ${Math.floor(status.timeRemaining / 60)} minutes\n\n` +
-              `We'll notify you when confirmed! ⚡`,
-              { parse_mode: 'Markdown' }
-            );
-          } else if (status.status === 'expired') {
-            bot.sendMessage(chatId, '❌ Payment expired. Please create a new payment.');
-          }
-        }
+        // Unknown callback
+        logger.warn(`Unknown callback data: ${data}`);
+        bot.sendMessage(chatId, '❓ Unknown action. Please try again.');
         break;
     }
 
@@ -1452,6 +1443,89 @@ bot.on('callback_query', async (query) => {
   } catch (error) {
     logger.error('Error handling callback:', error);
     bot.answerCallbackQuery(query.id, { text: '❌ Error processing request' });
+  }
+});
+
+// Pre-checkout query handler (REQUIRED for Telegram payments)
+bot.on('pre_checkout_query', async (query) => {
+  try {
+    // Always approve - validation done when creating invoice
+    await bot.answerPreCheckoutQuery(query.id, true);
+    logger.info(`✅ Pre-checkout approved for user ${query.from.id}`);
+  } catch (error) {
+    logger.error('❌ Pre-checkout error:', error);
+    await bot.answerPreCheckoutQuery(query.id, false, 'Payment processing error. Please try again.');
+  }
+});
+
+// Successful payment handler
+bot.on('successful_payment', async (msg) => {
+  try {
+    const payment = msg.successful_payment;
+    const userId = msg.from.id;
+    const payload = payment.invoice_payload; // Format: lifetime_USER_ID_TIMESTAMP
+
+    logger.info(`💰 Payment received from user ${userId}:`, {
+      payload,
+      amount: payment.total_amount,
+      currency: payment.currency,
+      telegram_payment_charge_id: payment.telegram_payment_charge_id
+    });
+
+    // Extract user ID from payload
+    const payloadParts = payload.split('_');
+    if (payloadParts[0] === 'lifetime' && payloadParts[1]) {
+      const dbUserId = parseInt(payloadParts[1]);
+
+      // Grant lifetime access
+      await db.query(
+        `UPDATE users
+         SET has_lifetime_access = TRUE,
+             lifetime_access_granted_at = NOW(),
+             lifetime_access_tx_hash = $1
+         WHERE id = $2`,
+        [payment.telegram_payment_charge_id, dbUserId]
+      );
+
+      logger.info(`✅ Lifetime access granted to user ${userId} (DB ID: ${dbUserId})`);
+
+      // Send confirmation
+      await bot.sendMessage(msg.chat.id,
+        `🎉 *Payment Successful!*\n\n` +
+        `✅ Lifetime Access Activated!\n\n` +
+        `💎 You now have:\n` +
+        `• Unlimited mining forever\n` +
+        `• Access to all features\n` +
+        `• AutoTap & multipliers available\n` +
+        `• Priority support\n\n` +
+        `Start mining and enjoy! ⛏️`,
+        { parse_mode: 'Markdown' }
+      );
+
+      // Create notification
+      await db.Notification.create(
+        dbUserId,
+        'payment',
+        '🎉 Lifetime Access Activated',
+        'Your payment was successful! You now have unlimited mining access.',
+        { amount: payment.total_amount, currency: payment.currency }
+      );
+    } else {
+      logger.error('❌ Invalid payment payload:', payload);
+      await bot.sendMessage(msg.chat.id,
+        `⚠️ Payment received but there was an issue activating your access.\n\n` +
+        `Don't worry - we received your payment.\n` +
+        `Contact support: @FasTapMiningSupport\n` +
+        `Payment ID: ${payment.telegram_payment_charge_id}`
+      );
+    }
+  } catch (error) {
+    logger.error('❌ Successful payment handler error:', error);
+    await bot.sendMessage(msg.chat.id,
+      `⚠️ Payment received but there was an error.\n\n` +
+      `Don't worry - we received your payment.\n` +
+      `Contact support: @FasTapMiningSupport`
+    );
   }
 });
 
