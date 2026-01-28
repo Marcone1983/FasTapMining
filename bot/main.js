@@ -328,13 +328,18 @@ bot.onText(/\/referral/, async (msg) => {
       return bot.sendMessage(chatId, '❌ Error getting referral code.');
     }
 
-    let message = `👥 *Referral Program*\n\n`;
+    let message = `👥 *Referral Program - NEW SYSTEM!*\n\n`;
     message += `*Your Referral Code:* \`${result.referralCode}\`\n`;
     message += `*Your Referral Link:*\n${result.referralUrl}\n\n`;
-    message += `*Rewards:*\n`;
-    message += `✅ You get: 0.001 LTC + 1 DOGE + 0.1 TON\n`;
-    message += `✅ Your friend gets: 0.0005 LTC + 0.5 DOGE + 0.05 TON\n\n`;
-    message += `Share your link and earn together! 🎁`;
+    message += `*💰 How it works:*\n`;
+    message += `✅ *You get:* 10% of ALL your friend's mining rewards!\n`;
+    message += `✅ *Your friend:* Mines normally (85% after fees)\n`;
+    message += `✅ *Platform:* 5% fee supports development\n\n`;
+    message += `*Example:* Friend mines 100 TON\n`;
+    message += `  → Friend receives: 85 TON\n`;
+    message += `  → You receive: 10 TON (10% bonus!)\n`;
+    message += `  → Platform: 5 TON (5% fee)\n\n`;
+    message += `🎁 *Passive income forever!*\nEarn from every block your friends find!`;
 
     const stats = await referralService.getUserReferralStats(telegramId);
     if (stats.success && stats.stats.totalReferrals > 0) {

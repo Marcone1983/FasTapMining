@@ -219,8 +219,16 @@ async function processBlockFound(res, data) {
         nft_id: nftId
       });
 
-      // Give finder reward immediately
-      await db.User.updateBalance(user.id, pool.token, finderReward, 'add');
+      // Give finder reward with automatic fees/bonuses (5% owner + 10% referrer if applicable)
+      const referralService = require('../services/referral-service');
+      const distribution = await referralService.applyFeesAndBonuses(user.id, pool.token, finderReward);
+      await db.User.updateBalance(user.id, pool.token, distribution.userReceives, 'add');
+
+      logger.info(`💎 Block reward distribution:
+        Original: ${distribution.originalAmount} ${pool.token}
+        User receives: ${distribution.userReceives} ${pool.token}
+        Owner fee (5%): ${distribution.ownerFee} ${pool.token}
+        Referrer bonus (10%): ${distribution.referrerBonus} ${pool.token}`);
 
       // Distribute pool rewards to all contributors
       const distributions = await db.Mining.distributePoolRewards(

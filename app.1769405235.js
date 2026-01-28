@@ -1211,14 +1211,16 @@ function App() {
           </div>
 
           <div className="referral-rewards glassmorphic">
-            <h3>🎁 Referral Rewards</h3>
-            <div className="reward-item">
-              <span className="reward-icon">✅</span>
-              <span className="reward-text">Your friend: 0.0005 LTC + 0.5 DOGE + 0.05 TON</span>
+            <h3>🎁 Referral Rewards - NEW SYSTEM!</h3>
+            <div className="reward-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+              <div style={{ fontWeight: 'bold', color: '#FFD700' }}>💰 Percentage-Based Rewards:</div>
+              <div className="reward-text">✅ <strong>You earn:</strong> 10% of ALL your friend's mining rewards forever!</div>
+              <div className="reward-text">✅ <strong>Your friend:</strong> Receives 85% (after 5% platform fee)</div>
+              <div className="reward-text">✅ <strong>Platform:</strong> 5% fee supports development</div>
             </div>
-            <div className="reward-item">
-              <span className="reward-icon">✅</span>
-              <span className="reward-text">You get: 0.001 LTC + 1 DOGE + 0.1 TON</span>
+            <div className="reward-item" style={{ marginTop: '10px', padding: '10px', background: 'rgba(255, 215, 0, 0.1)', borderRadius: '8px' }}>
+              <span className="reward-icon">💡</span>
+              <span className="reward-text"><strong>Example:</strong> Friend mines 100 TON → You get 10 TON!</span>
             </div>
           </div>
         </div>

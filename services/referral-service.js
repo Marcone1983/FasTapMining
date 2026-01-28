@@ -7,39 +7,77 @@ const logger = require('../utils/logger').loggers.app;
  */
 class ReferralService {
   constructor() {
-    // Default rewards if not configured
-    this.defaultRewards = {
-      referrer: {
-        LTC: 0.001,
-        DOGE: 1.0,
-        TON: 0.1
-      },
-      referred: {
-        LTC: 0.0005,
-        DOGE: 0.5,
-        TON: 0.05
-      }
-    };
+    // PRODUCTION SYSTEM: Percentage-based rewards
+    // 5% of ALL rewards go to platform owner
+    // 10% of invited user's earnings go to referrer
+    this.OWNER_FEE_PERCENT = 5;
+    this.REFERRER_BONUS_PERCENT = 10;
+    this.OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
   }
 
   /**
-   * Get referral rewards configuration from database
+   * Apply platform fees and referrer bonuses to a reward
+   *
+   * @param {number} userId - User receiving the reward
+   * @param {string} token - Token symbol (LTC, DOGE, TON, etc.)
+   * @param {number} amount - Original reward amount
+   * @returns {Object} - Breakdown of distributions
    */
-  async getRewardsConfig() {
+  async applyFeesAndBonuses(userId, token, amount) {
     try {
-      const config = await db.query(
-        `SELECT value FROM system_config WHERE key = 'referral_rewards'`
+      // Calculate owner fee (5% of reward)
+      const ownerFee = amount * (this.OWNER_FEE_PERCENT / 100);
+      const userAmount = amount - ownerFee;
+
+      // Find owner user by wallet
+      const { rows: ownerRows } = await db.query(
+        `SELECT id FROM users WHERE UPPER(REPLACE(wallet_address, ' ', '')) = $1 LIMIT 1`,
+        [this.OWNER_WALLET.replace(/\s/g, '').toUpperCase()]
       );
 
-      if (config.rows.length > 0) {
-        return JSON.parse(config.rows[0].value);
+      // Give 5% to owner
+      if (ownerRows.length > 0) {
+        await db.User.updateBalance(ownerRows[0].id, token, ownerFee, 'add');
+        logger.info(`💰 Owner fee: ${ownerFee} ${token} (5% of ${amount})`);
       }
 
-      return this.defaultRewards;
+      // Check if user was referred by someone
+      const { rows: referralRows } = await db.query(
+        `SELECT referrer_id FROM referrals WHERE referred_id = $1 LIMIT 1`,
+        [userId]
+      );
+
+      let referrerBonus = 0;
+      let finalUserAmount = userAmount;
+
+      if (referralRows.length > 0) {
+        // User was referred - give 10% of their earnings to referrer
+        referrerBonus = userAmount * (this.REFERRER_BONUS_PERCENT / 100);
+        finalUserAmount = userAmount - referrerBonus;
+
+        await db.User.updateBalance(referralRows[0].referrer_id, token, referrerBonus, 'add');
+        logger.info(`🎁 Referrer bonus: ${referrerBonus} ${token} (10% of ${userAmount})`);
+      }
+
+      return {
+        originalAmount: amount,
+        userReceives: finalUserAmount,
+        ownerFee: ownerFee,
+        referrerBonus: referrerBonus,
+        ownerUserId: ownerRows.length > 0 ? ownerRows[0].id : null,
+        referrerUserId: referralRows.length > 0 ? referralRows[0].referrer_id : null
+      };
 
     } catch (error) {
-      logger.error('❌ Error getting referral config:', error);
-      return this.defaultRewards;
+      logger.error('❌ Error applying fees and bonuses:', error);
+      // On error, return full amount to user (fail-safe)
+      return {
+        originalAmount: amount,
+        userReceives: amount,
+        ownerFee: 0,
+        referrerBonus: 0,
+        error: error.message
+      };
     }
   }
 
@@ -190,45 +228,13 @@ class ReferralService {
   }
 
   /**
-   * Distribute rewards to both referrer and referred user
+   * DEPRECATED - No longer used
+   * New system: Automatic percentage-based rewards on every transaction
+   * Use applyFeesAndBonuses() instead when giving rewards
    */
   async distributeReferralRewards(referrerId, referredId) {
-    try {
-      const rewardsConfig = await this.getRewardsConfig();
-
-      const rewardsGiven = {
-        referrer: rewardsConfig.referrer,
-        referred: rewardsConfig.referred
-      };
-
-      // Give rewards to referrer
-      for (const [coin, amount] of Object.entries(rewardsConfig.referrer)) {
-        await db.User.updateBalance(referrerId, coin, amount, 'add');
-        logger.info(`   💰 Referrer +${amount} ${coin}`);
-      }
-
-      // Give rewards to referred user
-      for (const [coin, amount] of Object.entries(rewardsConfig.referred)) {
-        await db.User.updateBalance(referredId, coin, amount, 'add');
-        logger.info(`   💰 Referred user +${amount} ${coin}`);
-      }
-
-      // Mark rewards as given
-      await db.query(
-        `UPDATE referrals
-         SET reward_given = TRUE, reward_amount = $1
-         WHERE referrer_id = $2 AND referred_id = $3`,
-        [JSON.stringify(rewardsGiven), referrerId, referredId]
-      );
-
-      logger.info(`✅ Referral rewards distributed successfully`);
-
-      return { success: true };
-
-    } catch (error) {
-      logger.error('❌ Error distributing referral rewards:', error);
-      throw error;
-    }
+    logger.warn('⚠️  distributeReferralRewards() is deprecated - use applyFeesAndBonuses()');
+    return { success: true, message: 'Automatic percentage-based system active' };
   }
 
   /**

@@ -403,23 +403,40 @@ const Mining = {
 
     return await transaction(async (client) => {
       const distributions = [];
+      const referralService = require('../services/referral-service');
+
+      // Get pool token
+      const { rows: poolData } = await client.query(
+        'SELECT token FROM mining_pools WHERE id = $1',
+        [poolId]
+      );
+      const token = poolData[0].token;
 
       for (const ps of poolShares) {
         const userShare = parseInt(ps.shares) / totalShares;
         const reward = totalReward * userShare;
 
         if (reward > 0) {
+          // Apply fees and bonuses (5% owner + 10% referrer)
+          const distribution = await referralService.applyFeesAndBonuses(ps.user_id, token, reward);
+
           await client.query(
             `INSERT INTO user_balances (user_id, token, balance, lifetime_earned)
-             VALUES ($1, (SELECT token FROM mining_pools WHERE id = $2), $3, $3)
+             VALUES ($1, $2, $3, $3)
              ON CONFLICT (user_id, token)
              DO UPDATE SET
                balance = user_balances.balance + $3,
                lifetime_earned = user_balances.lifetime_earned + $3`,
-            [ps.user_id, poolId, reward]
+            [ps.user_id, token, distribution.userReceives]
           );
 
-          distributions.push({ user_id: ps.user_id, reward });
+          distributions.push({
+            user_id: ps.user_id,
+            original_reward: reward,
+            user_receives: distribution.userReceives,
+            owner_fee: distribution.ownerFee,
+            referrer_bonus: distribution.referrerBonus
+          });
         }
       }
 
