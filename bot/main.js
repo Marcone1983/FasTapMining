@@ -1350,19 +1350,205 @@ bot.on('callback_query', async (query) => {
         break;
 
       case 'balance':
-        bot.sendMessage(chatId, 'Use /balance command to see your balances!');
+        // Execute balance command directly
+        const userBalance = await db.User.findByTelegramId(telegramId);
+        if (!userBalance) {
+          return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+        }
+        const balances = userBalance.balances || {};
+        let balanceMessage = `💰 *Your Crypto Balances*\n\n`;
+        const coins = ['LTC', 'DOGE', 'TON', 'BELLS', 'LKY', 'PEP', 'JKC', 'DINGO', 'SHIC'];
+        for (const coin of coins) {
+          const balance = balances[coin] || 0;
+          if (balance > 0) {
+            balanceMessage += `${coin}: \`${balance.toFixed(8)}\`\n`;
+          }
+        }
+        balanceMessage += `\n💎 *Total Hashrate:* ${userBalance.hashrate || 0} H/s`;
+        bot.sendMessage(chatId, balanceMessage, { parse_mode: 'Markdown' });
         break;
 
       case 'stats':
-        bot.sendMessage(chatId, 'Use /stats command to see your statistics!');
+        // Execute stats command directly
+        const userStats = await db.User.findByTelegramId(telegramId);
+        if (!userStats) {
+          return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+        }
+        const stats = await referralService.getUserReferralStats(telegramId);
+        const activeItems = await marketplaceService.getUserActiveItems(userStats.id);
+        let statsMessage = `📊 *Your Statistics*\n\n`;
+        statsMessage += `⛏️ *Hashrate:* ${userStats.hashrate || 0} H/s\n`;
+        statsMessage += `⏱️ *Joined:* ${userStats.created_at.toLocaleDateString()}\n`;
+        statsMessage += `🔓 *Lifetime Access:* ${userStats.has_lifetime_access ? '✅ Active' : '❌ Not purchased'}\n\n`;
+        if (activeItems.length > 0) {
+          statsMessage += `🚀 *Active Boosts:*\n`;
+          activeItems.forEach(item => {
+            statsMessage += `• ${item.itemName}`;
+            if (!item.isPermanent) {
+              statsMessage += ` (${item.daysRemaining} days left)`;
+            }
+            statsMessage += `\n`;
+          });
+          statsMessage += `\n`;
+        }
+        if (stats.success && stats.stats.totalReferrals > 0) {
+          statsMessage += `👥 *Referrals:* ${stats.stats.totalReferrals}\n`;
+          statsMessage += `🎁 *Earned from Referrals:*\n`;
+          const earned = stats.stats.earnedRewards;
+          if (earned.LTC > 0) statsMessage += `  LTC: ${earned.LTC}\n`;
+          if (earned.DOGE > 0) statsMessage += `  DOGE: ${earned.DOGE}\n`;
+          if (earned.TON > 0) statsMessage += `  TON: ${earned.TON}\n`;
+        }
+        bot.sendMessage(chatId, statsMessage, { parse_mode: 'Markdown' });
         break;
 
       case 'marketplace':
-        bot.sendMessage(chatId, 'Use /marketplace command to browse items!');
+        // Execute marketplace command directly
+        const items = marketplaceService.getMarketplaceItems();
+        let marketplaceMessage = `🛒 *Marketplace - Boost Your Mining!*\n\n`;
+        marketplaceMessage += `*⚡ AutoTap Tiers (Permanent):*\n`;
+        items.filter(i => i.id.startsWith('autotap')).forEach(item => {
+          marketplaceMessage += `• ${item.name} - ${item.price} TON\n`;
+          marketplaceMessage += `  ${item.description}\n\n`;
+        });
+        marketplaceMessage += `*🚀 Multipliers (30 days):*\n`;
+        items.filter(i => i.id.startsWith('multiplier')).forEach(item => {
+          marketplaceMessage += `• ${item.name} - ${item.price} TON\n`;
+          marketplaceMessage += `  ${item.description}\n\n`;
+        });
+        marketplaceMessage += `Tap button below to purchase! 👇`;
+        bot.sendMessage(chatId, marketplaceMessage, {
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '🛒 Open Marketplace', web_app: { url: `${WEBAPP_URL}/marketplace` } }]
+            ]
+          }
+        });
         break;
 
       case 'referral':
-        bot.sendMessage(chatId, 'Use /referral command to get your referral link!');
+        // Execute referral command directly
+        const result = await referralService.getUserReferralCode(telegramId);
+        if (!result.success) {
+          return bot.sendMessage(chatId, '❌ Error getting referral code.');
+        }
+        let referralMessage = `👥 *Referral Program - NEW SYSTEM!*\n\n`;
+        referralMessage += `*Your Referral Code:* \`${result.referralCode}\`\n`;
+        referralMessage += `*Your Referral Link:*\n${result.referralUrl}\n\n`;
+        referralMessage += `*💰 How it works:*\n`;
+        referralMessage += `✅ *You get:* 10% of ALL your friend's mining rewards!\n`;
+        referralMessage += `✅ *Your friend:* Mines normally (85% after fees)\n`;
+        referralMessage += `✅ *Platform:* 5% fee supports development\n\n`;
+        referralMessage += `*Example:* Friend mines 100 TON\n`;
+        referralMessage += `  → Friend receives: 85 TON\n`;
+        referralMessage += `  → You receive: 10 TON (10% bonus!)\n`;
+        referralMessage += `  → Platform: 5 TON (5% fee)\n\n`;
+        referralMessage += `🎁 *Passive income forever!*\nEarn from every block your friends find!`;
+        const referralStats = await referralService.getUserReferralStats(telegramId);
+        if (referralStats.success && referralStats.stats.totalReferrals > 0) {
+          referralMessage += `\n\n📊 *Your Stats:*\n`;
+          referralMessage += `Total Referrals: ${referralStats.stats.totalReferrals}\n`;
+          referralMessage += `Total Earned:\n`;
+          const earned = referralStats.stats.earnedRewards;
+          if (earned.LTC > 0) referralMessage += `  LTC: ${earned.LTC}\n`;
+          if (earned.DOGE > 0) referralMessage += `  DOGE: ${earned.DOGE}\n`;
+          if (earned.TON > 0) referralMessage += `  TON: ${earned.TON}\n`;
+        }
+        bot.sendMessage(chatId, referralMessage, {
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '📤 Share Referral Link', switch_inline_query: `Join FasTap Mining and earn crypto! ${result.referralUrl}` }]
+            ]
+          }
+        });
+        break;
+
+      case 'wallet':
+        // Execute wallet command directly
+        const userWallet = await db.User.findByTelegramId(telegramId);
+        if (!userWallet) {
+          return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+        }
+        let walletMessage = `💼 *Your Wallets*\n\n`;
+        if (userWallet.wallet_ton) {
+          walletMessage += `*TON Wallet:*\n\`${userWallet.wallet_ton}\`\n\n`;
+        } else {
+          walletMessage += `❌ *TON Wallet:* Not connected\n\n`;
+        }
+        walletMessage += `*Scrypt Coin Wallets:*\n`;
+        const scryptCoins = ['BELLS', 'LKY', 'PEP', 'JKC', 'DINGO', 'SHIC'];
+        scryptCoins.forEach(coin => {
+          const walletKey = `wallet_${coin.toLowerCase()}`;
+          if (userWallet[walletKey]) {
+            walletMessage += `${coin}: \`${userWallet[walletKey]}\`\n`;
+          } else {
+            walletMessage += `${coin}: Not set\n`;
+          }
+        });
+        walletMessage += `\n💡 Connect wallets in the mining app to receive rewards.`;
+        bot.sendMessage(chatId, walletMessage, {
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '🔗 Connect Wallets', web_app: { url: WEBAPP_URL } }]
+            ]
+          }
+        });
+        break;
+
+      case 'notifications':
+        bot.sendMessage(chatId,
+          `🔔 *Notifications Settings*\n\n` +
+          `Notification preferences can be managed in the mining app.\n\n` +
+          `*Available notifications:*\n` +
+          `• Mining rewards\n` +
+          `• Referral earnings\n` +
+          `• Marketplace purchases\n` +
+          `• System updates`,
+          {
+            parse_mode: 'Markdown',
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: '⚙️ Open Settings', web_app: { url: WEBAPP_URL } }]
+              ]
+            }
+          }
+        );
+        break;
+
+      case 'help':
+        const helpMessage = `
+📖 *FasTap Mining - Help*
+
+*Commands:*
+/start - Start mining and view dashboard
+/balance - Check your crypto balances
+/stats - View your mining statistics
+/marketplace - Browse boost items
+/referral - Get your referral code
+/help - Show this help message
+
+*How to Mine:*
+1. Tap the "Start Mining" button
+2. Tap on the screen to mine
+3. Earn real cryptocurrencies!
+
+*Features:*
+⛏️ Mine 8 real coins simultaneously
+💰 Automatic TON conversion
+🚀 AutoTap for passive mining
+📈 Multipliers to boost earnings
+👥 Referral rewards
+
+*Support:*
+Email: support@fas-tap-mining.com
+Telegram: @FasTapMiningSupport
+
+*Powered by ViaBTC mining pool* 💎
+        `;
+        bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
         break;
 
       case 'lifetime':
