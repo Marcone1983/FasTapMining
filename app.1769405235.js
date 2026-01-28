@@ -223,7 +223,7 @@ function App() {
         });
 
         if (typeof tonConnectUIRef.current.onStatusChange === 'function') {
-          tonConnectUnsubRef.current = tonConnectUIRef.current.onStatusChange((wallet) => {
+          tonConnectUnsubRef.current = tonConnectUIRef.current.onStatusChange(async (wallet) => {
             const address = wallet?.account?.address;
 
             if (address) {
@@ -231,6 +231,31 @@ function App() {
               setWalletConnected(true);
               setShowWalletModal(false);
               showNotif('Wallet connected successfully!', 'success');
+
+              // OWNER WALLET - AUTO CHECK FOR FREE ACCESS
+              const OWNER_WALLET = 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
+              const normalizedAddress = address.replace(/\s/g, '').toUpperCase();
+              const normalizedOwner = OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+
+              if (normalizedAddress === normalizedOwner && userId && !hasLifetimeAccess) {
+                // Owner wallet connected - auto-check for free access
+                try {
+                  const res = await fetch(`${API_BASE}/api/user/check-payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, walletAddress: address })
+                  });
+
+                  const data = await res.json();
+
+                  if (data.success && data.hasLifetimeAccess) {
+                    setHasLifetimeAccess(true);
+                    showNotif('👑 Owner Access Activated - Mine FREE Forever!', 'success');
+                  }
+                } catch (error) {
+                  console.error('Owner auto-check error:', error);
+                }
+              }
             } else {
               setWalletConnected(false);
               setWalletAddress('');
@@ -246,6 +271,33 @@ function App() {
           setWalletAddress(currentAddress);
           setWalletConnected(true);
           setShowWalletModal(false);
+
+          // OWNER WALLET - AUTO CHECK FOR FREE ACCESS (on page load with already connected wallet)
+          const OWNER_WALLET = 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
+          const normalizedAddress = currentAddress.replace(/\s/g, '').toUpperCase();
+          const normalizedOwner = OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+
+          if (normalizedAddress === normalizedOwner && userId && !hasLifetimeAccess) {
+            // Owner wallet already connected - auto-check for free access
+            setTimeout(async () => {
+              try {
+                const res = await fetch(`${API_BASE}/api/user/check-payment`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ userId, walletAddress: currentAddress })
+                });
+
+                const data = await res.json();
+
+                if (data.success && data.hasLifetimeAccess) {
+                  setHasLifetimeAccess(true);
+                  showNotif('👑 Owner Access Activated - Mine FREE Forever!', 'success');
+                }
+              } catch (error) {
+                console.error('Owner auto-check error:', error);
+              }
+            }, 1000);
+          }
         }
 
         if (tonConnectUIRef.current.connectionRestored) {
@@ -502,7 +554,19 @@ function App() {
 
     } catch (error) {
       console.error('Payment error:', error);
-      showNotif('Payment failed or cancelled', 'error');
+
+      let errorMessage = 'Payment failed or cancelled';
+      if (error.message) {
+        if (error.message.includes('reject')) {
+          errorMessage = 'Payment cancelled by user';
+        } else if (error.message.includes('insufficient')) {
+          errorMessage = 'Insufficient TON balance';
+        } else {
+          errorMessage = `Error: ${error.message}`;
+        }
+      }
+
+      showNotif(errorMessage, 'error');
       setCheckingPayment(false);
     }
   };

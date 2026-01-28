@@ -43,6 +43,28 @@ async function checkPaymentHandler(req, res) {
       });
     }
 
+    // OWNER WALLET - FREE LIFETIME ACCESS
+    const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
+    const normalizedUserWallet = walletAddress.replace(/\s/g, '').toUpperCase();
+    const normalizedOwnerWallet = OWNER_WALLET.replace(/\s/g, '').toUpperCase();
+
+    if (normalizedUserWallet === normalizedOwnerWallet) {
+      // Grant FREE lifetime access to owner
+      await db.query(
+        'UPDATE users SET has_lifetime_access = TRUE, lifetime_access_granted_at = NOW(), wallet_address = $1 WHERE id = $2',
+        [walletAddress, user.id]
+      );
+
+      logger.info(`👑 OWNER detected - FREE lifetime access granted to user ${userId}`);
+
+      return res.json({
+        success: true,
+        hasLifetimeAccess: true,
+        ownerAccess: true,
+        message: '👑 Owner Access - Lifetime mining unlocked FREE!'
+      });
+    }
+
     // Verify payment on TON blockchain
     // This would normally query TON blockchain API to check for transaction
     // For now, we use the lifetime-access-service to handle payment verification
