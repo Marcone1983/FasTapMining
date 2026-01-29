@@ -641,7 +641,7 @@ function App() {
         body: JSON.stringify({
           userId,
           taps: newTaps,
-          poolId: 'minex',
+          poolId: 'viabtc',
           nonce: Math.floor(Math.random() * 1000000)
         })
       });
