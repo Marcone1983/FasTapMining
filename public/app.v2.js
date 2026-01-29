@@ -618,10 +618,6 @@ function App() {
 
   const handleTap = async (e) => {
     if (!userId) return;
-    if (!hasLifetimeAccess) {
-      showNotif('Unlock mining first! Pay 1 TON', 'error');
-      return;
-    }
 
     hapticFeedback('light');
 

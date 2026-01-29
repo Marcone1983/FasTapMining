@@ -289,32 +289,20 @@ bot.onText(/\/stats/, async (msg) => {
 bot.onText(/\/marketplace/, async (msg) => {
   const chatId = msg.chat.id;
 
-  const items = marketplaceService.getMarketplaceItems();
-
-  let message = `🛒 *Marketplace - Boost Your Mining!*\n\n`;
-
-  message += `*⚡ AutoTap Tiers (Permanent):*\n`;
-  items.filter(i => i.id.startsWith('autotap')).forEach(item => {
-    message += `• ${item.name} - ${item.price} TON\n`;
-    message += `  ${item.description}\n\n`;
-  });
-
-  message += `*🚀 Multipliers (30 days):*\n`;
-  items.filter(i => i.id.startsWith('multiplier')).forEach(item => {
-    message += `• ${item.name} - ${item.price} TON\n`;
-    message += `  ${item.description}\n\n`;
-  });
-
-  message += `Tap button below to purchase! 👇`;
-
-  bot.sendMessage(chatId, message, {
-    parse_mode: 'Markdown',
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: '🛒 Open Marketplace', web_app: { url: `${WEBAPP_URL}/marketplace` } }]
-      ]
+  bot.sendMessage(chatId,
+    `🛒 *Marketplace - Boost Your Mining!*\n\n` +
+    `Choose a category to browse items:`,
+    {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '⚡ AutoTap Tiers (Permanent)', callback_data: 'shop_autotap' }],
+          [{ text: '🚀 Hashrate Multipliers (30 days)', callback_data: 'shop_multiplier' }],
+          [{ text: '🔙 Back to Menu', callback_data: 'back_to_menu' }]
+        ]
+      }
     }
-  });
+  );
 });
 
 // Referral command
