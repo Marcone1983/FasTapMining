@@ -159,11 +159,11 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
     // Regular user flow
     const hasAccess = user.has_lifetime_access;
 
+    // PAYWALL NEL BOT: Mini app si apre SOLO se hai lifetime access!
     const keyboard = {
       inline_keyboard: [
-        [
-          { text: '⛏️ Start Mining', web_app: { url: WEBAPP_URL } }
-        ],
+        // Mostra "Start Mining" SOLO se ha lifetime access
+        ...(hasAccess ? [[{ text: '⛏️ Start Mining', web_app: { url: WEBAPP_URL } }]] : []),
         [
           { text: '💰 My Balance', callback_data: 'balance' },
           { text: '📊 Statistics', callback_data: 'stats' }
@@ -172,7 +172,8 @@ bot.onText(/\/start(.*)/, async (msg, match) => {
           { text: '🛒 Marketplace', callback_data: 'marketplace' },
           { text: '👥 Referrals', callback_data: 'referral' }
         ],
-        ...(!hasAccess ? [[{ text: '🔥 Get Lifetime Access (1 TON)', callback_data: 'lifetime' }]] : [])
+        // Mostra "Get Lifetime Access" SOLO se NON ha access
+        ...(!hasAccess ? [[{ text: '🔥 Unlock Mining - Pay 1 TON', callback_data: 'lifetime' }]] : [])
       ]
     };
 
@@ -1430,27 +1431,56 @@ bot.on('callback_query', async (query) => {
         break;
 
       case 'marketplace':
-        // Execute marketplace command directly
-        const items = marketplaceService.getMarketplaceItems();
-        let marketplaceMessage = `🛒 *Marketplace - Boost Your Mining!*\n\n`;
-        marketplaceMessage += `*⚡ AutoTap Tiers (Permanent):*\n`;
-        items.filter(i => i.id.startsWith('autotap')).forEach(item => {
-          marketplaceMessage += `• ${item.name} - ${item.price} TON\n`;
-          marketplaceMessage += `  ${item.description}\n\n`;
-        });
-        marketplaceMessage += `*🚀 Multipliers (30 days):*\n`;
-        items.filter(i => i.id.startsWith('multiplier')).forEach(item => {
-          marketplaceMessage += `• ${item.name} - ${item.price} TON\n`;
-          marketplaceMessage += `  ${item.description}\n\n`;
-        });
-        marketplaceMessage += `Tap button below to purchase! 👇`;
-        bot.sendMessage(chatId, marketplaceMessage, {
-          parse_mode: 'Markdown',
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: '🛒 Open Marketplace', web_app: { url: `${WEBAPP_URL}/marketplace` } }]
-            ]
+        // Show marketplace categories directly in bot
+        bot.sendMessage(chatId,
+          `🛒 *Marketplace - Boost Your Mining!*\n\n` +
+          `Choose a category to browse items:`,
+          {
+            parse_mode: 'Markdown',
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: '⚡ AutoTap Tiers (Permanent)', callback_data: 'shop_autotap' }],
+                [{ text: '🚀 Hashrate Multipliers (30 days)', callback_data: 'shop_multiplier' }],
+                [{ text: '🔙 Back to Menu', callback_data: 'back_to_menu' }]
+              ]
+            }
           }
+        );
+        break;
+
+      case 'shop_autotap':
+        // Show AutoTap items
+        const autotapItems = marketplaceService.getMarketplaceItems().filter(i => i.id.startsWith('autotap'));
+        let autotapMsg = `⚡ *AutoTap Tiers (Permanent)*\n\n`;
+        autotapMsg += `Automate your mining forever!\n\n`;
+
+        const autotapButtons = autotapItems.map(item => [{
+          text: `${item.name} - ${item.price} TON`,
+          callback_data: `buy_${item.id}`
+        }]);
+        autotapButtons.push([{ text: '🔙 Back to Marketplace', callback_data: 'marketplace' }]);
+
+        bot.sendMessage(chatId, autotapMsg, {
+          parse_mode: 'Markdown',
+          reply_markup: { inline_keyboard: autotapButtons }
+        });
+        break;
+
+      case 'shop_multiplier':
+        // Show Multiplier items
+        const multiplierItems = marketplaceService.getMarketplaceItems().filter(i => i.id.startsWith('multiplier'));
+        let multiplierMsg = `🚀 *Hashrate Multipliers (30 days)*\n\n`;
+        multiplierMsg += `Boost your mining power!\n\n`;
+
+        const multiplierButtons = multiplierItems.map(item => [{
+          text: `${item.name} - ${item.price} TON`,
+          callback_data: `buy_${item.id}`
+        }]);
+        multiplierButtons.push([{ text: '🔙 Back to Marketplace', callback_data: 'marketplace' }]);
+
+        bot.sendMessage(chatId, multiplierMsg, {
+          parse_mode: 'Markdown',
+          reply_markup: { inline_keyboard: multiplierButtons }
         });
         break;
 
@@ -1644,6 +1674,42 @@ Telegram: @FasTapMiningSupport
         break;
 
       default:
+        // Handle marketplace item purchase
+        if (data.startsWith('buy_')) {
+          const itemId = data.replace('buy_', '');
+          const items = marketplaceService.getMarketplaceItems();
+          const item = items.find(i => i.id === itemId);
+
+          if (!item) {
+            return bot.sendMessage(chatId, '❌ Item not found.');
+          }
+
+          // Check if user has TON wallet connected
+          const buyUser = await db.User.findByTelegramId(telegramId);
+          if (!buyUser) {
+            return bot.sendMessage(chatId, '❌ User not found. Send /start first.');
+          }
+
+          // Show item purchase confirmation
+          bot.sendMessage(chatId,
+            `🛒 *${item.name}*\n\n` +
+            `${item.description}\n\n` +
+            `💰 *Price:* ${item.price} TON\n` +
+            `⏱️ *Duration:* ${item.duration === 'permanent' ? 'Permanent' : '30 days'}\n\n` +
+            `Connect your TON wallet in the app to complete purchase! 👇`,
+            {
+              parse_mode: 'Markdown',
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '💳 Open App & Purchase', web_app: { url: WEBAPP_URL } }],
+                  [{ text: '🔙 Back to Marketplace', callback_data: 'marketplace' }]
+                ]
+              }
+            }
+          );
+          break;
+        }
+
         // Unknown callback
         logger.warn(`Unknown callback data: ${data}`);
         bot.sendMessage(chatId, '❓ Unknown action. Please try again.');
