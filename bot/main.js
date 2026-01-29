@@ -37,12 +37,21 @@ logger.info('🤖 FasTap Mining Bot Started!');
 logger.info(`📱 Web App URL: ${WEBAPP_URL}`);
 logger.info(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
 
-// Owner wallet for automatic admin access
-const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
-// Owner Telegram IDs - HARDCODED per riconoscimento immediato
-const HARDCODED_OWNERS = ['856208904'];
-const ENV_OWNERS = (process.env.OWNER_TELEGRAM_IDS || '').split(',').filter(id => id.trim());
-const OWNER_TELEGRAM_IDS = [...HARDCODED_OWNERS, ...ENV_OWNERS];
+// Owner wallet and IDs from environment variables ONLY (enterprise security)
+const OWNER_WALLET = process.env.OWNER_WALLET_TON;
+if (!OWNER_WALLET) {
+  logger.error('❌ CRITICAL: OWNER_WALLET_TON environment variable not set!');
+  logger.error('❌ Bot cannot function without owner wallet configured.');
+}
+
+const OWNER_TELEGRAM_IDS = (process.env.OWNER_TELEGRAM_IDS || '')
+  .split(',')
+  .map(id => id.trim())
+  .filter(id => id);
+
+if (OWNER_TELEGRAM_IDS.length === 0) {
+  logger.warn('⚠️  WARNING: No OWNER_TELEGRAM_IDS configured in environment');
+}
 
 // Generate referral code for user
 function generateReferralCode(userId) {

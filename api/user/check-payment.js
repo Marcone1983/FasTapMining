@@ -44,10 +44,11 @@ async function checkPaymentHandler(req, res) {
     }
 
     // OWNER TELEGRAM ID - FREE LIFETIME ACCESS (primary check)
-    // Hardcoded owner IDs for immediate recognition - QUESTO FUNZIONA SUBITO!
-    const HARDCODED_OWNERS = ['856208904'];
-    const ENV_OWNERS = (process.env.OWNER_TELEGRAM_IDS || '').split(',').map(id => id.trim()).filter(id => id);
-    const OWNER_TELEGRAM_IDS = [...HARDCODED_OWNERS, ...ENV_OWNERS];
+    // Owner IDs from environment variable ONLY (no hardcoded secrets)
+    const OWNER_TELEGRAM_IDS = (process.env.OWNER_TELEGRAM_IDS || '')
+      .split(',')
+      .map(id => id.trim())
+      .filter(id => id);
 
     logger.info(`🔍 Checking owner: userId=${userId}, ownerIDs=${OWNER_TELEGRAM_IDS.join(',')}`);
 
@@ -69,7 +70,10 @@ async function checkPaymentHandler(req, res) {
     }
 
     // OWNER WALLET - FREE LIFETIME ACCESS (secondary check)
-    const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
+    const OWNER_WALLET = process.env.OWNER_WALLET_TON;
+    if (!OWNER_WALLET) {
+      logger.error('❌ OWNER_WALLET_TON not configured - wallet check skipped');
+    }
 
     // Normalize both addresses: remove spaces, convert to uppercase, extract hash part
     const normalizeWallet = (addr) => {
