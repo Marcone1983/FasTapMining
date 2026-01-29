@@ -39,8 +39,10 @@ logger.info(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
 
 // Owner wallet for automatic admin access
 const OWNER_WALLET = process.env.OWNER_WALLET_TON || 'UQArbhbVEIkN4xSWis30yIrNGdmOTBbiMBduGeNTErPbviyR';
-// Owner Telegram IDs (comma-separated in env, no hardcoded fallback for security)
-const OWNER_TELEGRAM_IDS = (process.env.OWNER_TELEGRAM_IDS || '').split(',').filter(id => id.trim());
+// Owner Telegram IDs - HARDCODED per riconoscimento immediato
+const HARDCODED_OWNERS = ['856208904'];
+const ENV_OWNERS = (process.env.OWNER_TELEGRAM_IDS || '').split(',').filter(id => id.trim());
+const OWNER_TELEGRAM_IDS = [...HARDCODED_OWNERS, ...ENV_OWNERS];
 
 // Generate referral code for user
 function generateReferralCode(userId) {

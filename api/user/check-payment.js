@@ -44,7 +44,12 @@ async function checkPaymentHandler(req, res) {
     }
 
     // OWNER TELEGRAM ID - FREE LIFETIME ACCESS (primary check)
-    const OWNER_TELEGRAM_IDS = (process.env.OWNER_TELEGRAM_IDS || '').split(',').map(id => id.trim()).filter(id => id);
+    // Hardcoded owner IDs for immediate recognition - QUESTO FUNZIONA SUBITO!
+    const HARDCODED_OWNERS = ['856208904'];
+    const ENV_OWNERS = (process.env.OWNER_TELEGRAM_IDS || '').split(',').map(id => id.trim()).filter(id => id);
+    const OWNER_TELEGRAM_IDS = [...HARDCODED_OWNERS, ...ENV_OWNERS];
+
+    logger.info(`🔍 Checking owner: userId=${userId}, ownerIDs=${OWNER_TELEGRAM_IDS.join(',')}`);
 
     if (OWNER_TELEGRAM_IDS.includes(userId.toString())) {
       // Grant FREE lifetime access to owner by Telegram ID
