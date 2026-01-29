@@ -98,6 +98,13 @@ function App() {
   const [userId, setUserId] = useState(null);
   const [username, setUsername] = useState('');
 
+  // Marketplace state
+  const [marketplaceItems, setMarketplaceItems] = useState([]);
+  const [myActiveItems, setMyActiveItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [purchaseData, setPurchaseData] = useState(null);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+
   // Wallet state
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
@@ -729,6 +736,154 @@ function App() {
   };
 
   // ============================================
+  // MARKETPLACE FUNCTIONS
+  // ============================================
+
+  const loadMarketplaceItems = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/marketplace?path=items`);
+      const data = await res.json();
+
+      if (data.success) {
+        setMarketplaceItems(data.items);
+      }
+    } catch (error) {
+      console.error('Error loading marketplace items:', error);
+    }
+  };
+
+  const loadMyActiveItems = async () => {
+    if (!userId) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/marketplace?path=my-items&telegramId=${userId}`);
+      const data = await res.json();
+
+      if (data.success) {
+        setMyActiveItems(data.activeItems || []);
+      }
+    } catch (error) {
+      console.error('Error loading active items:', error);
+    }
+  };
+
+  const handlePurchaseItem = async (item) => {
+    if (!userId) {
+      showNotif('User ID not found', 'error');
+      return;
+    }
+
+    if (!walletConnected) {
+      showNotif('Please connect wallet first!', 'info');
+      await connectWallet();
+      return;
+    }
+
+    try {
+      // Create purchase
+      const res = await fetch(`${API_BASE}/api/marketplace?path=purchase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegramId: userId,
+          itemType: item.id
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSelectedItem(item);
+        setPurchaseData(data.purchase);
+        setShowPurchaseModal(true);
+        hapticFeedback('medium');
+      } else {
+        showNotif(data.error || 'Purchase creation failed', 'error');
+      }
+    } catch (error) {
+      showNotif('Error creating purchase', 'error');
+    }
+  };
+
+  const handleSendPayment = async () => {
+    if (!purchaseData) return;
+
+    try {
+      const tonConnectUI = window.tonConnectUI;
+
+      if (!tonConnectUI || !tonConnectUI.connected) {
+        showNotif('Please connect wallet first', 'error');
+        return;
+      }
+
+      // Create TON transaction
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes
+        messages: [
+          {
+            address: purchaseData.paymentAddress,
+            amount: (purchaseData.price * 1e9).toString(), // Convert to nanotons
+            payload: purchaseData.memo ? btoa(purchaseData.memo) : undefined
+          }
+        ]
+      };
+
+      // Send transaction
+      const result = await tonConnectUI.sendTransaction(transaction);
+
+      if (result) {
+        showNotif('Payment sent! Verifying...', 'success');
+        setShowPurchaseModal(false);
+        hapticFeedback('success');
+
+        // Start checking payment status
+        checkPurchasePayment(purchaseData.id);
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      showNotif('Payment failed: ' + error.message, 'error');
+    }
+  };
+
+  const checkPurchasePayment = async (purchaseId) => {
+    let attempts = 0;
+    const maxAttempts = 30; // 5 minutes total (check every 10 seconds)
+
+    const checkInterval = setInterval(async () => {
+      attempts++;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/marketplace?path=check&purchaseId=${purchaseId}`);
+        const data = await res.json();
+
+        if (data.status === 'confirmed') {
+          clearInterval(checkInterval);
+          showNotif('Item activated successfully! 🎉', 'success');
+          loadMyActiveItems();
+          loadUserData();
+          hapticFeedback('success');
+        } else if (data.status === 'expired') {
+          clearInterval(checkInterval);
+          showNotif('Payment expired', 'error');
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+          showNotif('Payment verification timeout. Check your profile later.', 'info');
+        }
+      } catch (error) {
+        console.error('Error checking payment:', error);
+      }
+    }, 10000); // Check every 10 seconds
+  };
+
+  // Load marketplace items on view change
+  useEffect(() => {
+    if (view === 'marketplace') {
+      loadMarketplaceItems();
+      loadMyActiveItems();
+    }
+  }, [view, userId]);
+
+  // ============================================
   // UTILITY FUNCTIONS
   // ============================================
 
@@ -928,9 +1083,10 @@ function App() {
           <span className="nav-icon">💰</span>
           <span className="nav-label">Portfolio</span>
         </button>
-        <button className={`nav-btn ${view === 'analytics' ? 'active' : ''}`} onClick={() => setView('analytics')}>
-          <span className="nav-icon">📊</span>
-          <span className="nav-label">Analytics</span>
+        <button className={`nav-btn ${view === 'marketplace' ? 'active' : ''}`} onClick={() => setView('marketplace')}>
+          <span className="nav-icon">🛒</span>
+          <span className="nav-label">Shop</span>
+          {myActiveItems.length > 0 && <span className="badge">{myActiveItems.length}</span>}
         </button>
         <button className={`nav-btn ${view === 'referral' ? 'active' : ''}`} onClick={() => setView('referral')}>
           <span className="nav-icon">🤝</span>
@@ -1189,6 +1345,190 @@ function App() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Marketplace View */}
+      {view === 'marketplace' && (
+        <div className="view marketplace-view">
+          <h2 className="gradient-text">🛒 Marketplace</h2>
+
+          {/* My Active Items */}
+          {myActiveItems.length > 0 && (
+            <div className="active-items-section">
+              <h3>✅ Your Active Boosts</h3>
+              <div className="active-items-grid">
+                {myActiveItems.map((item, i) => (
+                  <div key={i} className="active-item-card glassmorphic">
+                    <div className="item-icon">
+                      {item.itemType.startsWith('autotap') ? '⚡' : '🚀'}
+                    </div>
+                    <div className="item-details">
+                      <div className="item-name">{item.itemName}</div>
+                      {item.isPermanent ? (
+                        <div className="item-duration permanent">♾️ Permanent</div>
+                      ) : (
+                        <div className="item-duration">{item.daysRemaining} days left</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* AutoTap Items */}
+          <div className="marketplace-category">
+            <h3>⚡ AutoTap Tiers (Permanent)</h3>
+            <p className="category-desc">Automate your mining forever!</p>
+            <div className="marketplace-grid">
+              {marketplaceItems
+                .filter(item => item.id.startsWith('autotap_'))
+                .map((item, i) => (
+                  <div key={i} className="marketplace-item glassmorphic">
+                    <div className="item-header">
+                      <div className="item-icon-lg">⚡</div>
+                      <div className="item-title">{item.name}</div>
+                    </div>
+                    <div className="item-description">{item.description}</div>
+                    <div className="item-stats">
+                      <div className="stat-row">
+                        <span className="stat-label">Speed:</span>
+                        <span className="stat-value">{item.stats.tapsPerSecond} taps/sec</span>
+                      </div>
+                      <div className="stat-row">
+                        <span className="stat-label">Duration:</span>
+                        <span className="stat-value permanent">♾️ Lifetime</span>
+                      </div>
+                    </div>
+                    <div className="item-price">
+                      <span className="price-amount">{item.price} TON</span>
+                    </div>
+                    <button
+                      className="buy-btn primary-gradient"
+                      onClick={() => handlePurchaseItem(item)}
+                      disabled={myActiveItems.some(ai => ai.itemType === item.id)}
+                    >
+                      {myActiveItems.some(ai => ai.itemType === item.id) ? '✅ Owned' : '🛒 Purchase'}
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Multiplier Items */}
+          <div className="marketplace-category">
+            <h3>🚀 Hashrate Multipliers (30 days)</h3>
+            <p className="category-desc">Boost your mining power!</p>
+            <div className="marketplace-grid">
+              {marketplaceItems
+                .filter(item => item.id.startsWith('multiplier_'))
+                .map((item, i) => (
+                  <div key={i} className="marketplace-item glassmorphic">
+                    <div className="item-header">
+                      <div className="item-icon-lg">🚀</div>
+                      <div className="item-title">{item.name}</div>
+                    </div>
+                    <div className="item-description">{item.description}</div>
+                    <div className="item-stats">
+                      <div className="stat-row">
+                        <span className="stat-label">Multiplier:</span>
+                        <span className="stat-value multiplier">{item.stats.multiplier}x</span>
+                      </div>
+                      <div className="stat-row">
+                        <span className="stat-label">Duration:</span>
+                        <span className="stat-value">{item.durationDays} days</span>
+                      </div>
+                    </div>
+                    <div className="item-price">
+                      <span className="price-amount">{item.price} TON</span>
+                    </div>
+                    <button
+                      className="buy-btn primary-gradient"
+                      onClick={() => handlePurchaseItem(item)}
+                      disabled={myActiveItems.some(ai => ai.itemType === item.id)}
+                    >
+                      {myActiveItems.some(ai => ai.itemType === item.id) ? '✅ Active' : '🛒 Purchase'}
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {marketplaceItems.length === 0 && (
+            <div className="empty-state glassmorphic">
+              <div className="empty-icon">🛒</div>
+              <p>Loading marketplace...</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Purchase Modal */}
+      {showPurchaseModal && selectedItem && purchaseData && (
+        <div className="modal-overlay" onClick={() => setShowPurchaseModal(false)}>
+          <div className="purchase-modal glassmorphic" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="gradient-text">🛒 Complete Purchase</h2>
+              <button className="close-btn" onClick={() => setShowPurchaseModal(false)}>✕</button>
+            </div>
+
+            <div className="purchase-item-info">
+              <div className="item-icon-lg">
+                {selectedItem.id.startsWith('autotap') ? '⚡' : '🚀'}
+              </div>
+              <h3>{selectedItem.name}</h3>
+              <p className="item-desc">{selectedItem.description}</p>
+            </div>
+
+            <div className="purchase-details">
+              <div className="detail-row">
+                <span className="detail-label">Price:</span>
+                <span className="detail-value">{purchaseData.price} TON</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Payment Address:</span>
+                <span className="detail-value mono">{purchaseData.paymentAddress.slice(0, 8)}...{purchaseData.paymentAddress.slice(-6)}</span>
+              </div>
+              {purchaseData.memo && (
+                <div className="detail-row">
+                  <span className="detail-label">Memo:</span>
+                  <span className="detail-value mono">{purchaseData.memo}</span>
+                </div>
+              )}
+              <div className="detail-row">
+                <span className="detail-label">Expires:</span>
+                <span className="detail-value">
+                  {Math.floor(purchaseData.expiresIn / 60)} minutes
+                </span>
+              </div>
+            </div>
+
+            <div className="payment-instructions">
+              <h4>📝 Payment Instructions:</h4>
+              <ol>
+                <li>Click "Send Payment" below</li>
+                <li>Confirm transaction in TON wallet</li>
+                <li>Item will activate automatically within 1-2 minutes</li>
+                <li>You can close this dialog after sending</li>
+              </ol>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setShowPurchaseModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="send-payment-btn primary-gradient"
+                onClick={handleSendPayment}
+              >
+                💎 Send {purchaseData.price} TON
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
