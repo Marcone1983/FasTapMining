@@ -2,18 +2,22 @@ const path = require('path');
 const logger = require('../utils/logger').loggers.bot;
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
+// ENTERPRISE-GRADE: Validate ALL environment variables on startup
+const { validateEnv } = require('../config/validate-env');
+
+try {
+  validateEnv();
+} catch (error) {
+  logger.error('❌ CRITICAL: Environment validation failed!');
+  logger.error(error.message);
+  process.exit(1);
+}
+
 const TelegramBot = require('node-telegram-bot-api');
 const db = require('../database/db');
 const lifetimeAccessService = require('../services/lifetime-access-service');
 const marketplaceService = require('../services/marketplace-service');
 const referralService = require('../services/referral-service');
-
-// Verify bot token
-if (!process.env.TOKEN_API_BOT) {
-  logger.error('❌ ERROR: TOKEN_API_BOT not found in environment variables!');
-  logger.error('📁 Make sure .env file exists in project root with TOKEN_API_BOT=your_token');
-  process.exit(1);
-}
 
 // Initialize bot
 const bot = new TelegramBot(process.env.TOKEN_API_BOT, { polling: true });
@@ -37,13 +41,8 @@ logger.info('🤖 FasTap Mining Bot Started!');
 logger.info(`📱 Web App URL: ${WEBAPP_URL}`);
 logger.info(`✅ Bot Token: ${process.env.TOKEN_API_BOT.slice(0, 10)}...`);
 
-// Owner wallet and IDs from environment variables ONLY (enterprise security)
+// Owner wallet and IDs from environment variables (already validated by validateEnv)
 const OWNER_WALLET = process.env.OWNER_WALLET_TON;
-if (!OWNER_WALLET) {
-  logger.error('❌ CRITICAL: OWNER_WALLET_TON environment variable not set!');
-  logger.error('❌ Bot cannot function without owner wallet configured.');
-}
-
 const OWNER_TELEGRAM_IDS = (process.env.OWNER_TELEGRAM_IDS || '')
   .split(',')
   .map(id => id.trim())

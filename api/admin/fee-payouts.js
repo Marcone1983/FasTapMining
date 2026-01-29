@@ -2,17 +2,30 @@ const express = require('express');
 const router = express.Router();
 const feePayoutService = require('../../services/fee-payout-service');
 const logger = require('../../utils/logger').loggers.api;
+const { rateLimit } = require('../../middleware/security');
+const { timingSafeEqual } = require('../../utils/crypto-helpers');
+
+// Strict rate limiting for admin endpoints: 10 requests per minute
+const adminRateLimit = rateLimit({
+  windowMs: 60000,
+  max: 10,
+  keyGenerator: (req) => req.ip || 'admin'
+});
 
 /**
  * Process all pending platform fee payouts
  * POST /api/admin/fee-payouts/process
  */
-router.post('/process', async (req, res) => {
+router.post('/process', adminRateLimit, async (req, res) => {
   try {
     const { adminKey } = req.body;
 
-    // Verify admin authorization
-    if (adminKey !== process.env.ADMIN_KEY) {
+    // Verify admin authorization with timing-safe comparison
+    if (!adminKey || !process.env.ADMIN_KEY || !timingSafeEqual(adminKey, process.env.ADMIN_KEY)) {
+      logger.warn('Unauthorized admin access attempt', {
+        ip: req.ip,
+        endpoint: '/process'
+      });
       return res.status(401).json({
         success: false,
         error: 'Unauthorized - Invalid admin key'
@@ -40,14 +53,18 @@ router.post('/process', async (req, res) => {
 
 /**
  * Get platform fee statistics
- * GET /api/admin/fee-payouts/stats
+ * POST /api/admin/fee-payouts/stats
  */
-router.get('/stats', async (req, res) => {
+router.post('/stats', adminRateLimit, async (req, res) => {
   try {
-    const { adminKey } = req.query;
+    const { adminKey } = req.body;
 
-    // Verify admin authorization
-    if (adminKey !== process.env.ADMIN_KEY) {
+    // Verify admin authorization with timing-safe comparison
+    if (!adminKey || !process.env.ADMIN_KEY || !timingSafeEqual(adminKey, process.env.ADMIN_KEY)) {
+      logger.warn('Unauthorized admin access attempt', {
+        ip: req.ip,
+        endpoint: '/stats'
+      });
       return res.status(401).json({
         success: false,
         error: 'Unauthorized - Invalid admin key'
@@ -72,15 +89,19 @@ router.get('/stats', async (req, res) => {
 
 /**
  * Check ChangeNOW conversion status
- * GET /api/admin/fee-payouts/conversion/:exchangeId
+ * POST /api/admin/fee-payouts/conversion/:exchangeId
  */
-router.get('/conversion/:exchangeId', async (req, res) => {
+router.post('/conversion/:exchangeId', adminRateLimit, async (req, res) => {
   try {
-    const { adminKey } = req.query;
+    const { adminKey } = req.body;
     const { exchangeId } = req.params;
 
-    // Verify admin authorization
-    if (adminKey !== process.env.ADMIN_KEY) {
+    // Verify admin authorization with timing-safe comparison
+    if (!adminKey || !process.env.ADMIN_KEY || !timingSafeEqual(adminKey, process.env.ADMIN_KEY)) {
+      logger.warn('Unauthorized admin access attempt', {
+        ip: req.ip,
+        endpoint: `/conversion/${exchangeId}`
+      });
       return res.status(401).json({
         success: false,
         error: 'Unauthorized - Invalid admin key'

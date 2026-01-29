@@ -281,6 +281,62 @@ function requestLogger(req, res, next) {
   next();
 }
 
+/**
+ * HTTPS Enforcement Middleware
+ * Redirect HTTP to HTTPS in production
+ */
+function enforceHttps(req, res, next) {
+  // Skip in development
+  if (process.env.NODE_ENV !== 'production') {
+    return next();
+  }
+
+  // Check x-forwarded-proto header (set by Vercel/reverse proxies)
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+
+  if (protocol !== 'https') {
+    logger.warn('HTTP request redirected to HTTPS', {
+      path: req.path,
+      ip: req.ip
+    });
+
+    // Redirect to HTTPS
+    return res.redirect(301, `https://${req.headers.host}${req.url}`);
+  }
+
+  next();
+}
+
+/**
+ * Request Size Limit Middleware
+ * Prevent memory exhaustion attacks
+ */
+function requestSizeLimit(req, res, next) {
+  const maxSize = 10 * 1024; // 10KB max request size
+  let receivedBytes = 0;
+
+  req.on('data', (chunk) => {
+    receivedBytes += chunk.length;
+
+    if (receivedBytes > maxSize) {
+      logger.warn('Request size limit exceeded', {
+        path: req.path,
+        ip: req.ip,
+        size: receivedBytes
+      });
+
+      req.pause();
+      res.status(413).json({
+        success: false,
+        error: 'Request entity too large'
+      });
+      req.connection.destroy();
+    }
+  });
+
+  next();
+}
+
 module.exports = {
   rateLimit,
   securityHeaders,
@@ -288,5 +344,7 @@ module.exports = {
   sanitizeInput,
   ipBlacklist,
   blacklistIP,
-  requestLogger
+  requestLogger,
+  enforceHttps,
+  requestSizeLimit
 };
