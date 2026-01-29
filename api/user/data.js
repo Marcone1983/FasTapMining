@@ -46,21 +46,47 @@ async function userDataHandler(req, res) {
     // Calculate total earnings in USD (would need price API integration)
     const totalEarnings = user.total_earnings_usd || 0;
 
-    // User stats
+    // User stats - Calculate from actual database data
+    const totalTaps = user.total_taps || 0;
+
+    // Get total shares from mining_shares table
+    const sharesResult = await db.query(
+      `SELECT COALESCE(SUM(shares), 0) as total_shares
+       FROM mining_shares
+       WHERE user_id = $1 AND expires_at > NOW()`,
+      [user.id]
+    );
+    const totalShares = parseInt(sharesResult.rows[0]?.total_shares || 0);
+
+    // Get blocks found
+    const blocksFound = user.total_blocks_found || 0;
+
+    // Calculate mining days
+    const miningDays = user.created_at ?
+      Math.floor((Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24)) : 0;
+
     const userStats = {
-      totalTaps: user.total_taps || 0,
-      totalShares: user.total_shares || 0,
-      blocksFound: user.blocks_found || 0,
-      miningDays: user.mining_days || 0,
-      rank: user.global_rank || 0,
-      hashrateHistory: user.hashrate_history || []
+      totalTaps: totalTaps,
+      totalShares: totalShares,
+      blocksFound: blocksFound,
+      miningDays: miningDays,
+      rank: 0, // Will be calculated when leaderboard is implemented
+      hashrateHistory: [] // Will be populated from time-series data
     };
 
-    // Referral stats
+    // Referral stats - Calculate from referrals table
+    const referralsResult = await db.query(
+      `SELECT COUNT(*) as total_count,
+              COUNT(*) FILTER (WHERE last_active_at > NOW() - INTERVAL '7 days') as active_count
+       FROM users
+       WHERE referred_by_id = $1`,
+      [user.id]
+    );
+
     const referralStats = {
-      total: user.referrals_count || 0,
-      active: user.active_referrals_count || 0,
-      earned: user.referral_earnings_usd || 0
+      total: parseInt(referralsResult.rows[0]?.total_count || 0),
+      active: parseInt(referralsResult.rows[0]?.active_count || 0),
+      earned: 0 // Will be calculated from actual referral rewards
     };
 
     // Get active marketplace boosts

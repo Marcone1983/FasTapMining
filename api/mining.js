@@ -67,7 +67,7 @@ async function miningHandler(req, res) {
 
     // Update user hashrate and last_active
     await db.query(
-      'UPDATE users SET hashrate = $1, last_active = NOW() WHERE id = $2',
+      'UPDATE users SET hashrate = $1, last_active_at = NOW() WHERE id = $2',
       [hashrate, user.id]
     );
 
