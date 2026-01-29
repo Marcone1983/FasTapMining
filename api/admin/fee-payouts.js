@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const feePayoutService = require('../../services/fee-payout-service');
+const logger = require('../../utils/logger').loggers.api;
 
 /**
  * Process all pending platform fee payouts
@@ -18,7 +19,7 @@ router.post('/process', async (req, res) => {
       });
     }
 
-    console.log('🚀 Admin triggered fee payout processing...');
+    logger.info('🚀 Admin triggered fee payout processing...');
 
     const results = await feePayoutService.processAllPayouts();
 
@@ -29,7 +30,7 @@ router.post('/process', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Fee payout processing error:', error);
+    logger.error('❌ Fee payout processing error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -61,7 +62,7 @@ router.get('/stats', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Fee stats error:', error);
+    logger.error('❌ Fee stats error:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -95,7 +96,7 @@ router.get('/conversion/:exchangeId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Conversion status check error:', error);
+    logger.error('❌ Conversion status check error:', error);
     res.status(500).json({
       success: false,
       error: error.message
