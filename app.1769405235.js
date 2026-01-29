@@ -1081,7 +1081,11 @@ function App() {
         </button>
         <button className={`nav-btn ${view === 'portfolio' ? 'active' : ''}`} onClick={() => setView('portfolio')}>
           <span className="nav-icon">💰</span>
-          <span className="nav-label">Portfolio</span>
+          <span className="nav-label">Wallet</span>
+        </button>
+        <button className={`nav-btn ${view === 'analytics' ? 'active' : ''}`} onClick={() => setView('analytics')}>
+          <span className="nav-icon">📊</span>
+          <span className="nav-label">Stats</span>
         </button>
         <button className={`nav-btn ${view === 'marketplace' ? 'active' : ''}`} onClick={() => setView('marketplace')}>
           <span className="nav-icon">🛒</span>
