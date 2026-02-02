@@ -426,5 +426,12 @@ setInterval(async () => {
 }, 120000);
 
 
-// Export with middleware chain
-module.exports = [miningRateLimit, miningValidation, miningHandler];
+// Export with middleware chain for Vercel serverless
+module.exports = async (req, res) => {
+  // Apply middleware chain manually for Vercel
+  return miningRateLimit(req, res, async () => {
+    return miningValidation(req, res, async () => {
+      return miningHandler(req, res);
+    });
+  });
+};
