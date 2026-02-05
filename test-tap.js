@@ -1,81 +1,63 @@
-/**
- * Test Tap Functionality
- * Tests if tapping works correctly
- */
+#!/usr/bin/env node
+const https = require('https');
 
-const API_BASE = 'https://fas-tap-mining.vercel.app';
+const data = JSON.stringify({
+  userId: 856208904,
+  taps: 10,
+  poolId: "viabtc"
+});
 
-async function testTap() {
-  console.log('🧪 Testing Tap Functionality...\n');
-
-  // Test user ID (replace with actual owner ID)
-  const userId = '856208904';
-  const poolId = 'viabtc';
-  const taps = 10;
-
-  console.log(`User ID: ${userId}`);
-  console.log(`Pool ID: ${poolId}`);
-  console.log(`Taps: ${taps}\n`);
-
-  try {
-    // Test health endpoint first
-    console.log('1️⃣ Testing health endpoint...');
-    const healthRes = await fetch(`${API_BASE}/api/health`);
-    const healthData = await healthRes.json();
-    console.log('Health:', JSON.stringify(healthData, null, 2), '\n');
-
-    // Test mining endpoint
-    console.log('2️⃣ Testing mining endpoint...');
-    const miningRes = await fetch(`${API_BASE}/api/mining`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, poolId, taps })
-    });
-
-    console.log('Status:', miningRes.status);
-    console.log('Status Text:', miningRes.statusText);
-
-    const miningData = await miningRes.json();
-    console.log('Mining Response:', JSON.stringify(miningData, null, 2), '\n');
-
-    // Test user data endpoint
-    console.log('3️⃣ Testing user data endpoint...');
-    const userRes = await fetch(`${API_BASE}/api/user/data`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId })
-    });
-
-    const userData = await userRes.json();
-    console.log('User Data:', JSON.stringify(userData, null, 2), '\n');
-
-    // Summary
-    console.log('✅ Test Complete!\n');
-
-    if (miningData.success) {
-      console.log('✅ Mining API works!');
-      console.log(`   Shares added: ${miningData.shares || 'unknown'}`);
-      console.log(`   Hashrate: ${miningData.hashrate || 'unknown'}`);
-    } else {
-      console.log('❌ Mining API failed!');
-      console.log(`   Error: ${miningData.error || 'unknown'}`);
-    }
-
-    if (userData.success) {
-      console.log('✅ User Data API works!');
-      console.log(`   Total taps: ${userData.userData?.totalTaps || 0}`);
-      console.log(`   Total shares: ${userData.userStats?.totalShares || 0}`);
-      console.log(`   Hashrate: ${userData.userData?.hashrate || 0}`);
-    } else {
-      console.log('❌ User Data API failed!');
-      console.log(`   Error: ${userData.error || 'unknown'}`);
-    }
-
-  } catch (error) {
-    console.error('❌ Test Error:', error.message);
-    console.error('Stack:', error.stack);
+const options = {
+  hostname: 'fas-tap-mining.vercel.app',
+  port: 443,
+  path: '/api/mining',
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Content-Length': data.length
   }
-}
+};
 
-// Run test
-testTap();
+console.log('🧪 Testing tap functionality...\n');
+console.log('Request:', data);
+console.log('');
+
+const req = https.request(options, (res) => {
+  let responseData = '';
+
+  res.on('data', (chunk) => {
+    responseData += chunk;
+  });
+
+  res.on('end', () => {
+    console.log('Status Code:', res.statusCode);
+    console.log('');
+
+    try {
+      const json = JSON.parse(responseData);
+      console.log('Response:', JSON.stringify(json, null, 2));
+
+      if (json.success) {
+        console.log('\n✅ TAP WORKS! Stats updated successfully!');
+        console.log(`   - Shares: ${json.shares || 'N/A'}`);
+        console.log(`   - Hashrate: ${json.hashrate || 'N/A'}`);
+      } else {
+        console.log('\n❌ TAP FAILED!');
+        console.log('   Error:', json.error || json.message || 'Unknown error');
+        if (json.details) {
+          console.log('   Details:', json.details);
+        }
+      }
+    } catch (e) {
+      console.log('Raw Response:', responseData);
+      console.log('\n❌ Failed to parse JSON response');
+    }
+  });
+});
+
+req.on('error', (error) => {
+  console.error('❌ Request Error:', error.message);
+});
+
+req.write(data);
+req.end();

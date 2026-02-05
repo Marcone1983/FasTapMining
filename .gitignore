@@ -13,3 +13,4 @@ scrypt-wallets-BACKUP.json
 # Logs and runtime files
 logs/*.log
 logs/*.pid
+.vercel
