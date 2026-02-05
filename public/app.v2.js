@@ -182,12 +182,22 @@ function App() {
 
       const user = tg.initDataUnsafe?.user;
       if (user) {
+        console.log('[TELEGRAM] User data:', user);
         setUserId(user.id);
         setUsername(user.username || user.first_name || `User${user.id}`);
+        // Show userId on screen for debugging
+        setTimeout(() => {
+          showNotif(`User ID: ${user.id}`, 'info');
+        }, 1000);
       } else {
-        // Development fallback
-        setUserId(Math.floor(Math.random() * 1000000));
-        setUsername('DevUser');
+        // Development fallback - USE YOUR REAL ID FOR TESTING
+        console.log('[TELEGRAM] No user data, using fallback');
+        const fallbackId = 856208904; // Your real Telegram ID
+        setUserId(fallbackId);
+        setUsername('GrowverseCEO');
+        setTimeout(() => {
+          showNotif(`Fallback mode - User ID: ${fallbackId}`, 'info');
+        }, 1000);
       }
     } catch (e) {
       console.error('Telegram WebApp init error:', e);

@@ -20,9 +20,13 @@ const userDataValidation = validate({
 async function userDataHandler(req, res) {
   const { userId } = req.validated;
 
+  logger.info(`[USER DATA] Request for userId: ${userId}`);
+
   try {
     // Get user from database
     const user = await db.User.findByTelegramId(userId.toString());
+
+    logger.info(`[USER DATA] User found: ${user ? 'YES' : 'NO'}`);
 
     if (!user) {
       return res.status(404).json({
