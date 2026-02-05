@@ -227,6 +227,8 @@ function App() {
             const address = wallet?.account?.address;
 
             if (address) {
+              console.log('[TON Connect] Raw address from SDK:', address);
+              console.log('[TON Connect] Full wallet object:', wallet);
               setWalletAddress(address);
               setWalletConnected(true);
               setShowWalletModal(false);
