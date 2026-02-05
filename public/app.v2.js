@@ -433,7 +433,7 @@ function App() {
 
       if (data.success) {
         setBalances(data.balances || INITIAL_BALANCES);
-        setHashrate(data.hashrate || 0);
+        setHashrate(parseFloat(data.hashrate) || 0);
         setTotalEarnings(data.totalEarnings || 0);
         setUserStats(data.stats || userStats);
         setReferralCode(data.referralCode || '');
@@ -441,6 +441,8 @@ function App() {
         setAchievements(data.achievements || []);
         setActiveBoosts(data.activeBoosts || []);
         setHasLifetimeAccess(data.hasLifetimeAccess || false);
+        setTaps(data.stats?.totalTaps || 0);
+        setPendingShares(data.stats?.totalShares || 0);
       }
     } catch (error) {
       console.error('Load user data error:', error);
@@ -650,7 +652,7 @@ function App() {
 
       if (data.success) {
         setPendingShares(data.pendingShares || 0);
-        setHashrate(data.hashrate || 0);
+        setHashrate(parseFloat(data.hashrate) || 0);
         if (data.stats) {
           setRealtimeStats(prev => ({
             ...prev,
