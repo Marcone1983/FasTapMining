@@ -65,10 +65,17 @@ async function miningHandler(req, res) {
     // Add shares to database
     await db.Mining.addShares(user.id, poolId, shares, taps, hashrate);
 
-    // Update user hashrate and last_active
+    // Update user hashrate (calculate from all active shares) and last_active
+    const { rows: [hashrateData] } = await db.query(
+      `SELECT COALESCE(SUM(hashrate), 0) as total_hashrate
+       FROM mining_shares
+       WHERE user_id = $1 AND expires_at > NOW()`,
+      [user.id]
+    );
+
     await db.query(
       'UPDATE users SET hashrate = $1, last_active_at = NOW() WHERE id = $2',
-      [hashrate, user.id]
+      [parseFloat(hashrateData.total_hashrate), user.id]
     );
 
     // Referral bonus is handled by mining engine when shares are accepted
