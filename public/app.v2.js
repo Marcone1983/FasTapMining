@@ -424,11 +424,18 @@ function App() {
   // ============================================
 
   useEffect(() => {
-    if (walletConnected && userId) {
+    if (userId) {
       loadUserData();
       loadCryptoPrices();
     }
-  }, [walletConnected, userId]);
+  }, [userId]);
+
+  // Reload when wallet connects
+  useEffect(() => {
+    if (walletConnected && userId) {
+      loadUserData();
+    }
+  }, [walletConnected]);
 
   const loadUserData = async () => {
     try {
