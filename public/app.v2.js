@@ -640,7 +640,7 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId,
-          taps: newTaps,
+          taps: 1,
           poolId: 'viabtc',
           nonce: Math.floor(Math.random() * 1000000)
         })

@@ -63,7 +63,7 @@ async function miningHandler(req, res) {
     const hashrate = shares / 1000; // Simple hashrate calculation
 
     // Add shares to database
-    await db.Mining.addShares(user.id, poolId, shares, 1, hashrate);
+    await db.Mining.addShares(user.id, poolId, shares, taps, hashrate);
 
     // Update user hashrate and last_active
     await db.query(
