@@ -139,7 +139,7 @@ async function cached(key, ttl, fetchFn) {
 
 // Invalidate cache by pattern
 async function invalidateCache(pattern) {
-  if (!redis.isOpen) return;
+  if (!redis || !redis.isOpen) return;
 
   try {
     const keys = await redis.keys(pattern);
@@ -157,13 +157,13 @@ async function healthCheck() {
     const { rows } = await query('SELECT NOW()');
     return {
       database: 'healthy',
-      redis: redis.isOpen ? 'healthy' : 'disconnected',
+      redis: (redis && redis.isOpen) ? 'healthy' : 'disconnected',
       timestamp: rows[0].now
     };
   } catch (err) {
     return {
       database: 'error',
-      redis: redis.isOpen ? 'healthy' : 'disconnected',
+      redis: (redis && redis.isOpen) ? 'healthy' : 'disconnected',
       error: err.message
     };
   }
