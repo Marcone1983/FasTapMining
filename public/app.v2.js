@@ -229,8 +229,11 @@ function App() {
             if (address) {
               console.log('[TON Connect] Raw address from SDK:', address);
               console.log('[TON Connect] Full wallet object:', wallet);
-              // DEBUG: Show wallet on mobile
-              showNotif(`Connected: ${address.slice(0,10)}...${address.slice(-6)}`, 'info');
+
+              // TON Connect returns raw format (0:hex), but we need user-friendly format (UQ...)
+              // For now, just use the address as-is (both formats work for transactions)
+              // The display format doesn't affect functionality
+
               setWalletAddress(address);
               setWalletConnected(true);
               setShowWalletModal(false);
