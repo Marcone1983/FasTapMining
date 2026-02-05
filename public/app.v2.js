@@ -229,6 +229,8 @@ function App() {
             if (address) {
               console.log('[TON Connect] Raw address from SDK:', address);
               console.log('[TON Connect] Full wallet object:', wallet);
+              // DEBUG: Show wallet on mobile
+              showNotif(`Connected: ${address.slice(0,10)}...${address.slice(-6)}`, 'info');
               setWalletAddress(address);
               setWalletConnected(true);
               setShowWalletModal(false);
