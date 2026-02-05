@@ -672,6 +672,8 @@ function App() {
       const data = await res.json();
 
       if (data.success) {
+        // Update tap count immediately
+        setTaps(prevTaps => prevTaps + 1);
         setPendingShares(data.pendingShares || 0);
         setHashrate(parseFloat(data.hashrate) || 0);
         if (data.stats) {
@@ -682,6 +684,8 @@ function App() {
             blocksFoundToday: data.stats.blocksFoundToday
           }));
         }
+        // Force reload user data to sync with server
+        setTimeout(() => loadUserData(), 500);
 
         if (data.rewards) {
           setBalances(prev => {
