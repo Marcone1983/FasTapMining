@@ -132,6 +132,21 @@ async function createTables() {
     `);
     console.log('   ✅ referrals created');
 
+    // Create user_achievements table
+    console.log('   Creating user_achievements...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_achievements (
+        id BIGSERIAL PRIMARY KEY,
+        user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        achievement_name VARCHAR(100) NOT NULL,
+        description TEXT,
+        icon VARCHAR(50),
+        earned_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, achievement_name)
+      )
+    `);
+    console.log('   ✅ user_achievements created');
+
     console.log('\n✅ All tables created successfully!\n');
 
     // Verify
@@ -139,7 +154,7 @@ async function createTables() {
       SELECT table_name
       FROM information_schema.tables
       WHERE table_schema = 'public'
-      AND table_name IN ('mining_shares', 'blocks', 'user_balances', 'marketplace_purchases', 'transactions', 'referrals')
+      AND table_name IN ('mining_shares', 'blocks', 'user_balances', 'marketplace_purchases', 'transactions', 'referrals', 'user_achievements')
       ORDER BY table_name
     `);
 
