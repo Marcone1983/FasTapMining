@@ -94,10 +94,22 @@ async function userDataHandler(req, res) {
     };
 
     // Get active marketplace boosts
-    const activeBoosts = await getActiveBoosts(user.id);
+    let activeBoosts = [];
+    try {
+      activeBoosts = await getActiveBoosts(user.id);
+    } catch (error) {
+      logger.error('Error getting active boosts:', error);
+      activeBoosts = [];
+    }
 
     // Get achievements
-    const achievements = await getAchievements(user.id);
+    let achievements = [];
+    try {
+      achievements = await getAchievements(user.id);
+    } catch (error) {
+      logger.error('Error getting achievements:', error);
+      achievements = [];
+    }
 
     // Generate or get referral code
     let referralCode = user.referral_code;
